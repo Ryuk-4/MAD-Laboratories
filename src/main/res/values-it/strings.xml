@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Applicazione Clienti</string>
+    <string name="name">Nome</string>
+    <string name="email">Indirizzo Email</string>
+    <string name="description">Descrizione</string>
+    <string name="editProfile">Crea Profilo</string>
+    <string name="address">Indirizzo</string>
+    <string name="openCamera">Apri Camera</string>
+    <string name="openGallery">Apri Galleria</string>
+</resources>

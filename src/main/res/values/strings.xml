@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Customers App</string>
+    <string name="name">Name</string>
+    <string name="email">Email Address</string>
+    <string name="description">Description</string>
+    <string name="editProfile">Edit Profile</string>
+    <string name="address">Address</string>
+    <string name="openCamera">Open Camera</string>
+    <string name="openGallery">Open Gallery</string>
+</resources>
