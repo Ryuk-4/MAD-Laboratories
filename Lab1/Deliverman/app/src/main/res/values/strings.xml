@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">MadLab1</string>
+
+    <string name="nameLabel">Name:</string>
+    <string name="namePerson"><i>Mario</i></string>
+
+    <string name="telephoneLabel">Phone:</string>
+    <string name="firstPhone"><i>800-8008123</i></string>
+
+
+    <string name="surnameLabel">Surname:</string>
+    <string name="surnamePerson"><i>Rossi</i></string>
+
+    <string name="emailLabel">Email:</string>
+    <string name="emailExample"><i>ex@example.com</i></string>
+
+    <string name="sexLabel">Sex:</string>
+    <string name="radioMale">M</string>
+    <string name="radioFemale">F</string>
+
+    <string name="birthdayLabel">Date of birth:</string>
+    <string name="firtDate"><i> 01/01/2000 </i></string>
+
+    <string name="userPic">User Picture</string>
+    <string name="choosePic">Choose Pic Button</string>
+    <string name="pickDate">PickDate Button</string>
+
+    <string name="edit_action" />
+
+    <string name="title_activity_edit">EditActivity</string>
+
+    <string name="saveButton">SAVE</string>
+</resources>
