@@ -73,9 +73,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void displayData() {
         String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
 
         if(sharedpref.getBoolean("firstTime", true) == false) {
+            byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+
             String nameEdit = sharedpref.getString("name", "");
             String phoneEdit = sharedpref.getString("phone", "");
             String surnameEdit = sharedpref.getString("surname", "");
