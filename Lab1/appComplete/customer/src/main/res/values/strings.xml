@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Customer</string>
+
+    <string name="nameLabel">Name:</string>
+    <string name="surnameLabel2">Surname:</string>
+    <string name="sexLabe2">Sex:</string>
+    <string name="dateOfBirth">Date of birth:</string>
+    <string name="telephoneLabel">Phone:</string>
+    <string name="addressLabel">Address:</string>
+    <string name="emailLabel">Email:</string>
+    <string name="descriptionLabel">Description:</string>
+
+    <string name="userPic">User Picture</string>
+    <string name="choosePic">Choose Pic Button</string>
+
+    <string name="edit_action" />
+
+    <string name="title_activity_edit">EditActivity</string>
+    <string name="surnameLabel">Surname</string>
+    <string name="radioMale">M</string>
+    <string name="radioFemale">F</string>
+    <string name="sexLabel">Sex</string>
+    <string name="dateOfBirthLabel">Date of birth</string>
+
+    <string name="saveButton">SAVE</string>
+</resources>
