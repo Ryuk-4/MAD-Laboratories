@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">appComplete</string>
+    <string name="nameLabel">Name:</string>
+    <string name="namePerson"><i>Luigis</i></string>
+
+    <string name="telephoneLabel">Phone:</string>
+    <string name="firstPhone"><i>800-8008123</i></string>
+
+    <string name="addressLabel">Address:</string>
+    <string name="addressText"><i>Via Roma, 48</i></string>
+
+    <string name="emailLabel">Email:</string>
+    <string name="emailExample"><i>ex@example.com</i></string>
+
+    <string name="descriptionLabel">Description:</string>
+    <string name="descriptionText">Max 5 lines...</string>
+
+    <string name="userPic">User Picture</string>
+    <string name="choosePic">Choose Pic Button</string>
+
+    <string name="edit_action" />
+
+    <string name="title_activity_edit">EditActivity</string>
+
+    <string name="saveButton">SAVE</string>
+</resources>
