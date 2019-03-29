@@ -170,12 +170,8 @@ public class EditActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         if(item.getItemId() == android.R.id.home){
-            if(sharedpref.getBoolean("save", false) == false){
+            if(sharedpref.getBoolean("saved", false) == false){
                 Toast.makeText(this, "Changes not saved!", Toast.LENGTH_LONG).show();
-            }else{
-                SharedPreferences.Editor editor = sharedpref.edit();
-                editor.putBoolean("saved", false);
-                editor.apply();
             }
         }
 
@@ -420,11 +416,6 @@ public class EditActivity extends AppCompatActivity {
             });
 
             pictureDialog.show();
-        } else {
-            SharedPreferences.Editor editor = sharedpref.edit();
-            editor.putBoolean("saved", false);
-            editor.apply();
-            EditActivity.super.onBackPressed();
         }
     }
 
