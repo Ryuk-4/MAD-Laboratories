@@ -29,6 +29,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -293,8 +294,8 @@ public class EditActivity extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    //photo = rotateImageIfRequired(photo, contentURI);
-                    //photo = getResizedBitmap(photo, 500);
+                    photo = rotateImageIfRequired(photo, contentURI);
+                    photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
                     im_edit.setImageBitmap(photo);
@@ -380,7 +381,12 @@ public class EditActivity extends AppCompatActivity {
             //TODO
             //Use FIREBASE instead of SharedPreferences
 
-            selectedSex = radioSexGroup.getCheckedRadioButtonId();
+            int sexId = radioSexGroup.getCheckedRadioButtonId();
+            View radioButton = radioSexGroup.findViewById(sexId);
+            int idx = radioSexGroup.indexOfChild(radioButton);
+
+            RadioButton r = (RadioButton) radioSexGroup.getChildAt(idx);
+            editor.putString("sex", r.getText().toString());
 
             //Store the couple <key, value> into the SharedPreferences
             editor.putString("name", name_edit.getText().toString());
@@ -388,7 +394,6 @@ public class EditActivity extends AppCompatActivity {
             editor.putString("surname", surname_edit.getText().toString());
             editor.putString("email", email_edit.getText().toString());
             editor.putString("date", date_edit.getText().toString());
-            editor.putInt("sex", selectedSex);
             editor.putBoolean("saved", true);
             if(sharedpref.getBoolean("firstTime", true) == true){
                 editor.putBoolean("firstTime", false);
@@ -430,7 +435,7 @@ public class EditActivity extends AppCompatActivity {
             String surnameEdit = sharedpref.getString("surname", "");
             String emailEdit = sharedpref.getString("email", "");
             String dateEdit = sharedpref.getString("date", "");
-            int sexEdit = sharedpref.getInt("sex", 0);
+            String sexEdit = sharedpref.getString("sex", "");
 
             if (imageAsBytes != null) {
                 im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
@@ -442,7 +447,13 @@ public class EditActivity extends AppCompatActivity {
             email_edit.setText(emailEdit);
             date_edit.setText(dateEdit);
 
-            radioSexGroup.check(sexEdit);
+            if (sexEdit.compareTo(getString(R.string.radioMale)) == 0)
+            {
+                radioSexGroup.check(R.id.radioMale);
+            } else
+            {
+                radioSexGroup.check(R.id.radioFemale);
+            }
         }
     }
 
