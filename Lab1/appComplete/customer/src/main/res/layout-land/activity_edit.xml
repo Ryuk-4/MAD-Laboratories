@@ -40,12 +40,14 @@
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="36dp">
+
 
                     <ImageView
                         android:id="@+id/imageView1"
@@ -73,11 +75,13 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+
                 <TextView
                     android:id="@+id/textViewNameLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:textSize="25sp"
                     android:text="@string/nameLabel" />
 
                 <EditText
@@ -91,6 +95,7 @@
                     android:id="@+id/textViewSurnameLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="25sp"
                     android:text="@string/surnameLabel" />
 
                 <EditText
@@ -105,6 +110,7 @@
                     android:id="@+id/textViewSex"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="25sp"
                     android:text="@string/sexLabel" />
 
                 <RadioGroup
@@ -138,6 +144,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
+                    android:textSize="25sp"
                     android:text="@string/dateOfBirthLabel" />
 
                 <RelativeLayout
@@ -170,6 +177,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:textSize="25sp"
                     android:text="@string/telephoneLabel" />
 
                 <EditText
@@ -184,6 +192,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:textSize="25sp"
                     android:text="@string/addressLabel" />
 
                 <EditText
@@ -198,6 +207,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:textSize="25sp"
                     android:text="@string/emailLabel" />
 
                 <EditText
@@ -215,8 +225,11 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/saveButton" />
 
+
             </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>
+
 </android.support.design.widget.CoordinatorLayout>

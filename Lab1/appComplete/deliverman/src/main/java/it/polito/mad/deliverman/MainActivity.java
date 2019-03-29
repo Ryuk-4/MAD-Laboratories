@@ -91,10 +91,10 @@ public class MainActivity extends AppCompatActivity {
             String phoneEdit = sharedpref.getString("phone", "");
             String surnameEdit = sharedpref.getString("surname", "");
             String emailEdit = sharedpref.getString("email", "");
-            int sexEdit = sharedpref.getInt("sex", 0);
+            String sexString = sharedpref.getString("sex", "");
             String birthEdit = sharedpref.getString("birthdate", "");
 
-            radioSex = findViewById(sexEdit);
+
 
             if (imageAsBytes != null) {
                 im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             phone.setText(phoneEdit);
             surname.setText(surnameEdit);
             email.setText(emailEdit);
-            sex.setText(radioSex.getText().toString());
+            sex.setText(sexString);
             dateBirth.setText(birthEdit);
         }
     }

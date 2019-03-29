@@ -25,26 +25,28 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginTop="48dp"
         android:background="#F6F6F5"
         android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:orientation="horizontal"
             android:layout_height="wrap_content"
-            android:baselineAligned="false">
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="36dp">
 
                     <ImageView
                         android:id="@+id/imageView1"
@@ -76,7 +78,7 @@
                     android:id="@+id/textViewNameLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="80dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/nameLabel"
                     android:textSize="25sp"/>
                 <EditText
