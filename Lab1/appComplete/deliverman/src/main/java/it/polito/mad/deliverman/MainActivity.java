@@ -44,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
         displayData();
     }
 
@@ -76,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(sharedpref.getBoolean("firstTime", true) == false) {
             byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+            SharedPreferences.Editor editor = sharedpref.edit();
+
+            editor.putBoolean("saved", false);
+            editor.apply();
 
             String nameEdit = sharedpref.getString("name", "");
             String phoneEdit = sharedpref.getString("phone", "");

@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
         dateOfBirth = findViewById(R.id.textViewDateOfBirth);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
-
-        displayData();
     }
 
     @Override
@@ -80,6 +78,11 @@ public class MainActivity extends AppCompatActivity {
     public void displayData() {
         String imageDecoded = sharedpref.getString("imageEncoded", "");
         byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+
+        SharedPreferences.Editor editor = sharedpref.edit();
+
+        editor.putBoolean("saved", false);
+        editor.apply();
 
         String nameEdit = sharedpref.getString("name", "");
         String phoneEdit = sharedpref.getString("phone", "");

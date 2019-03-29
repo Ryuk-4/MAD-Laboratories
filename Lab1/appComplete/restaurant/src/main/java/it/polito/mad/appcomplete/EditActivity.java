@@ -132,16 +132,11 @@ public class EditActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         if(item.getItemId() == android.R.id.home){
-            if(sharedpref.getBoolean("save", false) == false){
+            if(sharedpref.getBoolean("saved", false) == false){
                 Toast.makeText(this, "Changes not saved!", Toast.LENGTH_LONG).show();
-            }else{
-                SharedPreferences.Editor editor = sharedpref.edit();
-                editor.putBoolean("saved", false);
-                editor.apply();
             }
         }
-
-        return super.onOptionsItemSelected(item);
+         return super.onOptionsItemSelected(item);
     }
 
 
@@ -348,6 +343,7 @@ public class EditActivity extends AppCompatActivity {
             editor.putString("email", email_edit.getText().toString());
             editor.putString("description", description_edit.getText().toString());
             editor.putBoolean("saved", true);
+
             if(sharedpref.getBoolean("firstTime", true) == true){
                 editor.putBoolean("firstTime", false);
             }
@@ -373,11 +369,6 @@ public class EditActivity extends AppCompatActivity {
             });
 
             pictureDialog.show();
-        } else {
-            SharedPreferences.Editor editor = sharedpref.edit();
-            editor.putBoolean("saved", false);
-            editor.apply();
-            EditActivity.super.onBackPressed();
         }
     }
 
