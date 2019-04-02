@@ -1,6 +1,5 @@
 package it.polito.mad.appcomplete;
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +29,9 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Show the UP button in the action bar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         im = findViewById(R.id.imageView1);
         name = findViewById(R.id.textViewName);
@@ -66,7 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         if(id == R.id.edit_action){
             //This action will happen when is clicked the edit button in the action bar
-            Intent intent = new Intent(this, EditActivity.class);
+            Intent intent = new Intent(this, ProfileEditActivity.class);
             startActivity(intent);
         }
 
