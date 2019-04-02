@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">appComplete</string>
+    <string name="app_name">Restaurant</string>
     <string name="nameLabel">Name:</string>
     <string name="namePerson"><i>Luigis</i></string>
 
@@ -23,4 +23,12 @@
     <string name="title_activity_edit">EditActivity</string>
 
     <string name="saveButton">SAVE</string>
+    <string name="title_activity_main">Reservations</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">Mad Group 39</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_reservation_edit">ReservationEdit</string>
 </resources>
