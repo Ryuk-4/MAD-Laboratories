@@ -15,7 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity
+            android:name=".DailyOfferActivity"
+            android:label="@string/title_activity_daily_offer"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".ReservationEditActivity"
             android:label="@string/title_activity_reservation_edit"
@@ -25,17 +28,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="it.polito.mad.appcomplete.ReservationActivity" />
         </activity>
-
         <activity
             android:name=".ReservationActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ProfileEditActivity"
             android:label="@string/title_activity_edit"
