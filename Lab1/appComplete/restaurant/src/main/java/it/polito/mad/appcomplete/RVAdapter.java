@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -62,6 +63,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
             foodPrice = (TextView)itemView.findViewById(R.id.foodPrice);
             foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
             Quantity = (TextView)itemView.findViewById(R.id.Quantity);
+
 
         }
     }
