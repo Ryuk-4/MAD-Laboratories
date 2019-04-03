@@ -67,6 +67,11 @@ public class DailyOfferActivity extends AppCompatActivity {
         foodList.add(new FoodInfo(null, "hellfgdho", 0, 2, "world"));
     }
 
+    private void onCardClicked(View v)
+    {
+
+    }
+
 }
 
 
