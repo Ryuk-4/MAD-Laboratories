@@ -34,7 +34,7 @@
             android:orientation="vertical">
 <!--
     TODO
-    Reservation Layout
+    ReservationInfo Layout
 -->
         </LinearLayout>
     </ScrollView>
