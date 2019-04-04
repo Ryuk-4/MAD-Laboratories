@@ -1,27 +1,44 @@
 package it.polito.mad.appcomplete;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReservationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        RecyclerViewAdapterReservation.OnReservationListener,
+        RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
-        private List<ReservationInfo> reservationInfoList;
+    private static final String TAG = "ReservationActivity";
+    private static final int REQUEST_EDIT_RESERVATION = 1;
+
+    private List<ReservationInfo> reservationInfoList;
+    private RecyclerViewAdapterReservation myAdapter;
+    private CoordinatorLayout coordinatorLayout;
+    private SharedPreferences sharedpref;
 
 
     @Override
@@ -40,11 +57,21 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        sharedpref = getSharedPreferences("reservation_info", Context.MODE_PRIVATE);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ReservationActivity.this, "Pressed +", Toast.LENGTH_LONG).show();
+                ReservationInfo newReservationInfo = new ReservationInfo();
+
+                Intent intent_add = new Intent(ReservationActivity.this, ReservationEditActivity.class);
+                intent_add.putExtra("reservation_selected", newReservationInfo);
+
+                myAdapter.addItem(newReservationInfo, myAdapter.getItemCount());
+
+                displayData();
             }
         });
 
@@ -84,7 +111,7 @@ public class ReservationActivity extends AppCompatActivity
         return true;
     }
 
-    private void initializeReservation(){
+    private void initializeReservation() {
         reservationInfoList = new ArrayList<>();
 
         reservationInfoList.add(new ReservationInfo("John", "20:00",
@@ -98,20 +125,99 @@ public class ReservationActivity extends AppCompatActivity
         reservationInfoList.add(new ReservationInfo("Mary", "19:45",
                 "Via Enaudi, 1", "829123491", "mary@example.com"));
 
+        Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
+
         initializeRecyclerViewReservation();
     }
 
-    private void initializeRecyclerViewReservation(){
+    private void initializeRecyclerViewReservation() {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewReservation);
-        RecyclerViewAdapterReservation adapter = new RecyclerViewAdapterReservation(this, reservationInfoList);
-        recyclerView.setAdapter(adapter);
+        coordinatorLayout = findViewById(R.id.cordinator_layout);
+
+        myAdapter = new RecyclerViewAdapterReservation(ReservationActivity.this,
+                reservationInfoList, this);
+
+        recyclerView.setAdapter(myAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // adding item touch helper
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, this);
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
     }
 
-    /* TODO
-    *
-    *  Add clickListener to a cardView for Edit/Delete one
-    *  Add event to floating button to insert a new card
-    *
-    * */
+    @Override
+    public void OnReservationClick(int position) {
+        SharedPreferences.Editor editor = sharedpref.edit();
+
+        Intent intent = new Intent(ReservationActivity.this, ReservationEditActivity.class);
+        intent.putExtra("reservation_selected", reservationInfoList.get(position));
+
+        editor.putInt("reservation_position", position);
+        editor.apply();
+
+        startActivity(intent);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        displayData();
+    }
+
+    /*
+     * callback when recycler view is swiped
+     * item will be removed on swiped
+     * undo option will be provided in snackbar to restore the item
+     */
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder) {
+            // get the removed item name to display it in snack bar
+            String name = reservationInfoList.get(viewHolder.getAdapterPosition()).getNamePerson();
+
+            // backup of removed item for undo purpose
+            final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());
+            Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
+            final int deletedIndex = viewHolder.getAdapterPosition();
+            Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
+            // remove the item from recycler view
+
+            myAdapter.removeItem(viewHolder.getAdapterPosition());
+
+            // showing snack bar with Undo option
+            Snackbar snackbar = Snackbar
+                    .make(coordinatorLayout, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    // undo is selected, restore the deleted item
+                    myAdapter.restoreItem(deletedItem, deletedIndex);
+                }
+            });
+            snackbar.setActionTextColor(Color.WHITE);
+            snackbar.show();
+        }
+    }
+
+    public void displayData() {
+        int position;
+
+        if(sharedpref.getBoolean("firstTime", true) == false) {
+            position = sharedpref.getInt("reservation_position", -1);
+
+            if(position != -1){
+                reservationInfoList.get(position).setNamePerson(sharedpref.getString("name", ""));
+                reservationInfoList.get(position).setPhonePerson(sharedpref.getString("phone", ""));
+                reservationInfoList.get(position).setAddressPerson(sharedpref.getString("address", ""));
+                reservationInfoList.get(position).setEmail(sharedpref.getString("email", ""));
+                reservationInfoList.get(position).setTimeReservation(sharedpref.getString("timeReservation", ""));
+
+                Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
+                initializeRecyclerViewReservation();
+            }
+        }
+    }
 }

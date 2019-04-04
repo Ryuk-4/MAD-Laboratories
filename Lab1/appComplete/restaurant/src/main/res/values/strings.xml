@@ -23,6 +23,7 @@
     <string name="title_activity_edit">EditActivity</string>
 
     <string name="saveButton">SAVE</string>
+
     <string name="title_activity_main">Reservations</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -33,6 +34,10 @@
     <string name="title_activity_reservation_edit">ReservationEdit</string>
     <string name="title_activity_daily_offer">DailyOfferActivity</string>
     <string name="title_activity_daily_offer_edit">DailyOfferActivityEdit</string>
+
+
+    <string name="delete">DELETE</string>
+    <string name="timeLabel">Time:</string>
 
     <string-array name="planets_array">
         <item>Saturday</item>
