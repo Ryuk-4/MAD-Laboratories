@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark"> #ff8533</color>
     <color name="colorAccent">#FF9800</color>
 
-    <color name="cardBackground">#e0e0e0</color>
     <color name="bg_row_background">#d12719</color>
+  
+    <color name="cardBackground">#C7C7C7</color>
 </resources>

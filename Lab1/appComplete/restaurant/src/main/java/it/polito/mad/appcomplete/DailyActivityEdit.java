@@ -4,7 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.Manifest;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,26 +14,22 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -56,6 +51,11 @@ public class DailyActivityEdit extends AppCompatActivity {
     private ImageButton ib;
     private byte[] photoByteArray;
     private SharedPreferences sharedpref;
+    private String day;
+    private ArrayAdapter<CharSequence> adapter1;
+    Spinner spinner;
+
+    Bitmap photo;
 
 
     @Override
@@ -91,6 +91,8 @@ public class DailyActivityEdit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_edit);
 
+        //day = getIntent().getStringExtra("day");
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -104,8 +106,8 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
 
-        im_edit = findViewById(R.id.imageView1);
-        ib = findViewById(R.id.imageButton);
+        im_edit = findViewById(R.id.foodImage);
+        ib = findViewById(R.id.buttonImageFood);
 
         ib.setOnClickListener(
                 new ImageButton.OnClickListener(){
@@ -117,7 +119,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         );
 
 
-        b = findViewById(R.id.button);
+        b = findViewById(R.id.buttonSaveFood);
 
         //When I click on the Save button
         b.setOnClickListener(
@@ -129,7 +131,14 @@ public class DailyActivityEdit extends AppCompatActivity {
                 }
         );
 
-
+        spinner = (Spinner) findViewById(R.id.dayForFood);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        adapter1 = ArrayAdapter.createFromResource(this,
+                R.array.planets_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter1);
 
         displayData();
     }
@@ -162,6 +171,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
+        outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
 
     }
 
@@ -180,7 +190,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         editTextPrice.setText(savedInstanceState.getString("surname"));
         editAvailableQuantity.setText(savedInstanceState.getString("phone"));
         EditDescription.setText(savedInstanceState.getString("address"));
-
+        day = savedInstanceState.getString("day");
 
     }
 
@@ -248,7 +258,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bitmap photo;
+
 
         if(resultCode == this.RESULT_CANCELED){
             return;
@@ -326,7 +336,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        if(TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString() == null || photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -336,24 +346,24 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         }else{
-            im_edit.buildDrawingCache();
+            String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
 
-            Bitmap picture = im_edit.getDrawingCache();
-
-            String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
-
-            //editor.putString("imageEncoded", imageEncoded);
+            int numberOfFood = sharedpref.getInt("numberOfFood", 0);
 
             //TODO
             //Use FIREBASE instead of SharedPreferences
 
             //Store the couple <key, value> into the SharedPreferences
-            editor.putString("name", name_edit.getText().toString());
-            editor.putString("price", editTextPrice.getText().toString());
-            editor.putString("quantity", editAvailableQuantity.getText().toString());
-            editor.putString("description", EditDescription.getText().toString());
-
+            editor.putString("foodName"+numberOfFood, name_edit.getText().toString());
+            editor.putString("foodPrice"+numberOfFood, editTextPrice.getText().toString());
+            editor.putString("foodQuantity"+numberOfFood, editAvailableQuantity.getText().toString());
+            editor.putString("foodDescription"+numberOfFood, EditDescription.getText().toString());
+            editor.putString("foodImage"+numberOfFood, imageEncoded);
+            editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
             editor.putBoolean("saved", true);
+
+            numberOfFood++;
+            editor.putInt("numberOfFood", numberOfFood);
 
             editor.apply();
 
@@ -388,19 +398,15 @@ public class DailyActivityEdit extends AppCompatActivity {
         String phoneEdit = sharedpref.getString("price", "");
         String addressEdit = sharedpref.getString("quantity", "");
         String emailEdit = sharedpref.getString("description", "");
-        //String surnameEdit = sharedpref.getString("surname", "");
-        //String dateEdit = sharedpref.getString("dateOfBirth", "");
-        //String sexEdit = sharedpref.getString("sex", "");
 
-        //if(imageAsBytes != null) {
-        //    im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-        //            0, imageAsBytes.length));
-        //}
+        if(imageAsBytes != null) {
+            im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
+                    0, imageAsBytes.length));
+        }
         name_edit.setText(nameEdit);
         editTextPrice.setText(phoneEdit);
         editAvailableQuantity.setText(addressEdit);
         EditDescription.setText(emailEdit);
-
 
     }
 

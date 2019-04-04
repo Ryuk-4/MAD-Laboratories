@@ -40,27 +40,40 @@
                 android:layout_marginTop="80dp">
 
                 <ImageView
-                    android:id="@+id/imageView1"
+                    android:id="@+id/foodImage"
                     android:layout_width="199dp"
                     android:layout_height="198dp"
                     android:contentDescription="@string/userPic"
                     android:src="@drawable/default_user_image" />
 
                 <ImageButton
-                    android:id="@+id/imageButton"
+                    android:id="@+id/buttonImageFood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignRight="@id/imageView1"
-                    android:layout_alignBottom="@+id/imageView1"
+                    android:layout_alignRight="@id/foodImage"
+                    android:layout_alignBottom="@+id/foodImage"
                     android:contentDescription="@string/choosePic"
                     android:src="@drawable/baseline_photo_camera_black_24dp" />
             </RelativeLayout>
 
             <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Select a day:" />
+
+            <Spinner
+                android:id="@+id/dayForFood"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:layout_marginTop="10dp" />
+
+            <TextView
                 android:id="@+id/textViewNameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="64dp"
+                android:layout_marginTop="0dp"
                 android:text="@string/nameLabel" />
 
             <EditText
@@ -105,7 +118,6 @@
                 android:id="@+id/textDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="64dp"
                 android:text="@string/textDescription" />
 
             <EditText
@@ -118,7 +130,7 @@
 
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/buttonSaveFood"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -33,7 +34,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         personViewHolder.foodDescription.setText(persons.get(i).description);
         personViewHolder.Quantity.setText(Integer.toString(persons.get(i).quantity));
 
-        //remember to add the picture
+        if (persons.get(i).image != null)
+            personViewHolder.foodImage.setImageBitmap(persons.get(i).image);
 
     }
 
@@ -53,6 +55,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         TextView foodPrice;
         TextView foodDescription;
         TextView Quantity;
+        ImageView foodImage;
 
 
         FoodInfoHolder(View itemView) {
@@ -62,6 +65,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
             foodPrice = (TextView)itemView.findViewById(R.id.foodPrice);
             foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
             Quantity = (TextView)itemView.findViewById(R.id.Quantity);
+            foodImage = (ImageView) itemView.findViewById(R.id.foodImage);
 
         }
     }

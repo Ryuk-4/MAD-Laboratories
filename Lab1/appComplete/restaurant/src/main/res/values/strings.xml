@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">Restaurant</string>
-    <string name="nameLabel">Name:</string>
+    <string name="nameLabel">Name: </string>
     <string name="namePerson"><i>Luigis</i></string>
 
-    <string name="telephoneLabel">Phone:</string>
+    <string name="telephoneLabel">Phone: </string>
     <string name="firstPhone"><i>800-8008123</i></string>
 
-    <string name="addressLabel">Address:</string>
+    <string name="addressLabel">Address: </string>
     <string name="addressText"><i>Via Roma, 48</i></string>
 
-    <string name="emailLabel">Email:</string>
+    <string name="emailLabel">Email: </string>
     <string name="emailExample"><i>ex@example.com</i></string>
 
-    <string name="descriptionLabel">Description:</string>
+    <string name="descriptionLabel">Description: </string>
     <string name="descriptionText">Max 5 lines...</string>
 
     <string name="userPic">User Picture</string>
@@ -35,6 +35,7 @@
     <string name="title_activity_daily_offer">DailyOfferActivity</string>
     <string name="title_activity_daily_offer_edit">DailyOfferActivityEdit</string>
 
+
     <string name="delete">DELETE</string>
     <string name="timeLabel">Time:</string>
 
@@ -50,11 +51,12 @@
 
     <string name="foodpriceLabel">price</string>
     <string name="foodPrice">$</string>
-    <string name="AvailableQuantity">AvailableQuantity</string>
+    <string name="AvailableQuantity">AvailableQuantity: </string>
     <string name="AvailableQuantityEdit">10</string>
     <string name="EditDescription">Delicious</string>
     <string name="textDescription">Description</string>
     <string name="editFoodname">pasta</string>
     <string name="btnCreat">Create</string>
+    <string name="price">Price: </string>
 
 </resources>
