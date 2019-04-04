@@ -45,24 +45,22 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="36dp">
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginTop="80dp">
 
                     <ImageView
                         android:id="@+id/foodImage"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp"
-                        android:layout_centerInParent="true"
+                        android:layout_width="199dp"
+                        android:layout_height="198dp"
                         android:contentDescription="@string/userPic"
                         android:src="@drawable/default_user_image" />
 
                     <ImageButton
-                        android:id="@+id/imageButton"
+                        android:id="@+id/buttonImageFood"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignRight="@+id/foodImage"
-                        android:layout_alignBottom="@id/foodImage"
-                        android:baselineAlignBottom="false"
+                        android:layout_alignRight="@id/foodImage"
+                        android:layout_alignBottom="@+id/foodImage"
                         android:contentDescription="@string/choosePic"
                         android:src="@drawable/baseline_photo_camera_black_24dp" />
                 </RelativeLayout>
@@ -75,95 +73,84 @@
                 android:layout_weight="1">
 
                 <TextView
+                    android:id="@+id/Textview12"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Select a day" />
+
+                <Spinner
+                    android:id="@+id/dayForFood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
                     android:id="@+id/textViewNameLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/nameLabel"
-                    android:textSize="25sp"/>
+                    android:layout_marginTop="0dp"
+                    android:text="@string/nameLabel" />
+
                 <EditText
-                    android:id="@+id/editTextName"
+                    android:id="@+id/editFoodname"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
+                    android:hint="@string/editFoodname"
                     android:inputType="textPersonName"
-                    android:textSize="20sp"
-                    android:hint="@string/namePerson">
-                </EditText>
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/textViewTelephoneLabel"
+                    android:id="@+id/textPrice"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/telephoneLabel"
-                    android:textSize="25sp"/>
+                    android:text="@string/foodpriceLabel" />
+
                 <EditText
-                    android:id="@+id/editTextTelephone"
+                    android:id="@+id/editTextPrice"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone"
-                    android:textSize="20sp"
-                    android:hint="@string/firstPhone">
-                </EditText>
+                    android:hint="@string/foodPrice"
+                    android:inputType="number"
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/textViewAddressLabel"
+                    android:id="@+id/textAvailableQuantity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/addressLabel"
-                    android:textSize="25sp"/>
+                    android:text="@string/AvailableQuantity" />
+
                 <EditText
-                    android:id="@+id/editTextAddress"
+                    android:id="@+id/editAvailableQuantity"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:textSize="20sp"
-                    android:hint="@string/addressText">
-                </EditText>
+                    android:hint="@string/AvailableQuantityEdit"
+                    android:inputType="number"
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/textViewEmailLabel"
+                    android:id="@+id/textDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/emailLabel"
-                    android:textSize="25sp"/>
-                <EditText
-                    android:id="@+id/editTextEmail"
-                    android:layout_height="wrap_content"
-                    android:layout_width="fill_parent"
-                    android:inputType="textEmailAddress"
-                    android:textSize="20sp"
-                    android:hint="@string/emailExample">
-                </EditText>
+                    android:text="@string/textDescription" />
 
-                <TextView
-                    android:id="@+id/textViewDescriptionLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/descriptionLabel"
-                    android:textSize="25sp"/>
                 <EditText
-                    android:id="@+id/editTextDescription"
+                    android:id="@+id/EditDescription"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:gravity="top|left"
-                    android:scrollbars="vertical"
-                    android:lines="5"
-                    android:maxLines="10"
-                    android:textSize="20sp"
-                    android:hint="@string/descriptionText">
-                </EditText>
+                    android:layout_height="50dp"
+                    android:hint="@string/EditDescription"
+                    android:inputType="textPersonName"
+                    android:textSize="20sp" />
+
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/buttonSaveFood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/saveButton" />
-
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/btnCreat" />
             </LinearLayout>
         </LinearLayout>
 

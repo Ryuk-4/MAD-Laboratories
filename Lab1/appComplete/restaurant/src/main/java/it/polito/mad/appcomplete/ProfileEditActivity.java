@@ -96,7 +96,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
-        im_edit = findViewById(R.id.imageView1);
+        im_edit = findViewById(R.id.foodImage);
         ib = findViewById(R.id.imageButton);
 
         ib.setOnClickListener(

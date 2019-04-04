@@ -34,7 +34,7 @@
             android:orientation="vertical">
 
             <ImageView
-                android:id="@+id/imageView1"
+                android:id="@+id/foodImage"
                 android:layout_width="199dp"
                 android:layout_height="198dp"
                 android:layout_gravity="center"

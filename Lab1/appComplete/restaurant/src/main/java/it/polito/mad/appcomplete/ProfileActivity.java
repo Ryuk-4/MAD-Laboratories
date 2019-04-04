@@ -48,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        im = findViewById(R.id.imageView1);
+        im = findViewById(R.id.foodImage);
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
         address = findViewById(R.id.textViewAddress);
