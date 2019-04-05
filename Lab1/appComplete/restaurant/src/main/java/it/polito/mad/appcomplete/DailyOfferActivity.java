@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DailyOfferActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-                RVAdapter.OnFoodListener{
+                RVAdapter.OnFoodListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
 
 
     private RecyclerView rv;
@@ -38,6 +38,7 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
     private SharedPreferences sharedpref;
     private Spinner spinner;
     private ArrayAdapter<CharSequence> adapter1;
+    private RVAdapter myAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +104,8 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
 
-        RVAdapter adapter = new RVAdapter(foodList);
-        rv.setAdapter(adapter);
+         myAdapter = new RVAdapter(foodList, this, DailyOfferActivity.this);
+        rv.setAdapter(myAdapter);
 
         ItemTouchHelper.SimpleCallback itemSimpleCallback = new RecyclerItemTouchHelper(0,
                 ItemTouchHelper.LEFT, this);
@@ -169,6 +170,11 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         editor.apply();
 
         startActivity(intent);
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+
     }
 }
 
