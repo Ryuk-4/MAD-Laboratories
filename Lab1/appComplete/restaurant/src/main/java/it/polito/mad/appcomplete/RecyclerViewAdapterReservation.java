@@ -1,6 +1,7 @@
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -8,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -94,7 +94,6 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
            reservationInfoList.remove(position);
             // notify the item removed by position
             // to perform recycler view delete animations
-            // NOTE: don't call notifyDataSetChanged()
             notifyItemRemoved(position);
     }
 

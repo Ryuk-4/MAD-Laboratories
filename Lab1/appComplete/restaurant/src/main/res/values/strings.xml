@@ -56,5 +56,6 @@
     <string name="textDescription">Description</string>
     <string name="editFoodname">pasta</string>
     <string name="btnCreat">Create</string>
+    <string name="title_activity_reservation_add">ReservationAddActivity</string>
 
 </resources>

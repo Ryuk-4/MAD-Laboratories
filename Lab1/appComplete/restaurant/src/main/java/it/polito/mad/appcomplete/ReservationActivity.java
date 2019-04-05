@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,12 +31,12 @@ public class ReservationActivity extends AppCompatActivity
         RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
     private static final String TAG = "ReservationActivity";
-    private static final int REQUEST_EDIT_RESERVATION = 1;
 
     private List<ReservationInfo> reservationInfoList;
     private RecyclerViewAdapterReservation myAdapter;
-    private CoordinatorLayout coordinatorLayout;
-    private SharedPreferences sharedpref;
+    private RecyclerView recyclerView;
+    private SharedPreferences sharedpref_edit;
+    private SharedPreferences sharedpref_add;
 
 
     @Override
@@ -57,21 +55,17 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        sharedpref = getSharedPreferences("reservation_info", Context.MODE_PRIVATE);
+        sharedpref_edit = getSharedPreferences("reservation_info_edit", Context.MODE_PRIVATE);
+        sharedpref_add = getSharedPreferences("reservation_info_add", Context.MODE_PRIVATE);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ReservationActivity.this, "Pressed +", Toast.LENGTH_LONG).show();
-                ReservationInfo newReservationInfo = new ReservationInfo();
 
-                Intent intent_add = new Intent(ReservationActivity.this, ReservationEditActivity.class);
-                intent_add.putExtra("reservation_selected", newReservationInfo);
-
-                myAdapter.addItem(newReservationInfo, myAdapter.getItemCount());
-
-                displayData();
+                Intent intent_add = new Intent(ReservationActivity.this, ReservationAddActivity.class);
+                startActivity(intent_add);
             }
         });
 
@@ -125,14 +119,13 @@ public class ReservationActivity extends AppCompatActivity
         reservationInfoList.add(new ReservationInfo("Mary", "19:45",
                 "Via Enaudi, 1", "829123491", "mary@example.com"));
 
-        Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
-
         initializeRecyclerViewReservation();
     }
 
     private void initializeRecyclerViewReservation() {
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewReservation);
-        coordinatorLayout = findViewById(R.id.cordinator_layout);
+        recyclerView = findViewById(R.id.recyclerViewReservation);
+
+        Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
         myAdapter = new RecyclerViewAdapterReservation(ReservationActivity.this,
                 reservationInfoList, this);
@@ -147,7 +140,7 @@ public class ReservationActivity extends AppCompatActivity
 
     @Override
     public void OnReservationClick(int position) {
-        SharedPreferences.Editor editor = sharedpref.edit();
+        SharedPreferences.Editor editor = sharedpref_edit.edit();
 
         Intent intent = new Intent(ReservationActivity.this, ReservationEditActivity.class);
         intent.putExtra("reservation_selected", reservationInfoList.get(position));
@@ -164,6 +157,8 @@ public class ReservationActivity extends AppCompatActivity
         super.onResume();
 
         displayData();
+
+        initializeRecyclerViewReservation();
     }
 
     /*
@@ -188,7 +183,7 @@ public class ReservationActivity extends AppCompatActivity
 
             // showing snack bar with Undo option
             Snackbar snackbar = Snackbar
-                    .make(coordinatorLayout, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+                    .make(recyclerView, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -205,19 +200,29 @@ public class ReservationActivity extends AppCompatActivity
     public void displayData() {
         int position;
 
-        if(sharedpref.getBoolean("firstTime", true) == false) {
-            position = sharedpref.getInt("reservation_position", -1);
+        if (sharedpref_edit.getBoolean("firstTime", true) == false) {
+            position = sharedpref_edit.getInt("reservation_position", -1);
 
-            if(position != -1){
-                reservationInfoList.get(position).setNamePerson(sharedpref.getString("name", ""));
-                reservationInfoList.get(position).setPhonePerson(sharedpref.getString("phone", ""));
-                reservationInfoList.get(position).setAddressPerson(sharedpref.getString("address", ""));
-                reservationInfoList.get(position).setEmail(sharedpref.getString("email", ""));
-                reservationInfoList.get(position).setTimeReservation(sharedpref.getString("timeReservation", ""));
-
-                Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
-                initializeRecyclerViewReservation();
+            if (position != -1) {
+                reservationInfoList.get(position).setNamePerson(sharedpref_edit.getString("name", ""));
+                reservationInfoList.get(position).setPhonePerson(sharedpref_edit.getString("phone", ""));
+                reservationInfoList.get(position).setAddressPerson(sharedpref_edit.getString("address", ""));
+                reservationInfoList.get(position).setEmail(sharedpref_edit.getString("email", ""));
+                reservationInfoList.get(position).setTimeReservation(sharedpref_edit.getString("timeReservation", ""));
             }
+        }
+
+        if (sharedpref_add.getBoolean("firstTime", true) == false) {
+
+            ReservationInfo newReservationInfo = new ReservationInfo();
+
+            newReservationInfo.setNamePerson(sharedpref_add.getString("name", ""));
+            newReservationInfo.setPhonePerson(sharedpref_add.getString("phone", ""));
+            newReservationInfo.setAddressPerson(sharedpref_add.getString("address", ""));
+            newReservationInfo.setEmail(sharedpref_add.getString("email", ""));
+            newReservationInfo.setTimeReservation(sharedpref_add.getString("timeReservation", ""));
+
+            myAdapter.addItem(newReservationInfo, myAdapter.getItemCount());
         }
     }
 }
