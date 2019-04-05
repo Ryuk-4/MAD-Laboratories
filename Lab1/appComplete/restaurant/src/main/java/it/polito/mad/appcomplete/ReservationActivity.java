@@ -226,3 +226,13 @@ public class ReservationActivity extends AppCompatActivity
         }
     }
 }
+
+
+/* TODO
+*
+*   Togliere la edit
+*   Tre tab -> In entrata, In preparazione, Da Consegnare
+*   2 azioni per lo swipe nel primo tab, 1 nel secondo
+*   Togliere il più
+*
+* */

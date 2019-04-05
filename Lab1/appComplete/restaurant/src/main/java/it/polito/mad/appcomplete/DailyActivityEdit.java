@@ -112,8 +112,8 @@ public class DailyActivityEdit extends AppCompatActivity {
             foodInfo = getIntent().getParcelableExtra("food_selected");
 
             name_edit.setText(foodInfo.Name);
-            editTextPrice.setText(foodInfo.price);
-            editAvailableQuantity.setText(foodInfo.quantity);
+            editTextPrice.setText(Integer.toString(foodInfo.price));
+            editAvailableQuantity.setText(Integer.toString(foodInfo.quantity));
             EditDescription.setText(foodInfo.description);
 
         }

@@ -163,7 +163,7 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
     public void OnFoodClickFood(int position) {
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        Intent intent = new Intent(DailyOfferActivity.this, ReservationEditActivity.class);
+        Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
         intent.putExtra("food_selected", foodList.get(position));
 
         editor.putInt("food_position", position);
