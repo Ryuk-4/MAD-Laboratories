@@ -1,5 +1,6 @@
 package it.polito.mad.appcomplete;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +28,8 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailyOfferActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class DailyOfferActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+                RVAdapter.OnFoodListener{
 
 
     private RecyclerView rv;
@@ -42,6 +45,10 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         setContentView(R.layout.activity_daily_offer);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Show the UP button in the action bar
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +105,9 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
 
         RVAdapter adapter = new RVAdapter(foodList);
         rv.setAdapter(adapter);
+
+        ItemTouchHelper.SimpleCallback itemSimpleCallback = new RecyclerItemTouchHelper(0,
+                ItemTouchHelper.LEFT, this);
     }
 
     private void initializeData(){
@@ -148,6 +158,18 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         return true;
     }
 
+    @Override
+    public void OnFoodClickFood(int position) {
+        SharedPreferences.Editor editor = sharedpref.edit();
+
+        Intent intent = new Intent(DailyOfferActivity.this, ReservationEditActivity.class);
+        intent.putExtra("food_selected", foodList.get(position));
+
+        editor.putInt("food_position", position);
+        editor.apply();
+
+        startActivity(intent);
+    }
 }
 
 

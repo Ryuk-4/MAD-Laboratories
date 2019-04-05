@@ -55,6 +55,8 @@ public class DailyActivityEdit extends AppCompatActivity {
     private ArrayAdapter<CharSequence> adapter1;
     Spinner spinner;
 
+    private FoodInfo foodInfo;
+
     Bitmap photo;
 
 
@@ -106,6 +108,15 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
 
+        if (getIntent().hasExtra("food_selected")) {
+            foodInfo = getIntent().getParcelableExtra("food_selected");
+
+            name_edit.setText(foodInfo.Name);
+            editTextPrice.setText(foodInfo.price);
+            editAvailableQuantity.setText(foodInfo.quantity);
+            EditDescription.setText(foodInfo.description);
+
+        }
         im_edit = findViewById(R.id.foodImage);
         ib = findViewById(R.id.buttonImageFood);
 
@@ -140,7 +151,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter1);
 
-        displayData();
+       // displayData();
     }
 
 
