@@ -192,7 +192,7 @@ public class ReservationActivity extends AppCompatActivity
                     myAdapter.restoreItem(deletedItem, deletedIndex);
                 }
             });
-            snackbar.setActionTextColor(Color.WHITE);
+            snackbar.setActionTextColor(Color.YELLOW);
             snackbar.show();
         }
     }
