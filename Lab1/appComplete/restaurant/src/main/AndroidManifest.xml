@@ -15,10 +15,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <activity
+            android:name=".ReservationAddActivity"
+            android:label="@string/title_activity_reservation_add"
+            android:parentActivityName=".ReservationActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <activity android:name=".DailyActivityEdit"
             android:label="@string/title_activity_daily_offer_edit"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".DailyOfferActivity"/>
+
         <activity
             android:name=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer"

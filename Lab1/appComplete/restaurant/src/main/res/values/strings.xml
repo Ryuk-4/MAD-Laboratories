@@ -32,6 +32,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_reservation_edit">ReservationEdit</string>
+    <string name="title_activity_reservation_add">ReservationAddActivity</string>
     <string name="title_activity_daily_offer">DailyOfferActivity</string>
     <string name="title_activity_daily_offer_edit">DailyOfferActivityEdit</string>
 
@@ -57,6 +58,7 @@
     <string name="textDescription">Description</string>
     <string name="editFoodname">pasta</string>
     <string name="btnCreat">Create</string>
+
     <string name="price">Price: </string>
 
 </resources>

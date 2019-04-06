@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class ReservationEditActivity extends AppCompatActivity {
+public class ReservationAddActivity extends AppCompatActivity {
 
     private EditText name_edit;
     private EditText time_edit;
@@ -24,15 +24,12 @@ public class ReservationEditActivity extends AppCompatActivity {
     private Button save_button;
     private SharedPreferences sharedpref;
 
-    private ReservationInfo reservationInfo;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reservation_edit);
+        setContentView(R.layout.activity_reservation_add);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         name_edit = findViewById(R.id.person_name_edit);
@@ -42,18 +39,7 @@ public class ReservationEditActivity extends AppCompatActivity {
         phone_edit = findViewById(R.id.person_phone_edit);
         save_button = findViewById(R.id.saveReservationButton);
 
-        sharedpref = getSharedPreferences("reservation_info_edit", Context.MODE_PRIVATE);
-
-        if (getIntent().hasExtra("reservation_selected")) {
-            reservationInfo = getIntent().getParcelableExtra("reservation_selected");
-
-
-            name_edit.setText(reservationInfo.getNamePerson());
-            time_edit.setText(reservationInfo.getTimeReservation());
-            address_edit.setText(reservationInfo.getAddressPerson());
-            email_edit.setText(reservationInfo.getEmail());
-            phone_edit.setText(reservationInfo.getPhonePerson());
-        }
+        sharedpref = getSharedPreferences("reservation_info_add", Context.MODE_PRIVATE);
 
         save_button.setOnClickListener(
                 new Button.OnClickListener() {
@@ -90,13 +76,13 @@ public class ReservationEditActivity extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    ReservationEditActivity.super.onBackPressed();
+                    ReservationAddActivity.super.onBackPressed();
                 }
             });
 
             pictureDialog.show();
         } else {
-            ReservationEditActivity.super.onBackPressed();
+            ReservationAddActivity.super.onBackPressed();
         }
     }
 
@@ -124,7 +110,7 @@ public class ReservationEditActivity extends AppCompatActivity {
             editor.putString("timeReservation", time_edit.getText().toString());
             editor.putBoolean("saved", true);
 
-            if(sharedpref.getBoolean("firstTime", true) == true){
+            if (sharedpref.getBoolean("firstTime", true) == true) {
                 editor.putBoolean("firstTime", false);
             }
 
