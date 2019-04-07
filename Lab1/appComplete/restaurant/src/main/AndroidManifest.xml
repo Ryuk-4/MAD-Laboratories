@@ -15,23 +15,26 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity
+            android:name=".DailyActivityEditFavorite"
+            android:parentActivityName=".DailyOfferActivity"
+            android:label="@string/title_activity_daily_offer_edit_favorite"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ReservationAddActivity"
             android:label="@string/title_activity_reservation_add"
             android:parentActivityName=".ReservationActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-
-        <activity android:name=".DailyActivityEdit"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DailyActivityEdit"
             android:label="@string/title_activity_daily_offer_edit"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".DailyOfferActivity"/>
-
+            android:parentActivityName=".DailyOfferActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".ReservationActivity"/>
+            android:parentActivityName=".ReservationActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ReservationEditActivity"
             android:label="@string/title_activity_reservation_edit"

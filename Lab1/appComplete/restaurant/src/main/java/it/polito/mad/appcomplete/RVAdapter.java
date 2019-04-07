@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +67,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         TextView foodDescription;
         TextView Quantity;
         ImageView foodImage;
+        RelativeLayout background;
+        FrameLayout foodLayoutItem;
 
         OnFoodListener onFoodListener;
 
@@ -76,6 +80,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
             foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
             Quantity = (TextView)itemView.findViewById(R.id.Quantity);
             foodImage = (ImageView) itemView.findViewById(R.id.foodImage);
+            background = itemView.findViewById(R.id.view_background_food);
+            foodLayoutItem = itemView.findViewById(R.id.card_view);
             this.onFoodListener = onFoodListener;
 
             itemView.setOnClickListener(this);
@@ -86,6 +92,19 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         public void onClick(View v) {
             onFoodListener.OnFoodClickFood(getAdapterPosition());
         }
+    }
+
+    public void removeItem(int position) {
+        persons.remove(position);
+        // notify the item removed by position
+        // to perform recycler view delete animations
+        notifyItemRemoved(position);
+    }
+
+    public void restoreItem(FoodInfo item, int position) {
+        persons.add(position, item);
+        // notify item added by position
+        notifyItemInserted(position);
     }
 
     RVAdapter(List<FoodInfo> persons){

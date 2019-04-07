@@ -7,38 +7,42 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailyOfferActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-                RVAdapter.OnFoodListener, RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
+public class DailyOfferActivity
+        extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener,
+        RVAdapter.OnFoodListener,
+        RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
 
 
     private RecyclerView rv;
     private List<FoodInfo> foodList;
     private int numberOfFood;
     private SharedPreferences sharedpref;
-    private Spinner spinner;
-    private ArrayAdapter<CharSequence> adapter1;
     private RVAdapter myAdapter;
+    FloatingActionMenu materialDesignFAM;
+    FloatingActionButton floatingActionButton1, floatingActionButton2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +55,36 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
+        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
+        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+
+        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
+                startActivity(intent);
+            }
+        });
+        floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEditFavorite.class);
+                startActivity(intent);
+            }
+        });
+
+        /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
 
 
-
+/*
         //For spinner
         spinner = (Spinner) findViewById(R.id.spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -84,6 +105,7 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
 
             }
         });
+*/
 
         initializeCardLayout();
     }
@@ -98,17 +120,17 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
     private void initializeCardLayout() {
         initializeData();
 
-        RecyclerView rv = (RecyclerView) findViewById(R.id.rv);
+        rv = (RecyclerView) findViewById(R.id.rv);
         rv.setHasFixedSize(true);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
 
-         myAdapter = new RVAdapter(foodList, this, DailyOfferActivity.this);
+        myAdapter = new RVAdapter(foodList, this, DailyOfferActivity.this);
         rv.setAdapter(myAdapter);
 
-        ItemTouchHelper.SimpleCallback itemSimpleCallback = new RecyclerItemTouchHelper(0,
-                ItemTouchHelper.LEFT, this);
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperFood(0, ItemTouchHelper.LEFT, this);
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(rv);
     }
 
     private void initializeData(){
@@ -121,18 +143,17 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
         {
             for (int i = 0;i < numberOfFood;i++)
             {
-                if (sharedpref.getString("day" + i, "").compareTo(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString()) == 0) {
-                    String foodName = sharedpref.getString("foodName" + i, "");
-                    String foodQuantity = sharedpref.getString("foodQuantity" + i, "");
-                    String foodPrice = sharedpref.getString("foodPrice" + i, "");
-                    String foodDescription = sharedpref.getString("foodDescription" + i, "");
-                    String foodImage = sharedpref.getString("foodImage" + i, "");
+                String foodName = sharedpref.getString("foodName" + i, "");
+                String foodQuantity = sharedpref.getString("foodQuantity" + i, "");
+                String foodPrice = sharedpref.getString("foodPrice" + i, "");
+                String foodDescription = sharedpref.getString("foodDescription" + i, "");
+                String foodImage = sharedpref.getString("foodImage" + i, "");
 
-                    byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
-                    Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
+                Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
 
-                    foodList.add(new FoodInfo(photo, foodName, Integer.parseInt(foodPrice), Integer.parseInt(foodQuantity), foodDescription));
-                }
+                foodList.add(new FoodInfo(photo, foodName, Integer.parseInt(foodPrice), Integer.parseInt(foodQuantity), foodDescription));
+
             }
         }
     }
@@ -174,7 +195,29 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
+        if (viewHolder instanceof RVAdapter.FoodInfoHolder) {
+            String name = foodList.get(viewHolder.getAdapterPosition()).getName();
 
+            // backup of removed item for undo purpose
+            final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
+            final int deletedIndex = viewHolder.getAdapterPosition();
+
+            myAdapter.removeItem(viewHolder.getAdapterPosition());
+
+            Snackbar snackbar = Snackbar
+                    .make(rv, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+            snackbar.setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    // undo is selected, restore the deleted item
+                    myAdapter.restoreItem(deletedItem, deletedIndex);
+                }
+            });
+            snackbar.setActionTextColor(Color.YELLOW);
+            snackbar.show();
+
+        }
     }
 }
 

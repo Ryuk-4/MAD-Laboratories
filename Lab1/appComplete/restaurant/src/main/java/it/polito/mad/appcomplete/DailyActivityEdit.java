@@ -26,6 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -50,10 +51,11 @@ public class DailyActivityEdit extends AppCompatActivity {
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref;
-    private String day;
-    private ArrayAdapter<CharSequence> adapter1;
-    Spinner spinner;
+    private SharedPreferences sharedpref, foodFavorite;
+    private CheckBox favoriteFood;
+    //private String day;
+    //private ArrayAdapter<CharSequence> adapter1;
+    //Spinner spinner;
 
     private FoodInfo foodInfo;
 
@@ -105,8 +107,10 @@ public class DailyActivityEdit extends AppCompatActivity {
         editTextPrice = findViewById(R.id.editTextPrice);
         editAvailableQuantity = findViewById(R.id.editAvailableQuantity);
         EditDescription = findViewById(R.id.EditDescription);
+        favoriteFood = findViewById(R.id.checkFavoriteFood);
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
+        foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
 
         if (getIntent().hasExtra("food_selected")) {
             foodInfo = getIntent().getParcelableExtra("food_selected");
@@ -142,6 +146,7 @@ public class DailyActivityEdit extends AppCompatActivity {
                 }
         );
 
+        /*
         spinner = (Spinner) findViewById(R.id.dayForFood);
         // Create an ArrayAdapter using the string array and a default spinner layout
         adapter1 = ArrayAdapter.createFromResource(this,
@@ -150,7 +155,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter1);
-
+*/
        // displayData();
     }
 
@@ -182,7 +187,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
-        outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+        //outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
 
     }
 
@@ -201,7 +206,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         editTextPrice.setText(savedInstanceState.getString("surname"));
         editAvailableQuantity.setText(savedInstanceState.getString("phone"));
         EditDescription.setText(savedInstanceState.getString("address"));
-        day = savedInstanceState.getString("day");
+        //day = savedInstanceState.getString("day");
 
     }
 
@@ -346,8 +351,9 @@ public class DailyActivityEdit extends AppCompatActivity {
 
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
+        SharedPreferences.Editor editorFavorite = foodFavorite.edit();
 
-        if(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString() == null || photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if (photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -358,8 +364,23 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.show();
         }else{
             String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
-
             int numberOfFood = sharedpref.getInt("numberOfFood", 0);
+            int numberOfFoodFavorite = foodFavorite.getInt("numberOfFood", 0);
+
+            if (favoriteFood.isChecked())
+            {
+                editorFavorite.putString("foodName"+numberOfFoodFavorite, name_edit.getText().toString());
+                editorFavorite.putString("foodPrice"+numberOfFoodFavorite, editTextPrice.getText().toString());
+                editorFavorite.putString("foodQuantity"+numberOfFoodFavorite, editAvailableQuantity.getText().toString());
+                editorFavorite.putString("foodDescription"+numberOfFoodFavorite, EditDescription.getText().toString());
+                editorFavorite.putString("foodImage"+numberOfFoodFavorite, imageEncoded);
+                //editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+
+                numberOfFoodFavorite++;
+                editorFavorite.putInt("numberOfFood", numberOfFoodFavorite);
+
+                editorFavorite.apply();
+            }
 
             //TODO
             //Use FIREBASE instead of SharedPreferences
@@ -370,7 +391,7 @@ public class DailyActivityEdit extends AppCompatActivity {
             editor.putString("foodQuantity"+numberOfFood, editAvailableQuantity.getText().toString());
             editor.putString("foodDescription"+numberOfFood, EditDescription.getText().toString());
             editor.putString("foodImage"+numberOfFood, imageEncoded);
-            editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+            //editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
             editor.putBoolean("saved", true);
 
             numberOfFood++;

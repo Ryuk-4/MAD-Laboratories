@@ -57,23 +57,10 @@
             </RelativeLayout>
 
             <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Select a day:" />
-
-            <Spinner
-                android:id="@+id/dayForFood"
-                android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:layout_marginTop="10dp" />
-
-            <TextView
                 android:id="@+id/textViewNameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/nameLabel" />
 
             <EditText
@@ -122,11 +109,18 @@
 
             <EditText
                 android:id="@+id/EditDescription"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:hint="@string/EditDescription"
-                android:inputType="textPersonName"
-                android:textSize="20sp" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textMultiLine"
+                android:lines="5" />
+
+            <CheckBox
+                android:id="@+id/checkFavoriteFood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save_as_favorite" />
 
 
             <Button

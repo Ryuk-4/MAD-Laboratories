@@ -35,7 +35,8 @@
     <string name="title_activity_reservation_add">ReservationAddActivity</string>
     <string name="title_activity_daily_offer">DailyOfferActivity</string>
     <string name="title_activity_daily_offer_edit">DailyOfferActivityEdit</string>
-
+    <string name="title_activity_daily_offer_edit_favorite">DailyOfferActivityEditFavorite</string>
+    <string name="save_as_favorite">Save as favorite</string>
 
     <string name="delete">DELETE</string>
     <string name="timeLabel">Time:</string>
@@ -52,13 +53,16 @@
 
     <string name="foodpriceLabel">price</string>
     <string name="foodPrice">$</string>
-    <string name="AvailableQuantity">AvailableQuantity: </string>
+    <string name="AvailableQuantity">Available quantity: </string>
     <string name="AvailableQuantityEdit">10</string>
     <string name="EditDescription">Delicious</string>
-    <string name="textDescription">Description</string>
+    <string name="textDescription">Description and ingredients</string>
     <string name="editFoodname">pasta</string>
     <string name="btnCreat">Create</string>
 
     <string name="price">Price: </string>
+
+    <string name="addNew">Add new</string>
+    <string name="addFavorite">Add Favorite</string>
 
 </resources>
