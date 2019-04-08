@@ -108,6 +108,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         editAvailableQuantity = findViewById(R.id.editAvailableQuantity);
         EditDescription = findViewById(R.id.EditDescription);
         favoriteFood = findViewById(R.id.checkFavoriteFood);
+        im_edit = findViewById(R.id.foodImage);
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
         foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
@@ -119,9 +120,9 @@ public class DailyActivityEdit extends AppCompatActivity {
             editTextPrice.setText(Integer.toString(foodInfo.price));
             editAvailableQuantity.setText(Integer.toString(foodInfo.quantity));
             EditDescription.setText(foodInfo.description);
-
+            im_edit.setImageBitmap(foodInfo.image);
         }
-        im_edit = findViewById(R.id.foodImage);
+        //im_edit = findViewById(R.id.foodImage);
         ib = findViewById(R.id.buttonImageFood);
 
         ib.setOnClickListener(

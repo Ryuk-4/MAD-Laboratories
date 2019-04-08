@@ -3,6 +3,8 @@ package it.polito.mad.appcomplete;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -42,7 +44,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         personViewHolder.foodName.setText(persons.get(i).Name);
         personViewHolder.foodPrice.setText(Integer.toString(persons.get(i).price));
 
-        personViewHolder.foodDescription.setText(persons.get(i).description);
+        //personViewHolder.foodDescription.setText(persons.get(i).description);
         personViewHolder.Quantity.setText(Integer.toString(persons.get(i).quantity));
 
         if (persons.get(i).image != null)
@@ -77,7 +79,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
             cv = (CardView)itemView.findViewById(R.id.card_view);
             foodName = (TextView)itemView.findViewById(R.id.foodName);
             foodPrice = (TextView)itemView.findViewById(R.id.foodPrice);
-            foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
+            //foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
             Quantity = (TextView)itemView.findViewById(R.id.Quantity);
             foodImage = (ImageView) itemView.findViewById(R.id.foodImage);
             background = itemView.findViewById(R.id.view_background_food);
