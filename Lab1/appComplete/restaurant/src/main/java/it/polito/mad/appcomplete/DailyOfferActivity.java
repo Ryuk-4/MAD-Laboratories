@@ -182,13 +182,10 @@ public class DailyOfferActivity
 
     @Override
     public void OnFoodClickFood(int position) {
-        SharedPreferences.Editor editor = sharedpref.edit();
 
         Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", foodList.get(position));
-
-        editor.putInt("food_position", position);
-        editor.apply();
+        intent.putExtra("food_selected", "normal");
+        intent.putExtra("food_position", position);
 
         startActivity(intent);
     }

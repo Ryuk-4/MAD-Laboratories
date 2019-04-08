@@ -97,13 +97,10 @@ public class DailyActivityEditFavorite extends AppCompatActivity implements Navi
 
     @Override
     public void OnFoodClickFood(int position) {
-        SharedPreferences.Editor editor = sharedpref.edit();
 
         Intent intent = new Intent(DailyActivityEditFavorite.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", foodList.get(position));
-
-        editor.putInt("food_position", position);
-        editor.apply();
+        intent.putExtra("food_selected", "favorite");
+        intent.putExtra("food_position", position);
 
         startActivity(intent);
     }

@@ -25,7 +25,7 @@
         android:id="@+id/rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp"/>
+        android:layout_marginTop="66dp" />
 
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,11 +37,11 @@
             android:id="@+id/material_design_android_floating_action_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="11dp"
-            android:layout_marginLeft="11dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="16dp"
             android:layout_marginRight="11dp"
+            android:layout_marginBottom="16dp"
             fab:menu_animationDelayPerItem="55"
             fab:menu_backgroundColor="@android:color/transparent"
             fab:menu_buttonSpacing="0dp"
@@ -66,7 +66,6 @@
             fab:menu_labels_textColor="#f2f1f1"
             fab:menu_labels_textSize="15sp"
             fab:menu_openDirection="up"
-            fab:menu_shadowColor="#66aff198"
             fab:menu_shadowRadius="4dp"
             fab:menu_shadowXOffset="1dp"
             fab:menu_shadowYOffset="4dp"
@@ -76,7 +75,10 @@
                 android:id="@+id/material_design_floating_action_menu_item1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
                 android:src="@drawable/add_new_item"
+                android:tint="@color/colorAccent"
+                fab:backgroundTint="@color/colorAccent"
                 fab:fab_label="@string/addNew"
                 fab:fab_size="mini" />
 
@@ -84,6 +86,7 @@
                 android:id="@+id/material_design_floating_action_menu_item2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
                 android:src="@drawable/start_favorite"
                 fab:fab_label="@string/addFavorite"
                 fab:fab_size="mini" />
