@@ -8,33 +8,34 @@ import java.util.Comparator;
 public class ReservationInfo implements Parcelable {
     private String namePerson;
     private String timeReservation;
-    private String addressPerson;
-    private String phonePerson;
-    private String email;
+    private String personOrder;
+    private String note;
 
-    public ReservationInfo(String namePerson, String timeReservation, String addressPerson, String phonePerson, String email) {
+    public ReservationInfo(String namePerson, String timeReservation, String personOrder, String note) {
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
-        this.addressPerson = addressPerson;
-        this.phonePerson = phonePerson;
-        this.email = email;
+        this.personOrder = personOrder;
+        this.note = note;
     }
 
+    public ReservationInfo(String namePerson, String timeReservation, String personOrder) {
+        this.namePerson = namePerson;
+        this.timeReservation = timeReservation;
+        this.personOrder = personOrder;
+    }
 
     public ReservationInfo() {
         this.namePerson = " ";
         this.timeReservation = " ";
-        this.addressPerson = " ";
-        this.phonePerson = " ";
-        this.email = " ";
+        this.personOrder = " ";
+        this.note = " ";
     }
 
     protected ReservationInfo(Parcel in) {
         namePerson = in.readString();
         timeReservation = in.readString();
-        addressPerson = in.readString();
-        phonePerson = in.readString();
-        email = in.readString();
+        personOrder = in.readString();
+        note = in.readString();
     }
 
     public static final Creator<ReservationInfo> CREATOR = new Creator<ReservationInfo>() {
@@ -57,16 +58,12 @@ public class ReservationInfo implements Parcelable {
         this.timeReservation = timeReservation;
     }
 
-    public void setAddressPerson(String addressPerson) {
-        this.addressPerson = addressPerson;
-    }
-
     public void setPhonePerson(String phonePerson) {
-        this.phonePerson = phonePerson;
+        this.personOrder = phonePerson;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.note = email;
     }
 
     public String getNamePerson() {
@@ -77,16 +74,12 @@ public class ReservationInfo implements Parcelable {
         return timeReservation;
     }
 
-    public String getAddressPerson() {
-        return addressPerson;
+    public String getPersonOrder() {
+        return personOrder;
     }
 
-    public String getPhonePerson() {
-        return phonePerson;
-    }
-
-    public String getEmail() {
-        return email;
+    public String getNote() {
+        return note;
     }
 
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {
@@ -105,9 +98,8 @@ public class ReservationInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(namePerson);
         dest.writeString(timeReservation);
-        dest.writeString(addressPerson);
-        dest.writeString(phonePerson);
-        dest.writeString(email);
+        dest.writeString(personOrder);
+        dest.writeString(note);
     }
 }
 

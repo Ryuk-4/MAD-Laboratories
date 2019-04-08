@@ -17,32 +17,38 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
-            android:name=".ReservationAddActivity"
-            android:label="@string/title_activity_reservation_add"
-            android:parentActivityName=".ReservationActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".ReservationActivity"
+            android:label="@string/title_activity_reservation"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-        <activity android:name=".DailyActivityEdit"
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".DailyActivityEdit"
             android:label="@string/title_activity_daily_offer_edit"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".DailyOfferActivity"/>
-
+            android:parentActivityName=".DailyOfferActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".ReservationActivity"/>
+            android:parentActivityName=".ReservationActivity_Old"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ReservationEditActivity"
             android:label="@string/title_activity_reservation_edit"
-            android:parentActivityName=".ReservationActivity"
+            android:parentActivityName=".ReservationActivity_Old"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.polito.mad.appcomplete.ReservationActivity" />
+                android:value="it.polito.mad.appcomplete.ReservationActivity_Old" />
         </activity>
+        <!--
         <activity
-            android:name=".ReservationActivity"
+            android:name=".ReservationActivity_Old"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -51,6 +57,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        -->
         <activity
             android:name=".ProfileEditActivity"
             android:label="@string/title_activity_edit"
@@ -63,11 +70,11 @@
         <activity
             android:name=".ProfileActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".ReservationActivity"
+            android:parentActivityName=".ReservationActivity_Old"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.polito.mad.appcomplete.ReservationActivity" />
+                android:value="it.polito.mad.appcomplete.ReservationActivity_Old" />
         </activity>
     </application>
 
