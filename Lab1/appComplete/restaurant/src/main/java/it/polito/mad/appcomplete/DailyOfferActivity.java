@@ -107,8 +107,8 @@ public class DailyOfferActivity extends AppCompatActivity implements NavigationV
          myAdapter = new RVAdapter(foodList, this, DailyOfferActivity.this);
         rv.setAdapter(myAdapter);
 
-        ItemTouchHelper.SimpleCallback itemSimpleCallback = new RecyclerItemTouchHelper(0,
-                ItemTouchHelper.LEFT, this);
+       // ItemTouchHelper.SimpleCallback itemSimpleCallback = new RecyclerItemTouchHelper(0,
+          //      ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this);
     }
 
     private void initializeData(){

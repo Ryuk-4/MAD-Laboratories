@@ -1,7 +1,6 @@
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -20,19 +18,19 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
 
     private Context myContext;
     private List<ReservationInfo> reservationInfoList;
-    private OnReservationListener onReservationListener;
+    //private OnReservationListener onReservationListener;
 
-    public RecyclerViewAdapterReservation(Context myContext, List<ReservationInfo> reservationInfoList,
-                                          OnReservationListener onReservationListener) {
+    public RecyclerViewAdapterReservation(Context myContext, List<ReservationInfo> reservationInfoList){//,
+                                         // OnReservationListener onReservationListener) {
         this.myContext = myContext;
         this.reservationInfoList = reservationInfoList;
-        this.onReservationListener = onReservationListener;
+       // this.onReservationListener = onReservationListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.reservation_card_layout, viewGroup, false);
-        ViewHolder holder = new ViewHolder(view, onReservationListener);
+        ViewHolder holder = new ViewHolder(view);//, onReservationListener);
         return holder;
     }
 
@@ -42,9 +40,8 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
 
         viewHolder.name.setText(reservationInfoList.get(i).getNamePerson());
         viewHolder.time.setText(reservationInfoList.get(i).getTimeReservation());
-        viewHolder.address.setText(reservationInfoList.get(i).getAddressPerson());
-        viewHolder.phone.setText(reservationInfoList.get(i).getPhonePerson());
-        viewHolder.email.setText(reservationInfoList.get(i).getEmail());
+        viewHolder.order.setText(reservationInfoList.get(i).getPersonOrder());
+        viewHolder.note.setText(reservationInfoList.get(i).getNote());
     }
 
     @Override
@@ -52,44 +49,42 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         return reservationInfoList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder{ //implements View.OnClickListener {
 
         TextView name;
         TextView time;
-        TextView address;
-        TextView phone;
-        TextView email;
-        RelativeLayout viewBackground;
+        TextView order;
+        TextView note;
         FrameLayout reservationLayoutItem;
 
-        OnReservationListener onReservationListener;
+       // OnReservationListener onReservationListener;
 
-        public ViewHolder(@NonNull View itemView, OnReservationListener onReservationListener) {
+        public ViewHolder(@NonNull View itemView) {//, OnReservationListener onReservationListener) {
             super(itemView);
 
             name = itemView.findViewById(R.id.person_name);
             time = itemView.findViewById(R.id.reservation_time);
-            address = itemView.findViewById(R.id.person_address);
-            phone = itemView.findViewById(R.id.person_phone);
-            email = itemView.findViewById(R.id.person_email);
-            viewBackground = itemView.findViewById(R.id.view_background);
+            order = itemView.findViewById(R.id.reservation_plate);
+            note = itemView.findViewById(R.id.reservation_note);
+
+           // viewBackground = itemView.findViewById(R.id.view_background);
             reservationLayoutItem = itemView.findViewById(R.id.cardViewReservation);
-            this.onReservationListener = onReservationListener;
+           // this.onReservationListener = onReservationListener;
 
-            itemView.setOnClickListener(this);
+            //itemView.setOnClickListener(this);
         }
-
+/*
         @Override
         public void onClick(View v) {
             onReservationListener.OnReservationClick(getAdapterPosition());
-        }
+        }*/
     }
-
+/*
     public void addItem(ReservationInfo item, int position){
         reservationInfoList.add(position, item);
         notifyItemInserted(position);
     }
-
+*/
     public void removeItem(int position) {
            reservationInfoList.remove(position);
             // notify the item removed by position
@@ -102,8 +97,9 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         // notify item added by position
         notifyItemInserted(position);
     }
-
+/*
     public interface OnReservationListener {
         void OnReservationClick(int position);
     }
+*/
 }
