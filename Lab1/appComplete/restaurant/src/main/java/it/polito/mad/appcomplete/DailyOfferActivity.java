@@ -36,6 +36,7 @@ public class DailyOfferActivity
         RVAdapter.OnFoodListener,
         RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
 
+    private static final String TAG = "DailyOfferActivity";
 
     private RecyclerView rv;
     private List<FoodInfo> foodList;
@@ -62,6 +63,8 @@ public class DailyOfferActivity
 
         //Show the UP button in the action bar
 
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
@@ -173,7 +176,7 @@ public class DailyOfferActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        Log.d(TAG, "onNavigationItemSelected: ");
         if (id == R.id.nav_reservation) {
             Intent intent = new Intent(DailyOfferActivity.this, ReservationActivity.class);
             startActivity(intent);
@@ -186,7 +189,7 @@ public class DailyOfferActivity
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout_profile);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -225,6 +228,16 @@ public class DailyOfferActivity
             snackbar.setActionTextColor(Color.YELLOW);
             snackbar.show();
 
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 }
