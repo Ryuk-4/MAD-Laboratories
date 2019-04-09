@@ -2,7 +2,6 @@ package it.polito.mad.appcomplete;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -17,6 +16,8 @@ import android.view.View;
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private RecyclerItemTouchHelperListener listener;
     private Context myContext;
+    private Boolean flagText;
+
     private Drawable icon_delete;
     private Drawable icon_insert;
     private TextPaint textPaintDelete;
@@ -26,14 +27,12 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private final String preparation_text;
     private final ColorDrawable background_delete;
 
-    /*
-     *  TODO: Fix the margin of LeftSwipe image
-     */
     public RecyclerItemTouchHelper(int dragDirs, int swipeDirs, RecyclerItemTouchHelperListener listener,
-                                   Context myContext) {
+                                   Context myContext, Boolean flagText) {
         super(dragDirs, swipeDirs);
         this.listener = listener;
         this.myContext = myContext;
+        this.flagText = flagText;
 
         background_delete = new ColorDrawable(ContextCompat.getColor(myContext, R.color.bg_row_background));
         background_insert = new ColorDrawable(ContextCompat.getColor(myContext, R.color.green_row_background));
@@ -42,7 +41,12 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         delete_text = myContext.getString(R.string.delete);
 
         icon_insert = ContextCompat.getDrawable(myContext, R.drawable.baseline_move_to_inbox_white_24dp);
-        preparation_text = myContext.getString(R.string.cook);
+
+        if(flagText) {
+           preparation_text = myContext.getString(R.string.cookProcess);
+       } else {
+           preparation_text = myContext.getString(R.string.endProcess);
+       }
     }
 
     @Override
@@ -71,17 +75,10 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
         if (dX > 0){ // Swipe: Left ----> Right
                      // Action: Move one element in another tab
 
-            int iconSize = icon_insert.getIntrinsicHeight();
-            int halfIcon = iconSize / 2;
-            int iconTop = viewHolder.itemView.getTop() + ((viewHolder.itemView.getBottom() - viewHolder.itemView.getTop()) / 2 - halfIcon);
-
-            //int iconTop = itemView.getTop() + (itemView.getHeight() - icon_insert.getIntrinsicHeight()) / 2;
+            int iconTop = itemView.getTop() + (itemView.getHeight() - icon_insert.getIntrinsicHeight()) / 2;
             int iconBottom = iconTop + icon_insert.getIntrinsicHeight();
-            //int iconMargin = icon_insert.getIntrinsicHeight();
-            //int iconLeft = 100;
-            //int iconRight = 100 + icon_insert.getIntrinsicWidth();
-
-
+            int iconLeft = backgroundCornerOffset + backgroundBottomOffset + backgroundTopOffset;
+            int iconRight = icon_insert.getIntrinsicWidth() + backgroundCornerOffset + backgroundTopOffset;
 
             background_insert.setBounds(viewHolder.itemView.getLeft() + backgroundCornerOffset,
                     viewHolder.itemView.getTop() + backgroundTopOffset,
@@ -90,10 +87,8 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
             background_insert.draw(c);
 
-            icon_insert.setBounds(50, iconTop, icon_insert.getIntrinsicWidth(), iconBottom);
+            icon_insert.setBounds(iconLeft, iconTop, iconRight, iconBottom);
             icon_insert.draw(c);
-
-
 
             TextPaint textPaint = new TextPaint();
             textPaint.setAntiAlias(true);
@@ -101,10 +96,13 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
             textPaint.setColor(ContextCompat.getColor(myContext, R.color.swipe_text));
             textPaint.setTypeface(Typeface.SANS_SERIF);
 
+            float width = textPaint.measureText(preparation_text);
             int textTop = (int) (viewHolder.itemView.getTop() + ((viewHolder.itemView.getBottom() - viewHolder.itemView.getTop()) / 2 ) + textPaint.getTextSize()/2);
-            c.drawText(preparation_text, 25 + iconSize + (iconSize > 0 ? 8 : 0), textTop,textPaint);
+            c.drawText(preparation_text, iconLeft + width - backgroundTopOffset - backgroundBottomOffset, textTop, textPaint);
 
         } else if(dX < 0){
+            // Swipe: Right ----> Left
+            // Action: Delete one element from the list
 
             int iconTop = itemView.getTop() + (itemView.getHeight() - icon_delete.getIntrinsicHeight()) / 2;
             int iconBottom = iconTop + icon_delete.getIntrinsicHeight();
@@ -135,6 +133,7 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 
 
     }
+
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {

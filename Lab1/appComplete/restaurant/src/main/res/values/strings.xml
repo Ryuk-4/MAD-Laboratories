@@ -38,7 +38,8 @@
 
 
     <string name="delete">DELETE</string>
-    <string name="cook">COOK</string>
+    <string name="cookProcess">COOK</string>
+    <string name="endProcess">READY</string>
 
     <string name="timeLabel">Time:</string>
 
