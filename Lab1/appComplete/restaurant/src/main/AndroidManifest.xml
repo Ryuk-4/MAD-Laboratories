@@ -15,8 +15,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <activity
+            android:name=".DailyActivityEditFavorite"
+            android:parentActivityName=".DailyOfferActivity"
+            android:label="@string/title_activity_daily_offer_edit_favorite"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+
+            
+        <activity
+            android:name=".DailyActivityEdit"
+            android:label="@string/title_activity_daily_offer_edit"
+            android:parentActivityName=".DailyOfferActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
             android:name=".ReservationActivity"
             android:label="@string/title_activity_reservation"
             android:theme="@style/AppTheme.NoActionBar">
@@ -27,6 +39,7 @@
             </intent-filter>
         </activity>
 
+
         <activity
             android:name=".DailyActivityEdit"
             android:label="@string/title_activity_daily_offer_edit"
@@ -35,7 +48,9 @@
         <activity
             android:name=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer"
-            android:parentActivityName=".ReservationActivity_Old"
+
+            android:parentActivityName=".ReservationActivity"
+
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ReservationEditActivity"
