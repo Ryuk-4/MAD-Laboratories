@@ -40,6 +40,8 @@
     <string name="current_money">\u20ac</string>
 
     <string name="delete">DELETE</string>
+    <string name="cook">COOK</string>
+
     <string name="timeLabel">Time:</string>
 
     <string-array name="planets_array">
@@ -63,7 +65,14 @@
 
     <string name="price">Price: </string>
 
+
     <string name="addNew">Add new</string>
     <string name="addFavorite">Add Favorite</string>
+
+    <string name="title_activity_reservation">ReservationActivity</string>
+    <string name="tab_incoming">Incoming</string>
+    <string name="tab_preparation">In preparation</string>
+    <string name="tab_to_delivery">Ready to go</string>
+
 
 </resources>

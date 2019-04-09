@@ -91,7 +91,9 @@
                 fab:fab_label="@string/addFavorite"
                 fab:fab_size="mini" />
 
+
         </com.github.clans.fab.FloatingActionMenu>
     </RelativeLayout>
+
 
 </android.support.design.widget.CoordinatorLayout>

@@ -139,8 +139,10 @@ public class DailyOfferActivity
         myAdapter = new RVAdapter(foodList, this, DailyOfferActivity.this);
         rv.setAdapter(myAdapter);
 
+
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperFood(0, ItemTouchHelper.LEFT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(rv);
+
     }
 
     private void initializeData(){

@@ -50,9 +50,9 @@ public class ReservationEditActivity extends AppCompatActivity {
 
             name_edit.setText(reservationInfo.getNamePerson());
             time_edit.setText(reservationInfo.getTimeReservation());
-            address_edit.setText(reservationInfo.getAddressPerson());
-            email_edit.setText(reservationInfo.getEmail());
-            phone_edit.setText(reservationInfo.getPhonePerson());
+           // address_edit.setText(reservationInfo.getAddressPerson());
+            //email_edit.setText(reservationInfo.getEmail());
+           // phone_edit.setText(reservationInfo.getPhonePerson());
         }
 
         save_button.setOnClickListener(
