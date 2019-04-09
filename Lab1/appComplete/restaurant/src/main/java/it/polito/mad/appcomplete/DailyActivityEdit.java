@@ -24,13 +24,17 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.jaeger.library.StatusBarUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,14 +54,17 @@ public class DailyActivityEdit extends AppCompatActivity {
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref;
-    private String day;
-    private ArrayAdapter<CharSequence> adapter1;
-    Spinner spinner;
+    private SharedPreferences sharedpref, foodFavorite;
+    private CheckBox favoriteFood;
+    private boolean favorite, editFood;
+    private int i = -1;
+    //private String day;
+    //private ArrayAdapter<CharSequence> adapter1;
+    //Spinner spinner;
 
     private FoodInfo foodInfo;
 
-    Bitmap photo;
+    private Bitmap photo;
 
 
     @Override
@@ -101,23 +108,24 @@ public class DailyActivityEdit extends AppCompatActivity {
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        StatusBarUtil.setTransparent(this);
+
         name_edit = findViewById(R.id.editFoodname);
         editTextPrice = findViewById(R.id.editTextPrice);
         editAvailableQuantity = findViewById(R.id.editAvailableQuantity);
         EditDescription = findViewById(R.id.EditDescription);
+        favoriteFood = findViewById(R.id.checkFavoriteFood);
+        im_edit = findViewById(R.id.foodImage);
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
+        foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
 
-        if (getIntent().hasExtra("food_selected")) {
-            foodInfo = getIntent().getParcelableExtra("food_selected");
+        SharedPreferences.Editor e = sharedpref.edit();
+        e.putBoolean("saved", false);
+        e.apply();
 
-            name_edit.setText(foodInfo.Name);
-            editTextPrice.setText(Integer.toString(foodInfo.price));
-            editAvailableQuantity.setText(Integer.toString(foodInfo.quantity));
-            EditDescription.setText(foodInfo.description);
+        initLayout();
 
-        }
-        im_edit = findViewById(R.id.foodImage);
         ib = findViewById(R.id.buttonImageFood);
 
         ib.setOnClickListener(
@@ -141,19 +149,53 @@ public class DailyActivityEdit extends AppCompatActivity {
                     }
                 }
         );
-
-        spinner = (Spinner) findViewById(R.id.dayForFood);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        adapter1 = ArrayAdapter.createFromResource(this,
-                R.array.planets_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter1);
-
-       // displayData();
     }
 
+    private void initLayout() {
+        if (getIntent().hasExtra("food_selected")) {
+            if (getIntent().getStringExtra("food_selected").compareTo("normal") == 0)
+            {
+                initLayoutModifyFood(sharedpref);
+            } else
+            {
+                initLayoutFavoriteFood(foodFavorite);
+            }
+            favoriteFood.setVisibility(View.GONE);
+        }
+    }
+
+    private void initLayoutFavoriteFood(SharedPreferences foodFavorite) {
+        i = getIntent().getIntExtra("food_position", 0);
+
+        name_edit.setText(foodFavorite.getString("foodName" + i, ""));
+        editTextPrice.setText(foodFavorite.getString("foodPrice" + i, ""));
+        editAvailableQuantity.setText(foodFavorite.getString("foodQuantity" + i, ""));
+        EditDescription.setText(foodFavorite.getString("foodDescription" + i, ""));
+
+        byte[] imageAsBytes = Base64.decode(foodFavorite.getString("foodImage" + i, ""), Base64.DEFAULT);
+        photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+        im_edit.setImageBitmap(photo);
+
+        favoriteFood.setVisibility(View.GONE);
+        favorite = true;
+        editFood = false;
+    }
+
+    private void initLayoutModifyFood(SharedPreferences sharedpref) {
+        i = getIntent().getIntExtra("food_position", 0);
+
+        name_edit.setText(sharedpref.getString("foodName" + i, ""));
+        editTextPrice.setText(sharedpref.getString("foodPrice" + i, ""));
+        editAvailableQuantity.setText(sharedpref.getString("foodQuantity" + i, ""));
+        EditDescription.setText(sharedpref.getString("foodDescription" + i, ""));
+
+        byte[] imageAsBytes = Base64.decode(sharedpref.getString("foodImage" + i, ""), Base64.DEFAULT);
+        photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+        im_edit.setImageBitmap(photo);
+
+        favorite = false;
+        editFood = true;
+    }
 
 
     @Override
@@ -182,13 +224,16 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
-        outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
-
+        //outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+        outState.putBoolean("favorite", favorite);
+        outState.putBoolean("editFood", editFood);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        favorite = savedInstanceState.getBoolean("favorite");
+        editFood = savedInstanceState.getBoolean("editFood");
 
         photoByteArray = savedInstanceState.getByteArray("profilePicture");
 
@@ -201,7 +246,10 @@ public class DailyActivityEdit extends AppCompatActivity {
         editTextPrice.setText(savedInstanceState.getString("surname"));
         editAvailableQuantity.setText(savedInstanceState.getString("phone"));
         EditDescription.setText(savedInstanceState.getString("address"));
-        day = savedInstanceState.getString("day");
+
+        if (favorite || editFood)
+            favoriteFood.setVisibility(View.GONE);
+
 
     }
 
@@ -282,8 +330,8 @@ public class DailyActivityEdit extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    photo = rotateImageIfRequired(photo, contentURI);
-                    photo = getResizedBitmap(photo, 500);
+                    //photo = rotateImageIfRequired(photo, contentURI);
+                    //photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
                     im_edit.setImageBitmap(photo);
@@ -346,8 +394,9 @@ public class DailyActivityEdit extends AppCompatActivity {
 
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
+        SharedPreferences.Editor editorFavorite = foodFavorite.edit();
 
-        if(spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString() == null || photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if (photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -357,29 +406,65 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         }else{
-            String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
+            if (i == -1 || favorite)
+            {
+                saveNewFood(editor, editorFavorite);
+            } else
+            {
+                String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
 
-            int numberOfFood = sharedpref.getInt("numberOfFood", 0);
+                editor.putString("foodName"+i, name_edit.getText().toString());
+                editor.putString("foodPrice"+i, editTextPrice.getText().toString());
+                editor.putString("foodQuantity"+i, editAvailableQuantity.getText().toString());
+                editor.putString("foodDescription"+i, EditDescription.getText().toString());
+                editor.putString("foodImage"+i, imageEncoded);
 
-            //TODO
-            //Use FIREBASE instead of SharedPreferences
+                editor.putBoolean("saved", true);
 
-            //Store the couple <key, value> into the SharedPreferences
-            editor.putString("foodName"+numberOfFood, name_edit.getText().toString());
-            editor.putString("foodPrice"+numberOfFood, editTextPrice.getText().toString());
-            editor.putString("foodQuantity"+numberOfFood, editAvailableQuantity.getText().toString());
-            editor.putString("foodDescription"+numberOfFood, EditDescription.getText().toString());
-            editor.putString("foodImage"+numberOfFood, imageEncoded);
-            editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
-            editor.putBoolean("saved", true);
+                editor.apply();
 
-            numberOfFood++;
-            editor.putInt("numberOfFood", numberOfFood);
-
-            editor.apply();
-
-            Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+            }
         }
+    }
+
+    private void saveNewFood(SharedPreferences.Editor editor, SharedPreferences.Editor editorFavorite) {
+        String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
+        int numberOfFood = sharedpref.getInt("numberOfFood", 0);
+        int numberOfFoodFavorite = foodFavorite.getInt("numberOfFood", 0);
+
+        if (favoriteFood.isChecked())
+        {
+            editorFavorite.putString("foodName"+numberOfFoodFavorite, name_edit.getText().toString());
+            editorFavorite.putString("foodPrice"+numberOfFoodFavorite, editTextPrice.getText().toString());
+            editorFavorite.putString("foodQuantity"+numberOfFoodFavorite, editAvailableQuantity.getText().toString());
+            editorFavorite.putString("foodDescription"+numberOfFoodFavorite, EditDescription.getText().toString());
+            editorFavorite.putString("foodImage"+numberOfFoodFavorite, imageEncoded);
+            //editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+
+            numberOfFoodFavorite++;
+            editorFavorite.putInt("numberOfFood", numberOfFoodFavorite);
+
+            editorFavorite.apply();
+        }
+
+        //TODO
+        //Use FIREBASE instead of SharedPreferences
+
+        //Store the couple <key, value> into the SharedPreferences
+        editor.putString("foodName"+numberOfFood, name_edit.getText().toString());
+        editor.putString("foodPrice"+numberOfFood, editTextPrice.getText().toString());
+        editor.putString("foodQuantity"+numberOfFood, editAvailableQuantity.getText().toString());
+        editor.putString("foodDescription"+numberOfFood, EditDescription.getText().toString());
+        editor.putString("foodImage"+numberOfFood, imageEncoded);
+        editor.putBoolean("saved", true);
+
+        numberOfFood++;
+        editor.putInt("numberOfFood", numberOfFood);
+
+        editor.apply();
+
+        Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
     }
 
     @Override

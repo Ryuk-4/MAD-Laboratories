@@ -27,6 +27,10 @@ public class FoodInfo implements Parcelable {
         description = in.readString();
     }
 
+    public String getName() {
+        return Name;
+    }
+
     public static final Creator<FoodInfo> CREATOR = new Creator<FoodInfo>() {
         @Override
         public FoodInfo createFromParcel(Parcel in) {

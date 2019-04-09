@@ -33,9 +33,11 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_reservation_edit">ReservationEdit</string>
     <string name="title_activity_reservation_add">ReservationAddActivity</string>
-    <string name="title_activity_daily_offer">DailyOfferActivity</string>
-    <string name="title_activity_daily_offer_edit">DailyOfferActivityEdit</string>
-
+    <string name="title_activity_daily_offer">Your Daily Menu</string>
+    <string name="title_activity_daily_offer_edit">Add Food</string>
+    <string name="title_activity_daily_offer_edit_favorite">Add Favorite Food</string>
+    <string name="save_as_favorite">Save as favorite</string>
+    <string name="current_money">\u20ac</string>
 
     <string name="delete">DELETE</string>
     <string name="cookProcess">COOK</string>
@@ -55,18 +57,23 @@
 
     <string name="foodpriceLabel">price</string>
     <string name="foodPrice">$</string>
-    <string name="AvailableQuantity">AvailableQuantity: </string>
+    <string name="AvailableQuantity">Available quantity: </string>
     <string name="AvailableQuantityEdit">10</string>
     <string name="EditDescription">Delicious</string>
-    <string name="textDescription">Description</string>
+    <string name="textDescription">Description and ingredients</string>
     <string name="editFoodname">pasta</string>
     <string name="btnCreat">Create</string>
 
     <string name="price">Price: </string>
 
+
+    <string name="addNew">Add new</string>
+    <string name="addFavorite">Add Favorite</string>
+
     <string name="title_activity_reservation">ReservationActivity</string>
     <string name="tab_incoming">Incoming</string>
     <string name="tab_preparation">In preparation</string>
     <string name="tab_to_delivery">Ready to go</string>
+
 
 </resources>
