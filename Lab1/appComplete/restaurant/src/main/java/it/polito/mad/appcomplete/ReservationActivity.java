@@ -15,8 +15,10 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 public class ReservationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
-
+        implements NavigationView.OnNavigationItemSelectedListener, ReservationActivityInterface{
+    
+    private static final String TAG = "ReservationActivity";
+    
     /*
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -29,6 +31,9 @@ public class ReservationActivity extends AppCompatActivity
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    public PreparingReservationFragment prepFragment;
+    private ReadyToGoReservationFragment endFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,9 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        prepFragment = new PreparingReservationFragment();
+        endFragment = new ReadyToGoReservationFragment();
+
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.containerTabs);
         setupViewPager(mViewPager);
@@ -56,8 +64,6 @@ public class ReservationActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         tabLayout.setupWithViewPager(mViewPager);
-
-
     }
 
 
@@ -101,9 +107,31 @@ public class ReservationActivity extends AppCompatActivity
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mSectionsPagerAdapter.addFragments(new IncomingReservationFragment(), "Incoming");
-        mSectionsPagerAdapter.addFragments(new PreparingReservationFragment(), "Cooking");
-        mSectionsPagerAdapter.addFragments(new ReservationReadyToGoFragment(), "Ready To Go");
+        mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
+        mSectionsPagerAdapter.addFragments(endFragment, "Ready To Go");
 
         viewPager.setAdapter(mSectionsPagerAdapter);
+    }
+
+    @Override
+    public void processReservation(String fragmentTag, ReservationInfo reservation) {
+        if(fragmentTag.equals(getString(R.string.tab_incoming))) {
+            if(reservation != null) {
+                prepFragment.newReservationHasSent(reservation);
+            }
+        } else if(fragmentTag.equals(getString(R.string.tab_preparation))){
+            if(reservation != null) {
+                endFragment.newReservationHasSent(reservation);
+            }
+        }
+    }
+
+    @Override
+    public void undoOperation(String fragmentTag) {
+        if (fragmentTag.equals(getString(R.string.tab_incoming))){
+            prepFragment.removeItem();
+        } else if(fragmentTag.equals(getString(R.string.tab_preparation))){
+            endFragment.removeItem();
+        }
     }
 }

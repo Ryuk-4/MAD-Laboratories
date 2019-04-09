@@ -44,15 +44,6 @@
             android:parentActivityName=".ReservationActivity"
 
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ReservationEditActivity"
-            android:label="@string/title_activity_reservation_edit"
-            android:parentActivityName=".ReservationActivity_Old"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.polito.mad.appcomplete.ReservationActivity_Old" />
-        </activity>
         <!--
         <activity
             android:name=".ReservationActivity_Old"
