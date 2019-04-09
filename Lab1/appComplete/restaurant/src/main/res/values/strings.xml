@@ -37,6 +37,7 @@
     <string name="title_activity_daily_offer_edit">Add Food</string>
     <string name="title_activity_daily_offer_edit_favorite">Add Favorite Food</string>
     <string name="save_as_favorite">Save as favorite</string>
+    <string name="current_money">\u20ac</string>
 
     <string name="delete">DELETE</string>
     <string name="timeLabel">Time:</string>

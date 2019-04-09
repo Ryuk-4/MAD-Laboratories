@@ -42,7 +42,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
     @Override
     public void onBindViewHolder(FoodInfoHolder personViewHolder, int i) {
         personViewHolder.foodName.setText(persons.get(i).Name);
-        personViewHolder.foodPrice.setText(Integer.toString(persons.get(i).price));
+        personViewHolder.foodPrice.setText(Integer.toString(persons.get(i).price) + myContext.getString(R.string.current_money));
 
         //personViewHolder.foodDescription.setText(persons.get(i).description);
         personViewHolder.Quantity.setText(Integer.toString(persons.get(i).quantity));

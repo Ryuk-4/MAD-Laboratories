@@ -110,6 +110,7 @@ public class DailyOfferActivity
         initializeCardLayout();
     }
 
+    //in alternativa on start chiedere a malnati
     @Override
     protected void onResume() {
         super.onResume();
