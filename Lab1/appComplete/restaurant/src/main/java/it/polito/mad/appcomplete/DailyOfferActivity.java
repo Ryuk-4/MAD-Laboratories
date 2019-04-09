@@ -48,7 +48,7 @@ public class DailyOfferActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawer_menu_daily_offer);
+        setContentView(R.layout.drawer_menu_daily_offer);//ciao
         Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
         setSupportActionBar(toolbar);
 
