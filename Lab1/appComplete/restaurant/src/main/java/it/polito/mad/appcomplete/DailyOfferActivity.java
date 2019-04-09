@@ -13,6 +13,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -47,12 +48,20 @@ public class DailyOfferActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_daily_offer);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        setContentView(R.layout.drawer_menu_daily_offer);
+        Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
         setSupportActionBar(toolbar);
 
-        //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        //Show the UP button in the action bar
+
 
 
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
@@ -159,16 +168,15 @@ public class DailyOfferActivity
         }
     }
 
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_profile) {
-            Intent intent = new Intent(this, ProfileActivity.class);
+        if (id == R.id.nav_reservation) {
+            Intent intent = new Intent(this, ReservationActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_dailyMenu) {
-            Intent intent = new Intent(this, DailyOfferActivity.class);
+        } else if (id == R.id.nav_profile) {
+            Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
 
@@ -176,7 +184,7 @@ public class DailyOfferActivity
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout_reservation);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_profile);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }

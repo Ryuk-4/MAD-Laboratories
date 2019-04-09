@@ -3,6 +3,7 @@ package it.polito.mad.appcomplete;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -42,6 +43,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
     @Override
     public void onBindViewHolder(FoodInfoHolder personViewHolder, int i) {
         personViewHolder.foodName.setText(persons.get(i).Name);
+        //personViewHolder.foodName.setShadowLayer(10, 0, 0, Color.WHITE);
         personViewHolder.foodPrice.setText(Integer.toString(persons.get(i).price) + myContext.getString(R.string.current_money));
 
         //personViewHolder.foodDescription.setText(persons.get(i).description);
