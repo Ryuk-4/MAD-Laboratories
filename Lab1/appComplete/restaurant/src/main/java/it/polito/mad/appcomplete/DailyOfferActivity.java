@@ -1,6 +1,5 @@
 package it.polito.mad.appcomplete;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 
@@ -20,7 +19,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -76,7 +74,7 @@ public class DailyOfferActivity
         });
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEditFavorite.class);
+                Intent intent = new Intent(DailyOfferActivity.this, DailyOfferFavoriteActivity.class);
                 startActivity(intent);
             }
         });

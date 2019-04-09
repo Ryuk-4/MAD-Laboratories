@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".DailyActivityEditFavorite"
+            android:name=".DailyOfferFavoriteActivity"
             android:parentActivityName=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer_edit_favorite"
             android:theme="@style/AppTheme.NoActionBar" />

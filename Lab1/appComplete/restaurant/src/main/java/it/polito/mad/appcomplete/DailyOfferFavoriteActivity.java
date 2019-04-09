@@ -22,7 +22,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DailyActivityEditFavorite extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+public class DailyOfferFavoriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
 
     private SharedPreferences sharedpref;
@@ -82,7 +82,7 @@ public class DailyActivityEditFavorite extends AppCompatActivity implements Navi
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
 
-        myAdapter = new RVAdapter(foodList, this, DailyActivityEditFavorite.this);
+        myAdapter = new RVAdapter(foodList, this, DailyOfferFavoriteActivity.this);
         rv.setAdapter(myAdapter);
 
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperFood(0, ItemTouchHelper.LEFT, this);
@@ -98,7 +98,7 @@ public class DailyActivityEditFavorite extends AppCompatActivity implements Navi
     @Override
     public void OnFoodClickFood(int position) {
 
-        Intent intent = new Intent(DailyActivityEditFavorite.this, DailyActivityEdit.class);
+        Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyActivityEdit.class);
         intent.putExtra("food_selected", "favorite");
         intent.putExtra("food_position", position);
 
