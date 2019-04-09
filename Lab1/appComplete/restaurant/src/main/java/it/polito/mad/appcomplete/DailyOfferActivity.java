@@ -175,10 +175,10 @@ public class DailyOfferActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_reservation) {
-            Intent intent = new Intent(this, ReservationActivity.class);
+            Intent intent = new Intent(DailyOfferActivity.this, ReservationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_profile) {
-            Intent intent = new Intent(this, ProfileActivity.class);
+            Intent intent = new Intent(DailyOfferActivity.this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
 
