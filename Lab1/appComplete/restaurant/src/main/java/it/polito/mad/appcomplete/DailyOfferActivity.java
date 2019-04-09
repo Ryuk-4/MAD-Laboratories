@@ -19,6 +19,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -34,6 +35,7 @@ public class DailyOfferActivity
         RVAdapter.OnFoodListener,
         RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
 
+    private static final String TAG = "DailyOfferActivity";
 
     private RecyclerView rv;
     private List<FoodInfo> foodList;
@@ -50,6 +52,7 @@ public class DailyOfferActivity
         Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
         setSupportActionBar(toolbar);
 
+        //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
@@ -58,8 +61,8 @@ public class DailyOfferActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        //Show the UP button in the action bar
-
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
         materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
@@ -74,45 +77,12 @@ public class DailyOfferActivity
         });
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyOfferFavoriteActivity.class);
+                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEditFavorite.class);
                 startActivity(intent);
             }
         });
-
-        /*FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
-                startActivity(intent);
-            }
-        });*/
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
-
-
-/*
-        //For spinner
-        spinner = (Spinner) findViewById(R.id.spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        adapter1 = ArrayAdapter.createFromResource(this,
-                R.array.planets_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter1);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                initializeCardLayout();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-*/
 
         initializeCardLayout();
     }
@@ -171,12 +141,13 @@ public class DailyOfferActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+      
+        Log.d(TAG, "onNavigationItemSelected: ");
         if (id == R.id.nav_reservation) {
-            Intent intent = new Intent(this, ReservationActivity.class);
+            Intent intent = new Intent(DailyOfferActivity.this, ReservationActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_profile) {
-            Intent intent = new Intent(this, ProfileActivity.class);
+            Intent intent = new Intent(DailyOfferActivity.this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
 
@@ -184,7 +155,8 @@ public class DailyOfferActivity
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout_profile);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -215,7 +187,7 @@ public class DailyOfferActivity
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                  
                     // undo is selected, restore the deleted item
                     myAdapter.restoreItem(deletedItem, deletedIndex);
                 }
@@ -224,6 +196,17 @@ public class DailyOfferActivity
             snackbar.show();
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+
     }
 }
 

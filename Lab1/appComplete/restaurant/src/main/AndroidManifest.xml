@@ -21,14 +21,13 @@
             android:label="@string/title_activity_daily_offer_edit_favorite"
             android:theme="@style/AppTheme.NoActionBar" />
 
-
-            
         <activity
             android:name=".DailyActivityEdit"
             android:label="@string/title_activity_daily_offer_edit"
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
+       
+      <activity
             android:name=".ReservationActivity"
             android:label="@string/title_activity_reservation"
             android:theme="@style/AppTheme.NoActionBar">
@@ -41,29 +40,13 @@
 
 
         <activity
-            android:name=".DailyActivityEdit"
-            android:label="@string/title_activity_daily_offer_edit"
-            android:parentActivityName=".DailyOfferActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".DailyOfferActivity"
             android:label="@string/title_activity_daily_offer"
 
             android:parentActivityName=".ReservationActivity"
 
             android:theme="@style/AppTheme.NoActionBar" />
-        <!--
-        <activity
-            android:name=".ReservationActivity_Old"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        -->
+        
         <activity
             android:name=".ProfileEditActivity"
             android:label="@string/title_activity_edit"
