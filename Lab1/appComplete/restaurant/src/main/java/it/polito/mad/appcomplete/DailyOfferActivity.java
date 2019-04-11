@@ -77,7 +77,7 @@ public class DailyOfferActivity
         });
         floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEditFavorite.class);
+                Intent intent = new Intent(DailyOfferActivity.this, DailyOfferFavoriteActivity.class);
                 startActivity(intent);
             }
         });
