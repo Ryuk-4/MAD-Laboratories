@@ -333,8 +333,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
             editor.putString("imageEncoded", imageEncoded);
 
-            //TODO
-            //Use FIREBASE instead of SharedPreferences
+            //TODO: Use FIREBASE instead of SharedPreferences
 
             //Store the couple <key, value> into the SharedPreferences
             editor.putString("name", name_edit.getText().toString());

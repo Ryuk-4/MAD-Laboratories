@@ -18,7 +18,8 @@
     <string name="userPic">User Picture</string>
     <string name="choosePic">Choose Pic Button</string>
 
-    <string name="edit_action" />
+    <string name="edit_action">Edit</string>
+    <string name="menu_refresh">Refresh</string>
 
     <string name="title_activity_edit">EditActivity</string>
 

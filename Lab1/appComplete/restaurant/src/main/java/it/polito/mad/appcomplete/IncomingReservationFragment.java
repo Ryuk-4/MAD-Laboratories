@@ -7,26 +7,29 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class IncomingReservationFragment extends Fragment
-        implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener{
+        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener,
+        SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "IncomingReservation";
-    
-    private List<ReservationInfo> reservationInfoList;
+
+    private ArrayList<ReservationInfo> reservationInfoList;
     private RecyclerViewAdapterReservation myAdapter;
     private RecyclerView recyclerView;
+    private SwipeRefreshLayout mySwipeRefreshLayout;
 
     private ReservationActivityInterface resActivityInterface;
 
@@ -37,15 +40,27 @@ public class IncomingReservationFragment extends Fragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: "+ TAG);
-        initializeReservation();
+        Log.d(TAG, "onCreate: called");
+
+        if (savedInstanceState == null) {
+            initializeReservation();
+
+        } else {
+
+            reservationInfoList = (ArrayList<ReservationInfo>) savedInstanceState.getSerializable("incReservations");
+        }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: called");
+
         View view = inflater.inflate(R.layout.fragment_incoming_reservation, container, false);
-        Log.d(TAG, "onCreateView: ");
+
+        mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
+
+        mySwipeRefreshLayout.setOnRefreshListener(this);
 
         initializeRecyclerViewReservation(view);
 
@@ -66,6 +81,33 @@ public class IncomingReservationFragment extends Fragment
         resActivityInterface = null;
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable("incReservations", reservationInfoList);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        int id = item.getItemId();
+
+        if (id == R.id.menu_refresh) {
+
+            /*
+             * TODO: mySwipeRefreshLayout.setRefreshing(true);
+             * TODO: myUpdateOP.
+             */
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initializeReservation() {
         reservationInfoList = new ArrayList<>();
 
@@ -73,7 +115,7 @@ public class IncomingReservationFragment extends Fragment
                 "pizza"));
 
         reservationInfoList.add(new ReservationInfo("Jane", "20:30",
-               "diavola", "With french fries"));
+                "diavola", "With french fries"));
 
         reservationInfoList.add(new ReservationInfo("Lucy", "19:30",
                 "pasta", "no tomatoes"));
@@ -86,14 +128,13 @@ public class IncomingReservationFragment extends Fragment
 
         Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(),
-                reservationInfoList);
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
 
         recyclerView.setAdapter(myAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         // adding item touch helper
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelper(0,
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this, getActivity(), true);
 
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
@@ -104,8 +145,6 @@ public class IncomingReservationFragment extends Fragment
      * item will be removed on swiped
      * undo option will be provided in snackbar to restore the item
      */
-
-    // TODO: Add dialog to confirm the action of the user or a Threshold
     @Override
     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder) {
@@ -121,9 +160,9 @@ public class IncomingReservationFragment extends Fragment
 
             myAdapter.removeItem(viewHolder.getAdapterPosition());
 
-            if(direction == ItemTouchHelper.RIGHT){
+            if (direction == ItemTouchHelper.RIGHT) {
 
-                resActivityInterface.processReservation(getString(R.string.tab_incoming) ,deletedItem);
+                resActivityInterface.processReservation(getString(R.string.tab_incoming), deletedItem);
 
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation in preparation", Snackbar.LENGTH_LONG);
@@ -139,7 +178,7 @@ public class IncomingReservationFragment extends Fragment
                 snackbar.setActionTextColor(Color.YELLOW);
                 snackbar.show();
 
-            } else if(direction == ItemTouchHelper.LEFT) {
+            } else if (direction == ItemTouchHelper.LEFT) {
                 // showing snack bar with Undo option
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
@@ -156,4 +195,11 @@ public class IncomingReservationFragment extends Fragment
             }
         }
     }
+
+    @Override
+    public void onRefresh() {
+        //TODO: myUpdateOP.
+        mySwipeRefreshLayout.setRefreshing(false);
+    }
+
 }

@@ -13,7 +13,7 @@ import android.text.TextPaint;
 import android.util.TypedValue;
 import android.view.View;
 
-public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
+public class RecyclerItemTouchHelperReservation extends ItemTouchHelper.SimpleCallback {
     private RecyclerItemTouchHelperListener listener;
     private Context myContext;
     private Boolean flagText;
@@ -27,8 +27,8 @@ public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
     private final String preparation_text;
     private final ColorDrawable background_delete;
 
-    public RecyclerItemTouchHelper(int dragDirs, int swipeDirs, RecyclerItemTouchHelperListener listener,
-                                   Context myContext, Boolean flagText) {
+    public RecyclerItemTouchHelperReservation(int dragDirs, int swipeDirs, RecyclerItemTouchHelperListener listener,
+                                              Context myContext, Boolean flagText) {
         super(dragDirs, swipeDirs);
         this.listener = listener;
         this.myContext = myContext;

@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -18,19 +18,16 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
 
     private Context myContext;
     private List<ReservationInfo> reservationInfoList;
-    //private OnReservationListener onReservationListener;
 
-    public RecyclerViewAdapterReservation(Context myContext, List<ReservationInfo> reservationInfoList){//,
-                                         // OnReservationListener onReservationListener) {
+    public RecyclerViewAdapterReservation(Context myContext, List<ReservationInfo> reservationInfoList){
         this.myContext = myContext;
         this.reservationInfoList = reservationInfoList;
-       // this.onReservationListener = onReservationListener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.reservation_card_layout, viewGroup, false);
-        ViewHolder holder = new ViewHolder(view);//, onReservationListener);
+        ViewHolder holder = new ViewHolder(view);
         return holder;
     }
 
@@ -55,11 +52,9 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         TextView time;
         TextView order;
         TextView note;
-        FrameLayout reservationLayoutItem;
+        RelativeLayout reservationLayoutItem;
 
-       // OnReservationListener onReservationListener;
-
-        public ViewHolder(@NonNull View itemView) {//, OnReservationListener onReservationListener) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             name = itemView.findViewById(R.id.person_name);
@@ -67,24 +62,10 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
             order = itemView.findViewById(R.id.reservation_plate);
             note = itemView.findViewById(R.id.reservation_note);
 
-           // viewBackground = itemView.findViewById(R.id.view_background);
-            reservationLayoutItem = itemView.findViewById(R.id.cardViewReservation);
-           // this.onReservationListener = onReservationListener;
-
-            //itemView.setOnClickListener(this);
+            reservationLayoutItem = itemView.findViewById(R.id.layout_reservationCardView_item);
         }
-/*
-        @Override
-        public void onClick(View v) {
-            onReservationListener.OnReservationClick(getAdapterPosition());
-        }*/
     }
-/*
-    public void addItem(ReservationInfo item, int position){
-        reservationInfoList.add(position, item);
-        notifyItemInserted(position);
-    }
-*/
+
     public void removeItem(int position) {
            reservationInfoList.remove(position);
             // notify the item removed by position
@@ -97,9 +78,4 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         // notify item added by position
         notifyItemInserted(position);
     }
-/*
-    public interface OnReservationListener {
-        void OnReservationClick(int position);
-    }
-*/
 }
