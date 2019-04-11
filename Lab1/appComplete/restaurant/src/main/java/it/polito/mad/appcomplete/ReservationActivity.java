@@ -12,13 +12,14 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 public class ReservationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ReservationActivityInterface{
-    
+        implements NavigationView.OnNavigationItemSelectedListener, ReservationActivityInterface {
+
     private static final String TAG = "ReservationActivity";
-    
+
     /*
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -27,13 +28,12 @@ public class ReservationActivity extends AppCompatActivity
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /*
-     * The {@link ViewPager} that will host the section contents.
-     */
+    //The {@link ViewPager} that will host the section contents.
     private ViewPager mViewPager;
 
-    public PreparingReservationFragment prepFragment;
+    private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
+    private IncomingReservationFragment incFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +54,24 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        prepFragment = new PreparingReservationFragment();
-        endFragment = new ReadyToGoReservationFragment();
+
+        if(savedInstanceState == null) {
+            incFragment = new IncomingReservationFragment();
+
+            prepFragment = new PreparingReservationFragment();
+
+            endFragment = new ReadyToGoReservationFragment();
+        } else {
+            incFragment = (IncomingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:0");
+            if(incFragment == null) {   incFragment = new IncomingReservationFragment();    }
+
+            prepFragment = (PreparingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:1");
+            if(prepFragment == null) {  prepFragment = new PreparingReservationFragment();  }
+
+            endFragment = (ReadyToGoReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:2");
+            if (endFragment == null) {  endFragment = new ReadyToGoReservationFragment();   }
+
+            }
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.containerTabs);
@@ -100,13 +116,12 @@ public class ReservationActivity extends AppCompatActivity
         return true;
     }
 
-    /*
-     * It's going to create a section view adapter in which we add the fragments
-     */
-    private void setupViewPager(@NonNull ViewPager viewPager){
+
+    // It's going to create a section view adapter in which we add the fragments
+    private void setupViewPager(@NonNull ViewPager viewPager) {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        mSectionsPagerAdapter.addFragments(new IncomingReservationFragment(), "Incoming");
+        mSectionsPagerAdapter.addFragments(incFragment, "Incoming");
         mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
         mSectionsPagerAdapter.addFragments(endFragment, "Ready To Go");
 
@@ -115,12 +130,14 @@ public class ReservationActivity extends AppCompatActivity
 
     @Override
     public void processReservation(String fragmentTag, ReservationInfo reservation) {
-        if(fragmentTag.equals(getString(R.string.tab_incoming))) {
-            if(reservation != null) {
+        if (fragmentTag.equals(getString(R.string.tab_incoming))) {
+            if (reservation != null) {
+                Log.d(TAG, "processReservation: " + getString(R.string.tab_incoming));
                 prepFragment.newReservationHasSent(reservation);
             }
-        } else if(fragmentTag.equals(getString(R.string.tab_preparation))){
-            if(reservation != null) {
+        } else if (fragmentTag.equals(getString(R.string.tab_preparation))) {
+            Log.d(TAG, "processReservation: " + getString(R.string.tab_preparation));
+            if (reservation != null) {
                 endFragment.newReservationHasSent(reservation);
             }
         }
@@ -128,9 +145,10 @@ public class ReservationActivity extends AppCompatActivity
 
     @Override
     public void undoOperation(String fragmentTag) {
-        if (fragmentTag.equals(getString(R.string.tab_incoming))){
+        Log.d(TAG, "undoOperation: called");
+        if (fragmentTag.equals(getString(R.string.tab_incoming))) {
             prepFragment.removeItem();
-        } else if(fragmentTag.equals(getString(R.string.tab_preparation))){
+        } else if (fragmentTag.equals(getString(R.string.tab_preparation))) {
             endFragment.removeItem();
         }
     }
