@@ -34,8 +34,9 @@
                 android:id="@+id/reservation_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/person_name"
-                android:layout_marginLeft="20dp"
+                android:layout_marginRight="12dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
                 android:textColor="#262626"
                 android:textSize="30sp"/>
 
@@ -45,14 +46,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/person_name"
                 android:textColor="#262626"
-                android:textSize="30sp"/>
+                android:textSize="24sp"
+                android:inputType="textMultiLine"/>
 
             <TextView
                 android:id="@+id/reservation_note"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/reservation_plate"
-                android:inputType="textMultiLine"
                 android:textColor="#262626"
                 android:textSize="20sp"/>
         </RelativeLayout>

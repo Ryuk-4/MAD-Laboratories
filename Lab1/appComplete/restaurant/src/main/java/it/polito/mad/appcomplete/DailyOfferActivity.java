@@ -87,10 +87,9 @@ public class DailyOfferActivity
         initializeCardLayout();
     }
 
-    //in alternativa on start chiedere a malnati
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onRestart() {
+        super.onRestart();
 
         initializeCardLayout();
     }
@@ -183,7 +182,7 @@ public class DailyOfferActivity
             myAdapter.removeItem(viewHolder.getAdapterPosition());
 
             Snackbar snackbar = Snackbar
-                    .make(rv, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+                    .make(rv, name + "dish removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
