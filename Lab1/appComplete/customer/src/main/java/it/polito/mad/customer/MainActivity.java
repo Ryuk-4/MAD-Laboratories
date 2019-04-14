@@ -1,108 +1,113 @@
 package it.polito.mad.customer;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
-    private ImageView im;
-    private Toolbar toolbar;
-    private TextView surname;
-    private TextView sex;
-    private TextView dateOfBirth;
-    private TextView name;
-    private TextView phone;
-    private TextView address;
-    private TextView email;
-    private SharedPreferences sharedpref;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private FirebaseAuth.AuthStateListener authListener;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        toolbar = findViewById(R.id.toolbar);
+        setContentView(R.layout.drawer_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
 
-        im = findViewById(R.id.imageView1);
-        name = findViewById(R.id.textViewName);
-        phone = findViewById(R.id.textViewTelephone);
-        address = findViewById(R.id.textViewAddress);
-        email = findViewById(R.id.textViewEmail);
-        surname = findViewById(R.id.textViewSurname);
-        sex = findViewById(R.id.textViewSex);
-        dateOfBirth = findViewById(R.id.textViewDateOfBirth);
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
 
-        sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        //get current user
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        DrawerLayout drawer = findViewById(R.id.drawer_main);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(MainActivity.this);
+
+
+    }
+
+    //sign out method
+    public void signOut() {
+        auth.signOut();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        displayData();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
+    }
 
-        int id = item.getItemId();
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
 
-        if(id == R.id.edit_action){
-            //This action will happen when is clicked the edit button in the action bar
-            Intent intent = new Intent(this, EditActivity.class);
+        if (id == R.id.nav_restaurant) {
+
+        } else if (id == R.id.nav_profile) {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_contactUs) {
+
         }
 
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
-
-        SharedPreferences.Editor editor = sharedpref.edit();
-
-        editor.putBoolean("saved", false);
-        editor.apply();
-
-        String nameEdit = sharedpref.getString("name", "");
-        String phoneEdit = sharedpref.getString("phone", "");
-        String addressEdit = sharedpref.getString("address", "");
-        String emailEdit = sharedpref.getString("email", "");
-        String surnameEdit = sharedpref.getString("surname", "");
-        String dateEdit = sharedpref.getString("dateOfBirth", "");
-        String sexString = sharedpref.getString("sex", "");
-
-        if(imageAsBytes != null) {
-            im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
-        }
-
-        name.setText(nameEdit);
-        phone.setText(phoneEdit);
-        address.setText(addressEdit);
-        email.setText(emailEdit);
-        dateOfBirth.setText(dateEdit);
-        surname.setText(surnameEdit);
-        sex.setText(sexString);
+        DrawerLayout drawer = findViewById(R.id.drawer_main);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
