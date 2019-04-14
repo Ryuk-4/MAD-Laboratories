@@ -5,6 +5,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -13,7 +18,9 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ProfileActivity extends AppCompatActivity {
+import com.jaeger.library.StatusBarUtil;
+
+public class ProfileActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private ImageView im;
     private Toolbar toolbar;
     private TextView surname;
@@ -29,11 +36,36 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
-        toolbar = findViewById(R.id.toolbar);
+
+        initLayout();
+
+        displayData();
+    }
+
+    private void initLayout() {
+        setContentView(R.layout.drawer_profile);
+        toolbar = findViewById(R.id.toolbarProfile);
         setSupportActionBar(toolbar);
 
-        im = findViewById(R.id.imageView1);
+        getLayoutReference();
+
+        StatusBarUtil.setTransparent(this);
+
+        initDrawer();
+    }
+
+    private void initDrawer() {
+        DrawerLayout drawer = findViewById(R.id.drawer_profile);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(ProfileActivity.this);
+    }
+
+    private void getLayoutReference() {
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
         address = findViewById(R.id.textViewAddress);
@@ -41,6 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
         surname = findViewById(R.id.textViewSurname);
         sex = findViewById(R.id.textViewSex);
         dateOfBirth = findViewById(R.id.textViewDateOfBirth);
+        //im = findViewById(R.id.imageView1);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
     }
@@ -92,10 +125,10 @@ public class ProfileActivity extends AppCompatActivity {
         String dateEdit = sharedpref.getString("dateOfBirth", "");
         String sexString = sharedpref.getString("sex", "");
 
-        if(imageAsBytes != null) {
-            im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
-        }
+        //if(imageAsBytes != null) {
+        //    im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
+        //            0, imageAsBytes.length));
+        //}
 
         name.setText(nameEdit);
         phone.setText(phoneEdit);
@@ -104,5 +137,25 @@ public class ProfileActivity extends AppCompatActivity {
         dateOfBirth.setText(dateEdit);
         surname.setText(surnameEdit);
         sex.setText(sexString);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
+
+        if (id == R.id.nav_restaurant) {
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_profile) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_contactUs) {
+
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_profile);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
