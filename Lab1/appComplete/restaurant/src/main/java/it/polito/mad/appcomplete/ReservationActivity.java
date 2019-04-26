@@ -1,6 +1,8 @@
 package it.polito.mad.appcomplete;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -12,11 +14,19 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class ReservationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ReservationActivityInterface {
+        implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
 
     private static final String TAG = "ReservationActivity";
 
@@ -34,6 +44,11 @@ public class ReservationActivity extends AppCompatActivity
     private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
     private IncomingReservationFragment incFragment;
+
+    private Menu mMenu;
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,27 +69,57 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
 
-        if(savedInstanceState == null) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user == null) {
+                    startActivity(new Intent(ReservationActivity.this, RestaurantLoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        mMenu = navigationView.getMenu();
+        mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+
+       // if (savedInstanceState == null) {
             incFragment = new IncomingReservationFragment();
 
             prepFragment = new PreparingReservationFragment();
 
             endFragment = new ReadyToGoReservationFragment();
-        } else {
+        /*} else {
             incFragment = (IncomingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:0");
-            if(incFragment == null) {   incFragment = new IncomingReservationFragment();    }
-
-            prepFragment = (PreparingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:1");
-            if(prepFragment == null) {  prepFragment = new PreparingReservationFragment();  }
-
-            endFragment = (ReadyToGoReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:2");
-            if (endFragment == null) {  endFragment = new ReadyToGoReservationFragment();   }
-
+            if (incFragment == null) {
+                incFragment = new IncomingReservationFragment();
             }
 
+            prepFragment = (PreparingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:1");
+            if (prepFragment == null) {
+                prepFragment = new PreparingReservationFragment();
+            }
+
+            endFragment = (ReadyToGoReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:2");
+            if (endFragment == null) {
+                endFragment = new ReadyToGoReservationFragment();
+            }
+
+        }*/
+
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.containerTabs);
+        mViewPager = findViewById(R.id.containerTabs);
         setupViewPager(mViewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -82,6 +127,59 @@ public class ReservationActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(mViewPager);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+
+        int id = item.getItemId();
+
+        if (id == R.id.logoutButton) {
+            logout();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+        // if login == false then hide logout button
+        if (!preferences.getBoolean("login", false)) {
+            menu.findItem(R.id.logoutButton).setVisible(false);
+            menu.findItem(R.id.edit_action).setVisible(false);
+            menu.findItem(R.id.nav_deleteAccount).setVisible(false);
+        } else {
+            menu.findItem(R.id.logoutButton).setVisible(true);
+            menu.findItem(R.id.edit_action).setVisible(false);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authStateListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (authStateListener != null) {
+            auth.removeAuthStateListener(authStateListener);
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -129,27 +227,24 @@ public class ReservationActivity extends AppCompatActivity
     }
 
     @Override
-    public void processReservation(String fragmentTag, ReservationInfo reservation) {
-        if (fragmentTag.equals(getString(R.string.tab_incoming))) {
-            if (reservation != null) {
-                Log.d(TAG, "processReservation: " + getString(R.string.tab_incoming));
-                prepFragment.newReservationHasSent(reservation);
-            }
-        } else if (fragmentTag.equals(getString(R.string.tab_preparation))) {
-            Log.d(TAG, "processReservation: " + getString(R.string.tab_preparation));
-            if (reservation != null) {
-                endFragment.newReservationHasSent(reservation);
-            }
-        }
-    }
+    public void logout() {
+        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-    @Override
-    public void undoOperation(String fragmentTag) {
-        Log.d(TAG, "undoOperation: called");
-        if (fragmentTag.equals(getString(R.string.tab_incoming))) {
-            prepFragment.removeItem();
-        } else if (fragmentTag.equals(getString(R.string.tab_preparation))) {
-            endFragment.removeItem();
-        }
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("login", false);
+        editor.apply();
+
+        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
+        invalidateOptionsMenu();
+        auth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                    }
+                });
     }
 }

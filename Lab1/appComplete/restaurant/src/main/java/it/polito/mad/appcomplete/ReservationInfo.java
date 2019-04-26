@@ -6,25 +6,33 @@ import android.os.Parcelable;
 import java.util.Comparator;
 
 public class ReservationInfo implements Parcelable {
+    private String orderID;
     private String namePerson;
+    private String idPerson;
     private String timeReservation;
     private String personOrder;
     private String note;
 
-    public ReservationInfo(String namePerson, String timeReservation, String personOrder, String note) {
+    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note) {
+        this.orderID = orderID;
+        this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
         this.personOrder = personOrder;
         this.note = note;
     }
 
-    public ReservationInfo(String namePerson, String timeReservation, String personOrder) {
+    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder) {
+        this.orderID = orderID;
+        this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
         this.personOrder = personOrder;
     }
 
     public ReservationInfo() {
+        this.idPerson = " ";
+        this.orderID = " ";
         this.namePerson = " ";
         this.timeReservation = " ";
         this.personOrder = " ";
@@ -32,6 +40,8 @@ public class ReservationInfo implements Parcelable {
     }
 
     protected ReservationInfo(Parcel in) {
+        orderID = in.readString();
+        idPerson = in.readString();
         namePerson = in.readString();
         timeReservation = in.readString();
         personOrder = in.readString();
@@ -52,6 +62,22 @@ public class ReservationInfo implements Parcelable {
 
     public void setNamePerson(String namePerson) {
         this.namePerson = namePerson;
+    }
+
+    public void setPersonOrder(String personOrder) {
+        this.personOrder = personOrder;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public void setOrderID(String orderID) {
+        this.orderID = orderID;
+    }
+
+    public void setIdPerson(String idPerson) {
+        this.idPerson = idPerson;
     }
 
     public void setTimeReservation(String timeReservation) {
@@ -82,6 +108,14 @@ public class ReservationInfo implements Parcelable {
         return note;
     }
 
+    public String getOrderID() {
+        return orderID;
+    }
+
+    public String getIdPerson() {
+        return idPerson;
+    }
+
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {
         @Override
         public int compare(ReservationInfo o1, ReservationInfo o2) {
@@ -96,6 +130,8 @@ public class ReservationInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(orderID);
+        dest.writeString(idPerson);
         dest.writeString(namePerson);
         dest.writeString(timeReservation);
         dest.writeString(personOrder);

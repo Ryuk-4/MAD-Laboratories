@@ -1,10 +1,10 @@
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -16,6 +16,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,24 +37,12 @@ public class IncomingReservationFragment extends Fragment
     private RecyclerView recyclerView;
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
-    private ReservationActivityInterface resActivityInterface;
+
+    private SharedPreferences preferences;
+    private DatabaseReference database;
 
     public IncomingReservationFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: called");
-
-        if (savedInstanceState == null) {
-            initializeReservation();
-
-        } else {
-
-            reservationInfoList = (ArrayList<ReservationInfo>) savedInstanceState.getSerializable("incReservations");
-        }
     }
 
     @Override
@@ -62,30 +56,11 @@ public class IncomingReservationFragment extends Fragment
 
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
-        initializeRecyclerViewReservation(view);
+        recyclerView = view.findViewById(R.id.recyclerViewIncomingReservation);
+
+        initializeReservation();
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        resActivityInterface = (ReservationActivityInterface) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        resActivityInterface = null;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putSerializable("incReservations", reservationInfoList);
     }
 
     @Override
@@ -109,29 +84,44 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void initializeReservation() {
-        reservationInfoList = new ArrayList<>();
+        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-        reservationInfoList.add(new ReservationInfo("John", "20:00",
-                "pizza"));
+        database = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference branchOrdersIncoming = database.child("restaurants").child(preferences.getString("Uid", ""))
+                .child("Orders").child("Incoming");
 
-        reservationInfoList.add(new ReservationInfo("Jane", "20:30",
-                "diavola", "With french fries"));
+        branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                reservationInfoList = new ArrayList<>();
 
-        reservationInfoList.add(new ReservationInfo("Lucy", "19:30",
-                "pasta", "no tomatoes"));
-        reservationInfoList.add(new ReservationInfo("Mary", "19:45",
-                "Chicken"));
+                for (DataSnapshot data :  dataSnapshot.getChildren()){
+                    ReservationInfo value = data.getValue(ReservationInfo.class);
+                    value.setOrderID(data.getKey());
+
+                    reservationInfoList.add(restoreItem(value));
+                }
+
+                initializeRecyclerViewReservation();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
+
     }
 
-    private void initializeRecyclerViewReservation(View view) {
-        recyclerView = view.findViewById(R.id.recyclerViewIncomingReservation);
+    private void initializeRecyclerViewReservation() {
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
+        Log.d(TAG, "initializeRecyclerViewReservation: called");
 
         Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
 
-        recyclerView.setAdapter(myAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(myAdapter);
 
         // adding item touch helper
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
@@ -154,15 +144,26 @@ public class IncomingReservationFragment extends Fragment
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());
             Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
-            final int deletedIndex = viewHolder.getAdapterPosition();
-            Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
-            // remove the item from recycler view
+            //final int deletedIndex = viewHolder.getAdapterPosition();
+            //Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
+            final String deletedReservationId = deletedItem.getOrderID();
+            Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
 
-            myAdapter.removeItem(viewHolder.getAdapterPosition());
+            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+            database = FirebaseDatabase.getInstance().getReference();
+
+            final DatabaseReference branchOrdersIncoming = database.child("restaurants")
+                    .child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
+
+            branchOrdersIncoming.child(deletedReservationId).removeValue();
 
             if (direction == ItemTouchHelper.RIGHT) {
+                final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
+                        .child(preferences.getString("Uid", " ")).child("Orders")
+                        .child("In_Preparation");
 
-                resActivityInterface.processReservation(getString(R.string.tab_incoming), deletedItem);
+                branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation in preparation", Snackbar.LENGTH_LONG);
@@ -171,8 +172,9 @@ public class IncomingReservationFragment extends Fragment
                     public void onClick(View view) {
 
                         // undo is selected, restore the deleted item
-                        myAdapter.restoreItem(deletedItem, deletedIndex);
-                        resActivityInterface.undoOperation(getString(R.string.tab_incoming));
+                        branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                        branchOrdersInPreparation.child(deletedReservationId).removeValue();
+
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
@@ -187,13 +189,30 @@ public class IncomingReservationFragment extends Fragment
                     public void onClick(View view) {
 
                         // undo is selected, restore the deleted item
-                        myAdapter.restoreItem(deletedItem, deletedIndex);
+                        branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
+
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
                 snackbar.show();
             }
         }
+    }
+
+    public ReservationInfo restoreItem(ReservationInfo reservationInfo){
+        ReservationInfo res = new ReservationInfo();
+
+        res.setOrderID(reservationInfo.getOrderID());
+        res.setIdPerson(reservationInfo.getIdPerson());
+        res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setNamePerson(reservationInfo.getNamePerson());
+        res.setTimeReservation(reservationInfo.getTimeReservation());
+
+        if (reservationInfo.getNote() != null) {
+            res.setNote(reservationInfo.getNote());
+        }
+
+        return res;
     }
 
     @Override

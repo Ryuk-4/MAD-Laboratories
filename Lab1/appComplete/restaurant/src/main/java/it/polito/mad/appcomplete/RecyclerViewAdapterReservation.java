@@ -66,16 +66,4 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         }
     }
 
-    public void removeItem(int position) {
-           reservationInfoList.remove(position);
-            // notify the item removed by position
-            // to perform recycler view delete animations
-            notifyItemRemoved(position);
-    }
-
-    public void restoreItem(ReservationInfo item, int position) {
-        reservationInfoList.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-    }
 }

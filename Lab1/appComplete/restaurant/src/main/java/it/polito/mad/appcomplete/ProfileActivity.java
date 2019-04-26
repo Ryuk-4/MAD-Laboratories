@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,8 +18,16 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 public class ProfileActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
 
     private ImageView im;
     private Toolbar toolbar;
@@ -28,6 +37,12 @@ public class ProfileActivity extends AppCompatActivity
     private TextView email;
     private TextView description;
     private SharedPreferences sharedpref;
+
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+    private GoogleSignInClient mGoogleSignInClient;
+
+    private Menu mMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +72,29 @@ public class ProfileActivity extends AppCompatActivity
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
+        auth = FirebaseAuth.getInstance();
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user == null) {
+                    startActivity(new Intent(ProfileActivity.this, RestaurantLoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        mMenu = navigationView.getMenu();
+        mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -66,11 +104,13 @@ public class ProfileActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_reservation) {
-            Intent intent = new Intent(this, ReservationActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(this, ReservationActivity.class);
+            //startActivity(intent);
+            finish();
         } else if (id == R.id.nav_dailyMenu) {
             Intent intent = new Intent(this, DailyOfferActivity.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
@@ -112,12 +152,17 @@ public class ProfileActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        int id = item.getItemId();
+        switch (item.getItemId()){
+            case R.id.edit_action:
+                //This action will happen when is clicked the edit button in the action bar
+                Intent intent = new Intent(this, ProfileEditActivity.class);
+                startActivity(intent);
+                break;
 
-        if(id == R.id.edit_action){
-            //This action will happen when is clicked the edit button in the action bar
-            Intent intent = new Intent(this, ProfileEditActivity.class);
-            startActivity(intent);
+            case R.id.logoutButton:
+                logout();
+                finish();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -150,5 +195,27 @@ public class ProfileActivity extends AppCompatActivity
             email.setText(emailEdit);
             description.setText(descriptionEdit);
         }
+    }
+
+    @Override
+    public void logout() {
+        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putBoolean("login", false);
+        editor.apply();
+
+        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
+        invalidateOptionsMenu();
+        auth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                    }
+                });
     }
 }

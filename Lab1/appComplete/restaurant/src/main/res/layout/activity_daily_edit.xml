@@ -48,6 +48,7 @@
         android:layout_marginRight="16dp"
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!-- TODO: Ask Stefano-->
 
         <LinearLayout
             android:layout_width="fill_parent"

@@ -124,7 +124,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         displayData();
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -138,7 +137,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         }
          return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
