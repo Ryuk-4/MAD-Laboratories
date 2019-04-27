@@ -1,6 +1,8 @@
 package it.polito.mad.customer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -15,16 +17,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword;
+    private EditText inputEmail, inputPassword, inputName, inputSurname, inputPhoneNo;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
@@ -34,6 +39,9 @@ public class SignupActivity extends AppCompatActivity {
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
+        inputName = (EditText) findViewById(R.id.name);
+        inputSurname = (EditText) findViewById(R.id.surname);
+        inputPhoneNo = (EditText) findViewById(R.id.number);
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
@@ -55,6 +63,11 @@ public class SignupActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (inputEmail.getText() == null || inputName.getText() == null || inputPassword.getText() == null || inputPhoneNo.getText() == null || inputSurname.getText() == null) {
+                    Toast.makeText(getApplicationContext(), "There are some missing fields!", Toast.LENGTH_LONG).show();
+                    return;
+                }
 
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
@@ -89,6 +102,8 @@ public class SignupActivity extends AppCompatActivity {
                                     Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(),
                                             Toast.LENGTH_SHORT).show();
                                 } else {
+                                    saveProfileInfoLocal(inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
+                                    saveProfileInfoFirebase(auth.getCurrentUser().getUid(), inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
                                     startActivity(new Intent(SignupActivity.this, MainActivity.class));
                                     finish();
                                 }
@@ -103,5 +118,27 @@ public class SignupActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         progressBar.setVisibility(View.GONE);
+    }
+
+    private void saveProfileInfoLocal(String name, String surname, String email, String phoneNumber)
+    {
+        SharedPreferences sharedPreferences = getSharedPreferences("userinfo", Context.MODE_PRIVATE);;
+        SharedPreferences.Editor e = sharedPreferences.edit();
+
+        e.putString("name", name);
+        e.putString("phone", phoneNumber);
+        e.putString("email", email);
+        e.putString("surname", surname);
+
+        e.apply();
+    }
+
+    private void saveProfileInfoFirebase(String uId, String name, String surname, String email, String phoneNumber)
+    {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+            databaseReference.child("customers/"+uId+"/name").setValue(name);
+            databaseReference.child("customers/"+uId+"/surname").setValue(surname);
+            databaseReference.child("customers/"+uId+"/email").setValue(email);
+            databaseReference.child("customers/"+uId+"/phone").setValue(phoneNumber);
     }
 }

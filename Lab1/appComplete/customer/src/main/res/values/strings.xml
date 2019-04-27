@@ -27,7 +27,6 @@
     <string name="title_activity_signup">SignupActivity</string>
 
 
-
     <string name="action_sign_in_short">Register</string>
     <string name="email">Email</string>
     <string name="minimum_password">Password too short, enter minimum 6 characters!</string>
@@ -43,7 +42,7 @@
     <string name="hint_password">Password</string>
     <string name="hint_name">Fullname</string>
     <string name="btn_login">LOGIN</string>
-    <string name="btn_link_to_register">Not a member? Get registered in Firebase now!</string>
+    <string name="btn_link_to_register">Not a member? Get registered now!</string>
     <string name="btn_link_to_login">Already registered. Login Me!</string>
     <string name="title_activity_reset_password">ResetPasswordActivity</string>
     <string name="btn_forgot_password">Forgot your password?</string>
@@ -60,7 +59,59 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">Mad Group 39</string>
     <string name="nav_header_desc">Navigation header</string>
-
+    <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="signin_with_google">SIGNIN WITH GOOGLE</string>
+    <string name="default_web_client_id">77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com</string>
+    <string name="or">or</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+    <string name="phone_number">Phone number</string>
+    <string name="our_suggestions">Our Suggestions</string>
+    <string name="search_a_restaurant">Search a restaurant</string>
+    <string name="all_restaurants">All restaurants</string>
+    <string name="daily_food">Daily Food</string>
+    <string name="menu">Menu</string>
+    <string name="reviews">Reviews</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="category_daily_menu">DAILY MENU</string>
+    <string name="category_menu">MENU</string>
+    <string name="category_review">REVIEWS</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="delivery_address">Delivery Address</string>
+    <string name="your_cart">Your Cart</string>
+    <string name="amount">amount</string>
+
+
+    <string-array name="time_orders">
+        <item>19:00</item>
+        <item>19:15</item>
+        <item>19:30</item>
+        <item>19:45</item>
+        <item>20:00</item>
+        <item>20:15</item>
+        <item>20:30</item>
+        <item>20:45</item>
+        <item>21:00</item>
+        <item>21:15</item>
+        <item>21:30</item>
+        <item>21:45</item>
+        <item>22:00</item>
+        <item>22:15</item>
+        <item>22:30</item>
+        <item>22:45</item>
+    </string-array>
+
+    <string-array name="type_of_food">
+        <item>CHINESE</item>
+        <item>JAPANESE</item>
+        <item>ITALIAN</item>
+        <item>INDIAN</item>
+        <item>PIZZA</item>
+        <item>HAMBURGER</item>
+        <item>FISH</item>
+    </string-array>
 </resources>

@@ -3,7 +3,7 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -12,13 +12,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jaeger.library.StatusBarUtil;
+import com.squareup.picasso.Picasso;
+
 
 public class ProfileActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private ImageView im;
@@ -73,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         surname = findViewById(R.id.textViewSurname);
         sex = findViewById(R.id.textViewSex);
         dateOfBirth = findViewById(R.id.textViewDateOfBirth);
-        //im = findViewById(R.id.imageView1);
+        im = findViewById(R.id.imageView1);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
     }
@@ -109,8 +110,7 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
     }
 
     public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+        String imageURL = sharedpref.getString("imageEncoded", "");
 
         SharedPreferences.Editor editor = sharedpref.edit();
 
@@ -125,10 +125,8 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         String dateEdit = sharedpref.getString("dateOfBirth", "");
         String sexString = sharedpref.getString("sex", "");
 
-        //if(imageAsBytes != null) {
-        //    im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-        //            0, imageAsBytes.length));
-        //}
+        if (imageURL.compareTo("") != 0)
+            Picasso.get().load(imageURL).into(im);
 
         name.setText(nameEdit);
         phone.setText(phoneEdit);
