@@ -76,6 +76,19 @@
             </TextView>
 
             <TextView
+                android:id="@+id/textViewHoursLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/openingHoursLabel"/>
+            <TextView
+                android:id="@+id/textViewHours"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:textSize="15sp"
+                android:hint="@string/firstHours"/>
+
+            <TextView
                 android:id="@+id/textViewAddressLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

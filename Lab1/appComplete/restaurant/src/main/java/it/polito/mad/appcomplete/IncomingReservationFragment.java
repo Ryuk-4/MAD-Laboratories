@@ -37,7 +37,6 @@ public class IncomingReservationFragment extends Fragment
     private RecyclerView recyclerView;
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
-
     private SharedPreferences preferences;
     private DatabaseReference database;
 
@@ -123,6 +122,9 @@ public class IncomingReservationFragment extends Fragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
 
+        if (getActivity() == null){
+            Log.d(TAG, "initializeRecyclerViewReservation: myActivity == null");
+        }
         // adding item touch helper
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this, getActivity(), true);

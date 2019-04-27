@@ -1,6 +1,7 @@
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -9,11 +10,13 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,6 +27,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class ReservationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
@@ -49,10 +57,14 @@ public class ReservationActivity extends AppCompatActivity
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "onCreate: called");
+
         setContentView(R.layout.drawer_menu_reservation);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -94,29 +106,30 @@ public class ReservationActivity extends AppCompatActivity
         mMenu = navigationView.getMenu();
         mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
-       // if (savedInstanceState == null) {
-            incFragment = new IncomingReservationFragment();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference branchProfile = database.child("restaurants/" +
+                preferences.getString("Uid", " ") + "/Profile");
 
-            prepFragment = new PreparingReservationFragment();
-
-            endFragment = new ReadyToGoReservationFragment();
-        /*} else {
-            incFragment = (IncomingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:0");
-            if (incFragment == null) {
-                incFragment = new IncomingReservationFragment();
+        branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child("firstTime").getValue().equals(true)){
+                    showDialogMenu();
+                }
             }
 
-            prepFragment = (PreparingReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:1");
-            if (prepFragment == null) {
-                prepFragment = new PreparingReservationFragment();
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
+        });
 
-            endFragment = (ReadyToGoReservationFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:2131296316:2");
-            if (endFragment == null) {
-                endFragment = new ReadyToGoReservationFragment();
-            }
+        incFragment = new IncomingReservationFragment();
 
-        }*/
+        prepFragment = new PreparingReservationFragment();
+
+        endFragment = new ReadyToGoReservationFragment();
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.containerTabs);
@@ -125,6 +138,20 @@ public class ReservationActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         tabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void showDialogMenu() {
+        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+
+        pictureDialog.setTitle("Welcome");
+        pictureDialog.setMessage("Before start using our app, please complete your profile.");
+        pictureDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivity(new Intent(ReservationActivity.this, ProfileActivity.class));
+            }
+        });
+        pictureDialog.show();
     }
 
     @Override
@@ -157,7 +184,6 @@ public class ReservationActivity extends AppCompatActivity
         if (!preferences.getBoolean("login", false)) {
             menu.findItem(R.id.logoutButton).setVisible(false);
             menu.findItem(R.id.edit_action).setVisible(false);
-            menu.findItem(R.id.nav_deleteAccount).setVisible(false);
         } else {
             menu.findItem(R.id.logoutButton).setVisible(true);
             menu.findItem(R.id.edit_action).setVisible(false);
@@ -170,12 +196,13 @@ public class ReservationActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         auth.addAuthStateListener(authStateListener);
+        Log.d(TAG, "onStart: called");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
+        Log.d(TAG, "onStop: called");
         if (authStateListener != null) {
             auth.removeAuthStateListener(authStateListener);
         }
@@ -228,8 +255,6 @@ public class ReservationActivity extends AppCompatActivity
 
     @Override
     public void logout() {
-        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putBoolean("login", false);

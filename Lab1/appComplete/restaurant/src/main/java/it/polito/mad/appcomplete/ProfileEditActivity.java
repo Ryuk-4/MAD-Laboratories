@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -29,33 +30,44 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class ProfileEditActivity extends AppCompatActivity {
+    private static final String TAG = "ProfileEditActivity";
 
-    private static final int GALLERY_REQ= 2000;
+    private static final int GALLERY_REQ = 2000;
     private static final int CAMERA_REQ = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 1000;
 
     private ImageView im_edit;
     private EditText name_edit;
     private EditText phone_edit;
+    private EditText openingHours_edit;
     private EditText address_edit;
     private EditText email_edit;
     private EditText description_edit;
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref;
+    private SharedPreferences sharedpref, preferences;
+
+    DatabaseReference database;
+    DatabaseReference branchProfile;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        switch (requestCode){
+        switch (requestCode) {
 
-            case  MY_CAMERA_PERMISSION_CODE:
+            case MY_CAMERA_PERMISSION_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
                     chooseFromCamera();
@@ -90,6 +102,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
+        openingHours_edit = findViewById(R.id.editTextHours);
         address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
         description_edit = findViewById((R.id.editTextDescription));
@@ -100,7 +113,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         ib = findViewById(R.id.imageButton);
 
         ib.setOnClickListener(
-                new ImageButton.OnClickListener(){
+                new ImageButton.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         showPictureDialog();
@@ -113,13 +126,18 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         //When I click on the Save button
         b.setOnClickListener(
-                new Button.OnClickListener(){
+                new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveInfo(v);
                     }
                 }
         );
+
+        database = FirebaseDatabase.getInstance().getReference();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        branchProfile = database.child("restaurants")
+                .child(preferences.getString("Uid", " ")).child("Profile");
 
         displayData();
     }
@@ -130,12 +148,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        if(item.getItemId() == android.R.id.home){
-            if(sharedpref.getBoolean("saved", false) == false){
+        if (item.getItemId() == android.R.id.home) {
+            if (sharedpref.getBoolean("saved", false) == false) {
                 Toast.makeText(this, "Changes not saved!", Toast.LENGTH_LONG).show();
             }
         }
-         return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -157,7 +175,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         photoByteArray = savedInstanceState.getByteArray("profilePicture");
 
-        if(photoByteArray != null){
+        if (photoByteArray != null) {
             im_edit.setImageBitmap(BitmapFactory.decodeByteArray(photoByteArray,
                     0, photoByteArray.length));
         }
@@ -170,7 +188,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     }
 
-    public void showPictureDialog(){
+    public void showPictureDialog() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("Select Action:");
         pictureDialog.setCancelable(true);
@@ -181,7 +199,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case 0:
                                 chooseFromGalleryPermission();
                                 break;
@@ -196,11 +214,11 @@ public class ProfileEditActivity extends AppCompatActivity {
         pictureDialog.show();
     }
 
-    public void chooseFromGalleryPermission(){
+    public void chooseFromGalleryPermission() {
         int hasPermissionGallery = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        if(hasPermissionGallery == PackageManager.PERMISSION_GRANTED){
+        if (hasPermissionGallery == PackageManager.PERMISSION_GRANTED) {
             chooseFromGallery();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -208,11 +226,11 @@ public class ProfileEditActivity extends AppCompatActivity {
         }
     }
 
-    public void chooseFromCameraPermission(){
+    public void chooseFromCameraPermission() {
         int hasPermissionCamera = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA);
 
-        if(hasPermissionCamera == PackageManager.PERMISSION_GRANTED){
+        if (hasPermissionCamera == PackageManager.PERMISSION_GRANTED) {
             chooseFromCamera();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
@@ -220,13 +238,13 @@ public class ProfileEditActivity extends AppCompatActivity {
         }
     }
 
-    public void chooseFromGallery(){
+    public void chooseFromGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, GALLERY_REQ);
     }
 
-    public void  chooseFromCamera(){
+    public void chooseFromCamera() {
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, CAMERA_REQ);
     }
@@ -236,13 +254,13 @@ public class ProfileEditActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap photo;
 
-        if(resultCode == this.RESULT_CANCELED){
+        if (resultCode == this.RESULT_CANCELED) {
             return;
         }
 
-        if(requestCode == GALLERY_REQ && resultCode == this.RESULT_OK){
-            if(data != null){
-                try{
+        if (requestCode == GALLERY_REQ && resultCode == this.RESULT_OK) {
+            if (data != null) {
+                try {
                     final Uri contentURI = data.getData();
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
@@ -254,12 +272,12 @@ public class ProfileEditActivity extends AppCompatActivity {
                     im_edit.setImageBitmap(photo);
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else if( requestCode == CAMERA_REQ && resultCode == this.RESULT_OK){
+        } else if (requestCode == CAMERA_REQ && resultCode == this.RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             im_edit.setImageBitmap(photo);
 
@@ -309,12 +327,15 @@ public class ProfileEditActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-    public void saveInfo(View v){
+    public void saveInfo(View v) {
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        if(TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(phone_edit.getText().toString()) ||
-                TextUtils.isEmpty(address_edit.getText().toString()) || TextUtils.isEmpty(email_edit.getText().toString()) ||
-                TextUtils.isEmpty(description_edit.getText().toString())){
+        if (TextUtils.isEmpty(name_edit.getText().toString()) ||
+                TextUtils.isEmpty(phone_edit.getText().toString()) ||
+                TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
+                TextUtils.isEmpty(address_edit.getText().toString()) ||
+                TextUtils.isEmpty(email_edit.getText().toString()) ||
+                TextUtils.isEmpty(description_edit.getText().toString())) {
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -322,28 +343,37 @@ public class ProfileEditActivity extends AppCompatActivity {
             pictureDialog.setMessage("All the fields must be filled.");
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
-        }else{
-            im_edit.buildDrawingCache();
+        } else {
 
-            Bitmap picture = im_edit.getDrawingCache();
+            branchProfile.child("name").setValue(name_edit.getText().toString());
+            branchProfile.child("phone").setValue(phone_edit.getText().toString());
+            branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+            branchProfile.child("address").setValue(address_edit.getText().toString());
+            branchProfile.child("email").setValue(email_edit.getText().toString());
+            branchProfile.child("description").setValue(description_edit.getText().toString());
+            branchProfile.child("firstTime").setValue(false);
 
-            String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
+                //im_edit.buildDrawingCache();
 
-            editor.putString("imageEncoded", imageEncoded);
+            //Bitmap picture = im_edit.getDrawingCache();
+
+            //String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
+
+            //editor.putString("imageEncoded", imageEncoded);
 
             //TODO: Use FIREBASE instead of SharedPreferences
 
             //Store the couple <key, value> into the SharedPreferences
-            editor.putString("name", name_edit.getText().toString());
-            editor.putString("phone", phone_edit.getText().toString());
-            editor.putString("address", address_edit.getText().toString());
-            editor.putString("email", email_edit.getText().toString());
-            editor.putString("description", description_edit.getText().toString());
+            //editor.putString("name", name_edit.getText().toString());
+            //editor.putString("phone", phone_edit.getText().toString());
+            //editor.putString("address", address_edit.getText().toString());
+            //editor.putString("email", email_edit.getText().toString());
+            //editor.putString("description", description_edit.getText().toString());
             editor.putBoolean("saved", true);
 
-            if(sharedpref.getBoolean("firstTime", true) == true){
-                editor.putBoolean("firstTime", false);
-            }
+            //if(sharedpref.getBoolean("firstTime", true) == true){
+            //   editor.putBoolean("firstTime", false);
+            //}
             editor.apply();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
@@ -352,7 +382,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(sharedpref.getBoolean("saved", false) == false){
+        if (sharedpref.getBoolean("saved", false) == false) {
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
             pictureDialog.setTitle("Exit:");
@@ -360,7 +390,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             pictureDialog.setNegativeButton(android.R.string.no, null);
             pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which){
+                public void onClick(DialogInterface dialog, int which) {
                     ProfileEditActivity.super.onBackPressed();
                 }
             });
@@ -370,7 +400,33 @@ public class ProfileEditActivity extends AppCompatActivity {
     }
 
     public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
+
+        branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                email_edit.setText(dataSnapshot.child("email").getValue().toString());
+
+                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                    //im.setImageURI(data.child("imgUrl").getValue().toString());
+                    address_edit.setText(dataSnapshot.child("address").getValue().toString());
+                    description_edit.setText(dataSnapshot.child("description").getValue().toString());
+                    phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
+                    openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
+
+
+
+        /*String imageDecoded = sharedpref.getString("imageEncoded", "");
 
         if(sharedpref.getBoolean("firstTime", true) == false) {
             byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
@@ -390,10 +446,10 @@ public class ProfileEditActivity extends AppCompatActivity {
             address_edit.setText(addressEdit);
             email_edit.setText(emailEdit);
             description_edit.setText(descriptionEdit);
-        }
+        }*/
     }
 
-    private static byte [] bitmapToByteArray(Bitmap photo) {
+    private static byte[] bitmapToByteArray(Bitmap photo) {
         ByteArrayOutputStream streambyte = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.JPEG, 80, streambyte);
         return streambyte.toByteArray();

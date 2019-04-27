@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,6 +28,7 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
 
     private FirebaseAuth auth;
 
+    private  EditText inputName;
     private EditText inputEmail;
     private EditText inputPwd;
     private EditText inputPwd2;
@@ -48,6 +48,7 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
+        inputName = findViewById(R.id.signUpName);
         inputEmail = findViewById(R.id.signUpEmail);
         inputPwd = findViewById(R.id.signUpPwd);
         inputPwd2 = findViewById(R.id.signUpRePwd);
@@ -82,8 +83,9 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
     private void signUp() {
         progressBar.setVisibility(View.VISIBLE);
 
+        final String name = inputName.getText().toString();
         String email = inputEmail.getText().toString();
-        final String pwd = inputPwd.getText().toString();
+        String pwd = inputPwd.getText().toString();
 
         //create user
         auth.createUserWithEmailAndPassword(email, pwd)
@@ -105,10 +107,10 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
                                     getString(R.string.auth_failed) + task.getException(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            RestaurantLoginActivity.rsa.finish();
+                            RestaurantLoginActivity.rla.finish();
 
                             updateUI();
-                            createDataBase();
+                            createDataBase(name);
 
                             startActivity(new Intent(RestaurantSignUpActivity.this, ReservationActivity.class));
                             finish();
@@ -128,7 +130,7 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
         editor.apply();
     }
 
-    private void createDataBase() {
+    private void createDataBase(String name) {
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
         final String Uid = auth.getCurrentUser().getUid();
@@ -142,31 +144,14 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
 
         editor.apply();
 
-        DatabaseReference branchProfile = database.child("restaurants").child(Uid).child("Profile");
-        DatabaseReference branchOrders = database.child("restaurants").child(Uid).child("Orders");
-        DatabaseReference branchDailyFood = database.child("restaurants").child(Uid).child("Daily_Food");
-        DatabaseReference branchFavorites = database.child("restaurants").child(Uid).child("Favorites");
+        DatabaseReference branchProfile = database.child("restaurants/"+Uid+"/Profile");
+        //DatabaseReference branchDailyFood = database.child("restaurants").child(Uid).child("Daily_Food");
+        //DatabaseReference branchFavorites = database.child("restaurants").child(Uid).child("Favorites");
 
-        branchProfile.child("UserPhoto").setValue("url");
-        branchProfile.child("Name").setValue("Vito");
-        branchProfile.child("Phone").setValue("800 800 899");
-        branchProfile.child("Address").setValue("Via Roma 1");
-        branchProfile.child("Email").setValue(EmailUser);
-        branchProfile.child("Description").setValue("Italian Restaurant");
-
-
-        //branchOrders.child("Incoming").child("Order0").child("namePerson").setValue("Lucy");
-        //branchOrders.child("Incoming").child("Order0").child("timeReservation").setValue("20:00");
-        //branchOrders.child("Incoming").child("Order0").child("personOrder").setValue("Pizza");
-
-        //branchOrders.child("Incoming").child("Order1").child("namePerson").setValue("John");
-        //branchOrders.child("Incoming").child("Order1").child("timeReservation").setValue("19:00");
-        //branchOrders.child("Incoming").child("Order1").child("personOrder").setValue("Pizza");
-        //branchOrders.child("Incoming").child("Order1").child("note").setValue("Pizza");
-
-        //branchOrders.child("In_Preparation").child("Order0").child("Id0").setValue("Pasta");
-        //branchOrders.child("Ready_To_Go").child("Order0").child("Id0").setValue("Panino");
-
+        branchProfile.child("name").setValue(name);
+        branchProfile.child("firstTime").setValue(true);
+        branchProfile.child("email").setValue(EmailUser);
+/*
         branchDailyFood.child("Description").setValue("prova");
         branchDailyFood.child("Name").setValue("prova");
         branchDailyFood.child("Photo").setValue("Url");
@@ -189,17 +174,18 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
         branchFavorites.child("Food3").child("Description").setValue("prova");
         branchFavorites.child("Food3").child("Name").setValue("prova");
         branchFavorites.child("Type_Food").child("type1").setValue("italian");
+        */
     }
 
     private boolean validate() {
         boolean flag = true;
 
+        String name = inputName.getText().toString();
         String email = inputEmail.getText().toString();
         final String pwd = inputPwd.getText().toString();
         final String pwd2 = inputPwd2.getText().toString();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd) || TextUtils.isEmpty(pwd2)) {
-
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd) || TextUtils.isEmpty(pwd2)) {
             Toast.makeText(getApplicationContext(), "One or more fields may be empty!",
                     Toast.LENGTH_LONG).show();
             flag = false;

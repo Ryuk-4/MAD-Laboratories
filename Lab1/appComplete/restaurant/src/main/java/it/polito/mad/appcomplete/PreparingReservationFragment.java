@@ -1,6 +1,5 @@
 package it.polito.mad.appcomplete;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -90,10 +88,10 @@ public class PreparingReservationFragment extends Fragment
 
     private void initializeReservation() {
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        String Uid = preferences.getString("Uid", " ");
 
         database = FirebaseDatabase.getInstance().getReference();
-        branchOrdersInPreparation = database.child("restaurants").child(preferences.getString("Uid", " "))
-                .child("Orders").child("In_Preparation");
+        branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
 
         branchOrdersInPreparation.addValueEventListener(new ValueEventListener() {
             @Override
@@ -125,40 +123,33 @@ public class PreparingReservationFragment extends Fragment
         recyclerView.setAdapter(myAdapter);
 
         // adding item touch helper
-        if (getActivity() == null ){
-            Log.d(TAG, "initializeRecyclerViewReservation: getActivity() == null");
-        } else {
-            ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
-                    ItemTouchHelper.RIGHT, this, getActivity(), false);
+        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
+                ItemTouchHelper.RIGHT, this, getActivity(), false);
 
-            new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
-        }
+        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
+
     }
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder) {
             // get the removed item name to display it in snack bar
+            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
             String name = reservationPreparingList.get(viewHolder.getAdapterPosition()).getNamePerson();
+            String Uid = preferences.getString("Uid", " ");
 
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationPreparingList.get(viewHolder.getAdapterPosition());
             Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
-            //final int deletedIndex = viewHolder.getAdapterPosition();
-            //Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
 
-            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
             database = FirebaseDatabase.getInstance().getReference();
 
-            branchOrdersInPreparation = database.child("restaurants")
-                    .child(preferences.getString("Uid", " ")).child("Orders")
-                    .child("In_Preparation");
+            branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
 
-            branchOrdersReady = database.child("restaurants")
-                    .child(preferences.getString("Uid", " ")).child("Orders")
-                    .child("Ready_To_Go");
+            branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
 
             branchOrdersInPreparation.child(deletedReservationId).removeValue();
             branchOrdersReady.child(deletedReservationId).setValue(restoreItem(deletedItem));

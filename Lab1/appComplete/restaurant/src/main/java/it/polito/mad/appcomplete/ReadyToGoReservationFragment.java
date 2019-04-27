@@ -1,10 +1,13 @@
 package it.polito.mad.appcomplete;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +38,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     private SharedPreferences preferences;
     private DatabaseReference database;
     private DatabaseReference branchOrdersReady;
+    private Activity myActivity;
 
     public ReadyToGoReservationFragment() {
         // Required empty public constructor
@@ -52,16 +56,28 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
         mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
-        initializeReservation();
-
         return view;
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d(TAG, "onActivityCreated: called");
 
-        initializeReservation();
+        if (getActivity() == null){
+            Log.d(TAG, "onActivityCreated: inside if");
+        } else {
+            Log.d(TAG, "onActivityCreated: inside else");
+            myActivity = getActivity();
+            initializeReservation();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        myActivity = null;
     }
 
     private void initializeReservation() {

@@ -38,7 +38,7 @@ public class RestaurantLoginActivity extends AppCompatActivity
     private static final int REQ_SIGN_IN = 9001;
     private static final int G_REQ_SIGN_IN = 9002;
 
-    public static RestaurantLoginActivity rsa;
+    public static RestaurantLoginActivity rla;
 
     private EditText inputEmail;
     private EditText inputPassword;
@@ -60,7 +60,7 @@ public class RestaurantLoginActivity extends AppCompatActivity
 
         Log.d(TAG, "onCreate: callled");
 
-        rsa = this;
+        rla = this;
 
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();

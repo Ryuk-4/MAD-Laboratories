@@ -52,10 +52,19 @@
                 android:src="@drawable/common_google_signin_btn_icon_light_normal" />
 
             <EditText
-                android:id="@+id/signUpEmail"
+                android:id="@+id/signUpName"
                 android:layout_width="285dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
+                android:ems="10"
+                android:hint="Name"
+                android:inputType="textPersonName" />
+
+            <EditText
+                android:id="@+id/signUpEmail"
+                android:layout_width="285dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:ems="10"
                 android:hint="Email"
                 android:inputType="textEmailAddress" />

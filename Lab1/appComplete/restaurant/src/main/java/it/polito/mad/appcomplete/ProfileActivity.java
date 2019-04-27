@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -25,18 +26,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
+
+    private static final String TAG = "ProfileActivity";
 
     private ImageView im;
     private Toolbar toolbar;
     private TextView name;
     private TextView phone;
+    private TextView openingHours;
     private TextView address;
     private TextView email;
     private TextView description;
-    private SharedPreferences sharedpref;
+    private SharedPreferences sharedpref, preferences;
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -66,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity
         im = findViewById(R.id.imageView1);
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
+        openingHours = findViewById(R.id.textViewHours);
         address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
         description = findViewById(R.id.textViewDescription);
@@ -104,8 +114,6 @@ public class ProfileActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_reservation) {
-            //Intent intent = new Intent(this, ReservationActivity.class);
-            //startActivity(intent);
             finish();
         } else if (id == R.id.nav_dailyMenu) {
             Intent intent = new Intent(this, DailyOfferActivity.class);
@@ -152,7 +160,7 @@ public class ProfileActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.edit_action:
                 //This action will happen when is clicked the edit button in the action bar
                 Intent intent = new Intent(this, ProfileEditActivity.class);
@@ -169,9 +177,39 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        if(sharedpref.getBoolean("firstTime", true) == false) {
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        String Uid = preferences.getString("Uid", " ");
+        DatabaseReference branchProfile = database.child("restaurants/" + Uid + "/Profile");
+
+        branchProfile.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange: ");
+
+                name.setText(dataSnapshot.child("name").getValue().toString());
+                email.setText(dataSnapshot.child("email").getValue().toString());
+
+                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+
+                    //im.setImageURI(dataSnapshot.child("imgUrl").getValue().toString());
+                    address.setText(dataSnapshot.child("address").getValue().toString());
+                    description.setText(dataSnapshot.child("description").getValue().toString());
+                    phone.setText(dataSnapshot.child("phone").getValue().toString());
+                    openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
+
+        /*if(sharedpref.getBoolean("firstTime", true) == false) {
+            String imageDecoded = sharedpref.getString("imageEncoded", "");
             byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
             SharedPreferences.Editor editor = sharedpref.edit();
 
@@ -194,7 +232,7 @@ public class ProfileActivity extends AppCompatActivity
             address.setText(addressEdit);
             email.setText(emailEdit);
             description.setText(descriptionEdit);
-        }
+        }*/
     }
 
     @Override
