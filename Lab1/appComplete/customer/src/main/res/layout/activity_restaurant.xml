@@ -23,7 +23,8 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="false">
+            app:titleEnabled="false"
+            android:background="@color/light_background_color">
 
             <ImageView
                 android:id="@+id/htab_header"

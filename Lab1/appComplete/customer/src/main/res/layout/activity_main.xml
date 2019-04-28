@@ -21,7 +21,8 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:toolbarId="@id/toolbar">
+            app:toolbarId="@id/toolbar"
+            android:background="@color/light_background_color">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -72,17 +73,17 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:layout_collapseMode="pin"
-
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <LinearLayout
                 android:id="@+id/search_filter_option"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="210dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="200dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginBottom="0dp"
+                android:background="@color/white"
                 android:fitsSystemWindows="true"
                 android:orientation="vertical"
                 android:visibility="gone">
@@ -90,7 +91,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
                     android:text="MAX DISTANCE"
+                    android:textColor="@android:color/black"
                     android:textSize="18dp" />
 
                 <LinearLayout
@@ -101,6 +105,7 @@
                     <SeekBar
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
                         android:layout_marginTop="5dp" />
 
                     <TextView
@@ -109,20 +114,25 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
-                        android:text="0km" />
+                        android:text="0km"
+                        android:textColor="@android:color/black" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
                     android:layout_marginTop="10dp"
                     android:text="TYPE OF FOOD"
+                    android:textColor="@android:color/black"
                     android:textSize="18dp" />
 
                 <LinearLayout
                     android:id="@+id/type_of_food"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginBottom="16dp"
                     android:orientation="vertical">
 
                 </LinearLayout>
@@ -156,6 +166,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvSuggested"
                 android:layout_width="match_parent"
@@ -169,8 +180,9 @@
                     android:id="@+id/progress_bar_favorite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="visible" />
+                    android:indeterminate="true"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"/>
             </FrameLayout>
 
             <TextView
