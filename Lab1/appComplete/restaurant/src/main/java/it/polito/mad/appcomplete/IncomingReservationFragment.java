@@ -86,8 +86,8 @@ public class IncomingReservationFragment extends Fragment
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchOrdersIncoming = database.child("restaurants").child(preferences.getString("Uid", ""))
-                .child("Orders").child("Incoming");
+        DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+                preferences.getString("Uid", "") + "/Orders/Incoming");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -122,9 +122,6 @@ public class IncomingReservationFragment extends Fragment
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
 
-        if (getActivity() == null){
-            Log.d(TAG, "initializeRecyclerViewReservation: myActivity == null");
-        }
         // adding item touch helper
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this, getActivity(), true);
@@ -155,8 +152,8 @@ public class IncomingReservationFragment extends Fragment
 
             database = FirebaseDatabase.getInstance().getReference();
 
-            final DatabaseReference branchOrdersIncoming = database.child("restaurants")
-                    .child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
+            final DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+                    preferences.getString("Uid", " ") + "/Orders/Incoming");
 
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 

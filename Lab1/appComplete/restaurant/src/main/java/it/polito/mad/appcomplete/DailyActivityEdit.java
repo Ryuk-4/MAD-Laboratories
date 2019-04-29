@@ -34,6 +34,11 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -54,18 +59,18 @@ public class DailyActivityEdit extends AppCompatActivity {
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref, foodFavorite;
+    private SharedPreferences sharedpref, foodFavorite, preferences;
     private CheckBox favoriteFood;
     private boolean favorite, editFood;
     private int i = -1;
-    //private String day;
-    //private ArrayAdapter<CharSequence> adapter1;
-    //Spinner spinner;
 
     private FoodInfo foodInfo;
 
     private Bitmap photo;
 
+    private String id;
+    private DatabaseReference database;
+    private DatabaseReference branchDailyFood;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -100,7 +105,6 @@ public class DailyActivityEdit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_edit);
 
-        //day = getIntent().getStringExtra("day");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -165,20 +169,38 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayoutFavoriteFood(SharedPreferences foodFavorite) {
-        i = getIntent().getIntExtra("food_position", 0);
 
-        name_edit.setText(foodFavorite.getString("foodName" + i, ""));
-        editTextPrice.setText(foodFavorite.getString("foodPrice" + i, ""));
-        editAvailableQuantity.setText(foodFavorite.getString("foodQuantity" + i, ""));
-        EditDescription.setText(foodFavorite.getString("foodDescription" + i, ""));
+        if ( (id = getIntent().getStringExtra("food_position")) != null) {
 
+            database = FirebaseDatabase.getInstance().getReference();
+            preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+            String Uid = preferences.getString("Uid", "");
+            branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
+
+            branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    name_edit.setText(dataSnapshot.child("Name").getValue().toString());
+                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+/*
         byte[] imageAsBytes = Base64.decode(foodFavorite.getString("foodImage" + i, ""), Base64.DEFAULT);
         photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
         im_edit.setImageBitmap(photo);
-
-        favoriteFood.setVisibility(View.GONE);
-        favorite = true;
-        editFood = false;
+*/
+            favoriteFood.setVisibility(View.GONE);
+            favorite = true;
+            editFood = false;
+        }
     }
 
     private void initLayoutModifyFood(SharedPreferences sharedpref) {
@@ -224,7 +246,6 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
-        //outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
         outState.putBoolean("favorite", favorite);
         outState.putBoolean("editFood", editFood);
     }

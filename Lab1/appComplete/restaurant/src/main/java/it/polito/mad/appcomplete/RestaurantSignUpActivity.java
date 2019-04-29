@@ -145,36 +145,11 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
         editor.apply();
 
         DatabaseReference branchProfile = database.child("restaurants/"+Uid+"/Profile");
-        //DatabaseReference branchDailyFood = database.child("restaurants").child(Uid).child("Daily_Food");
-        //DatabaseReference branchFavorites = database.child("restaurants").child(Uid).child("Favorites");
 
         branchProfile.child("name").setValue(name);
         branchProfile.child("firstTime").setValue(true);
         branchProfile.child("email").setValue(EmailUser);
-/*
-        branchDailyFood.child("Description").setValue("prova");
-        branchDailyFood.child("Name").setValue("prova");
-        branchDailyFood.child("Photo").setValue("Url");
 
-        branchDailyFood.child("Food3").child("Description").setValue("prova");
-        branchDailyFood.child("Food3").child("Name").setValue("prova");
-
-        branchDailyFood.child("Review").child("1star").setValue("21");
-        branchDailyFood.child("Review").child("2star").setValue("45");
-        branchDailyFood.child("Review").child("3star").setValue("12");
-        branchDailyFood.child("Review").child("4star").setValue("33");
-        branchDailyFood.child("Review").child("5star").setValue("56");
-
-        branchDailyFood.child("Type_Food").child("type1").setValue("italian");
-
-        branchFavorites.child("Description").setValue("prova");
-        branchFavorites.child("Name").setValue("prova");
-        branchFavorites.child("Photo").setValue("Url");
-
-        branchFavorites.child("Food3").child("Description").setValue("prova");
-        branchFavorites.child("Food3").child("Name").setValue("prova");
-        branchFavorites.child("Type_Food").child("type1").setValue("italian");
-        */
     }
 
     private boolean validate() {
