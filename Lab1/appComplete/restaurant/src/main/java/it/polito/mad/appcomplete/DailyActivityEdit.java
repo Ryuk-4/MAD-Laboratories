@@ -71,6 +71,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     private String id;
     private DatabaseReference database;
     private DatabaseReference branchDailyFood;
+    private DatabaseReference branchFavouriteFood;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -123,6 +124,8 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
         foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
+        database = FirebaseDatabase.getInstance().getReference();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         SharedPreferences.Editor e = sharedpref.edit();
         e.putBoolean("saved", false);
@@ -172,13 +175,10 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         if ( (id = getIntent().getStringExtra("food_position")) != null) {
 
-            database = FirebaseDatabase.getInstance().getReference();
-            preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
             String Uid = preferences.getString("Uid", "");
-            branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
+            branchFavouriteFood = database.child("restaurants/" + Uid + "Favourites_Food/" + id);
 
-            branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+            branchFavouriteFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     name_edit.setText(dataSnapshot.child("Name").getValue().toString());
@@ -204,16 +204,30 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayoutModifyFood(SharedPreferences sharedpref) {
-        i = getIntent().getIntExtra("food_position", 0);
+        if ( (id = getIntent().getStringExtra("food_position")) != null) {
 
-        name_edit.setText(sharedpref.getString("foodName" + i, ""));
-        editTextPrice.setText(sharedpref.getString("foodPrice" + i, ""));
-        editAvailableQuantity.setText(sharedpref.getString("foodQuantity" + i, ""));
-        EditDescription.setText(sharedpref.getString("foodDescription" + i, ""));
+            String Uid = preferences.getString("Uid", "");
+            branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
 
-        byte[] imageAsBytes = Base64.decode(sharedpref.getString("foodImage" + i, ""), Base64.DEFAULT);
-        photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-        im_edit.setImageBitmap(photo);
+            branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    name_edit.setText(dataSnapshot.child("Name").getValue().toString());
+                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+        //byte[] imageAsBytes = Base64.decode(sharedpref.getString("foodImage" + i, ""), Base64.DEFAULT);
+        //photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+        //im_edit.setImageBitmap(photo);
 
         favorite = false;
         editFood = true;
@@ -461,7 +475,6 @@ public class DailyActivityEdit extends AppCompatActivity {
             editorFavorite.putString("foodQuantity"+numberOfFoodFavorite, editAvailableQuantity.getText().toString());
             editorFavorite.putString("foodDescription"+numberOfFoodFavorite, EditDescription.getText().toString());
             editorFavorite.putString("foodImage"+numberOfFoodFavorite, imageEncoded);
-            //editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
 
             numberOfFoodFavorite++;
             editorFavorite.putInt("numberOfFood", numberOfFoodFavorite);
@@ -470,7 +483,6 @@ public class DailyActivityEdit extends AppCompatActivity {
         }
 
         //TODO
-        //Use FIREBASE instead of SharedPreferences
 
         //Store the couple <key, value> into the SharedPreferences
         editor.putString("foodName"+numberOfFood, name_edit.getText().toString());
@@ -505,26 +517,6 @@ public class DailyActivityEdit extends AppCompatActivity {
 
             pictureDialog.show();
         }
-    }
-
-    public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
-
-        String nameEdit = sharedpref.getString("name", "");
-        String phoneEdit = sharedpref.getString("price", "");
-        String addressEdit = sharedpref.getString("quantity", "");
-        String emailEdit = sharedpref.getString("description", "");
-
-        if(imageAsBytes != null) {
-            im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
-        }
-        name_edit.setText(nameEdit);
-        editTextPrice.setText(phoneEdit);
-        editAvailableQuantity.setText(addressEdit);
-        EditDescription.setText(emailEdit);
-
     }
 
     private static byte [] bitmapToByteArray(Bitmap photo) {

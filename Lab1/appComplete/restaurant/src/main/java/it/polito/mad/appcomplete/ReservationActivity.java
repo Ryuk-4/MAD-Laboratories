@@ -181,7 +181,7 @@ public class ReservationActivity extends AppCompatActivity
         SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         // if login == false then hide logout button
-        if (!preferences.getBoolean("login", false)) {
+        if (!preferences.getBoolean("login", true)) {
             menu.findItem(R.id.logoutButton).setVisible(false);
             menu.findItem(R.id.edit_action).setVisible(false);
         } else {
