@@ -114,7 +114,8 @@ public class CartActivity extends AppCompatActivity{
                 databaseReference.child("order").setValue(totalOrder.toString());
                 databaseReference.child("time").setValue(spinnerTime.getSelectedItem().toString());
 
-                //chiamare l'attivita aspettando il risultato, cosi quando si manda l'ordine ritorno alla main page
+                DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid());
+                databaseReference1.child("previous_order").push().setValue(restId);
                 setResult(RESULT_OK);
                 finish();
             }

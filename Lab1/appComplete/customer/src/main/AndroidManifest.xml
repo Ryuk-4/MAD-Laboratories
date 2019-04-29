@@ -26,6 +26,7 @@
             android:name=".RestaurantActivity"
             android:parentActivityName=".MainActivity"
             android:label="@string/restaurant"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
