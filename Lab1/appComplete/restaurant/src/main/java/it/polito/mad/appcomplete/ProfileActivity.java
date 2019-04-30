@@ -3,7 +3,6 @@ package it.polito.mad.appcomplete;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -12,7 +11,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
@@ -193,7 +192,10 @@ public class ProfileActivity extends AppCompatActivity
 
                 if (dataSnapshot.child("firstTime").getValue().equals(false)) {
 
-                    //im.setImageURI(dataSnapshot.child("imgUrl").getValue().toString());
+                    if (dataSnapshot.child("imgUrl").getValue() != null){
+                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                .fit().centerCrop().into(im);
+                    }
                     address.setText(dataSnapshot.child("address").getValue().toString());
                     description.setText(dataSnapshot.child("description").getValue().toString());
                     phone.setText(dataSnapshot.child("phone").getValue().toString());
@@ -208,31 +210,6 @@ public class ProfileActivity extends AppCompatActivity
             }
         });
 
-        /*if(sharedpref.getBoolean("firstTime", true) == false) {
-            String imageDecoded = sharedpref.getString("imageEncoded", "");
-            byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
-            SharedPreferences.Editor editor = sharedpref.edit();
-
-            editor.putBoolean("saved", false);
-            editor.apply();
-
-            String nameEdit = sharedpref.getString("name", "");
-            String phoneEdit = sharedpref.getString("phone", "");
-            String addressEdit = sharedpref.getString("address", "");
-            String emailEdit = sharedpref.getString("email", "");
-            String descriptionEdit = sharedpref.getString("description", "");
-
-            if (imageAsBytes != null) {
-                im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                        0, imageAsBytes.length));
-            }
-
-            name.setText(nameEdit);
-            phone.setText(phoneEdit);
-            address.setText(addressEdit);
-            email.setText(emailEdit);
-            description.setText(descriptionEdit);
-        }*/
     }
 
     @Override

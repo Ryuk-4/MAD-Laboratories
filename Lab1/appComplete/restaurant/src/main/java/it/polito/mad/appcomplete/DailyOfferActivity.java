@@ -67,7 +67,7 @@ public class DailyOfferActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawer_menu_daily_offer);//ciao
+        setContentView(R.layout.drawer_menu_daily_offer);
         Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
         setSupportActionBar(toolbar);
 
@@ -133,19 +133,27 @@ public class DailyOfferActivity
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        initializeCardLayout();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+        // if login == false then hide logout button
+        if (!preferences.getBoolean("login", true)) {
+            menu.findItem(R.id.logoutButton).setVisible(false);
+            menu.findItem(R.id.edit_action).setVisible(false);
+        } else {
+            menu.findItem(R.id.logoutButton).setVisible(true);
+            menu.findItem(R.id.edit_action).setVisible(false);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -188,7 +196,7 @@ public class DailyOfferActivity
         String Uid = preferences.getString("Uid", "");
         DatabaseReference branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
 
-        branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+        branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 foodList = new ArrayList<>();

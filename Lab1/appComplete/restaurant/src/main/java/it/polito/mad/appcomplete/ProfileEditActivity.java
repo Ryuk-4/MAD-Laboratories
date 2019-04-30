@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +21,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,11 +30,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,8 +64,9 @@ public class ProfileEditActivity extends AppCompatActivity {
     private byte[] photoByteArray;
     private SharedPreferences sharedpref, preferences;
 
-    DatabaseReference database;
-    DatabaseReference branchProfile;
+    private DatabaseReference database;
+    private DatabaseReference branchProfile;
+    private String Uid;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -136,8 +142,9 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        Uid = preferences.getString("Uid", " ");
         branchProfile = database.child("restaurants")
-                .child(preferences.getString("Uid", " ")).child("Profile");
+                .child(Uid).child("Profile");
 
         displayData();
     }
@@ -269,7 +276,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
-                    im_edit.setImageBitmap(photo);
+                    Picasso.get().load(contentURI).fit().centerCrop().into(im_edit);
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
@@ -280,7 +287,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         } else if (requestCode == CAMERA_REQ && resultCode == this.RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             im_edit.setImageBitmap(photo);
-
 
             photoByteArray = bitmapToByteArray(photo);
             Toast.makeText(this, "Image Saved!", Toast.LENGTH_SHORT).show();
@@ -345,6 +351,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             pictureDialog.show();
         } else {
 
+            Log.d(TAG, "saveInfo: called");
             branchProfile.child("name").setValue(name_edit.getText().toString());
             branchProfile.child("phone").setValue(phone_edit.getText().toString());
             branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
@@ -353,27 +360,31 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
 
-                //im_edit.buildDrawingCache();
+            im_edit.setDrawingCacheEnabled(true);
+            im_edit.buildDrawingCache();
+            Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-            //Bitmap picture = im_edit.getDrawingCache();
+            final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                    .child("restaurants/profile_images/profile" + Uid);
+            final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
-            //String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.d(TAG, "onSuccess: called");
+                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-            //editor.putString("imageEncoded", imageEncoded);
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Uri downloadUrl = uri;
 
-            //TODO: Use FIREBASE instead of SharedPreferences
+                                    branchProfile.child("imgUrl").setValue(downloadUrl.toString());
+                                }
+                            });
+                        }
+                    });
 
-            //Store the couple <key, value> into the SharedPreferences
-            //editor.putString("name", name_edit.getText().toString());
-            //editor.putString("phone", phone_edit.getText().toString());
-            //editor.putString("address", address_edit.getText().toString());
-            //editor.putString("email", email_edit.getText().toString());
-            //editor.putString("description", description_edit.getText().toString());
             editor.putBoolean("saved", true);
-
-            //if(sharedpref.getBoolean("firstTime", true) == true){
-            //   editor.putBoolean("firstTime", false);
-            //}
             editor.apply();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
@@ -409,7 +420,10 @@ public class ProfileEditActivity extends AppCompatActivity {
                 email_edit.setText(dataSnapshot.child("email").getValue().toString());
 
                 if (dataSnapshot.child("firstTime").getValue().equals(false)) {
-                    //im.setImageURI(data.child("imgUrl").getValue().toString());
+                    if ((dataSnapshot.child("imgUrl").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                .fit().centerCrop().into(im_edit);
+                    }
                     address_edit.setText(dataSnapshot.child("address").getValue().toString());
                     description_edit.setText(dataSnapshot.child("description").getValue().toString());
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
@@ -424,29 +438,6 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
-
-
-        /*String imageDecoded = sharedpref.getString("imageEncoded", "");
-
-        if(sharedpref.getBoolean("firstTime", true) == false) {
-            byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
-
-            String nameEdit = sharedpref.getString("name", "");
-            String phoneEdit = sharedpref.getString("phone", "");
-            String addressEdit = sharedpref.getString("address", "");
-            String emailEdit = sharedpref.getString("email", "");
-            String descriptionEdit = sharedpref.getString("description", "");
-
-            if (imageAsBytes != null) {
-                im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                        0, imageAsBytes.length));
-            }
-            name_edit.setText(nameEdit);
-            phone_edit.setText(phoneEdit);
-            address_edit.setText(addressEdit);
-            email_edit.setText(emailEdit);
-            description_edit.setText(descriptionEdit);
-        }*/
     }
 
     private static byte[] bitmapToByteArray(Bitmap photo) {
