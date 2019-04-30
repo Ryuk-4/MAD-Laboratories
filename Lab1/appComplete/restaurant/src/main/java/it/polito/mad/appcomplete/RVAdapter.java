@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
@@ -43,9 +45,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         //personViewHolder.foodDescription.setText(persons.get(i).description);
         personViewHolder.Quantity.setText(persons.get(i).getQuantity());
 
-        if (persons.get(i).getImage() != null){}
-            //TODO
-            //personViewHolder.foodImage.setImageBitmap(persons.get(i).image);
+        if (persons.get(i).getImage() != null){
+            Picasso.get().load(persons.get(i).getImage())
+                    .fit().centerCrop().into(personViewHolder.foodImage);
+        }
 
     }
 
