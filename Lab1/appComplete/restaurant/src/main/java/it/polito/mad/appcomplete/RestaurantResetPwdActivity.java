@@ -70,7 +70,9 @@ public class RestaurantResetPwdActivity extends AppCompatActivity {
                             }
                         });
             }
+
         });
+        finish();
     }
 
 }

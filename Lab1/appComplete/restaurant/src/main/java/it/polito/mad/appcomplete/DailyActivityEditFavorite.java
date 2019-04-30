@@ -67,7 +67,7 @@ public class DailyActivityEditFavorite extends AppCompatActivity implements Navi
                 byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
                 Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
 
-                foodList.add(new FoodInfo(" ", " ", foodName, Integer.parseInt(foodPrice), Integer.parseInt(foodQuantity), foodDescription));
+                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, foodDescription));
 
             }
         }

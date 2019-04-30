@@ -8,11 +8,11 @@ public class FoodInfo implements Parcelable {
     private String foodId;
     private String image;
     private String Name;
-    private int price;
-    private  int quantity;
+    private String price;
+    private  String quantity;
     private  String description;
 
-    public FoodInfo(String foodId, String image, String name, int price, int quantity, String description) {
+    public FoodInfo(String foodId, String image, String name, String price, String quantity, String description) {
         this.foodId = foodId;
         this.image = image;
         this.Name = name;
@@ -25,8 +25,8 @@ public class FoodInfo implements Parcelable {
         this.foodId = "";
         this.image = null;
         this.Name = "";
-        this.price = 0;
-        this.quantity = 0;
+        this.price = "";
+        this.quantity = "";
         this.description = "";
     }
 
@@ -42,8 +42,8 @@ public class FoodInfo implements Parcelable {
         foodId = in.readString();
         image = in.readString();
         Name = in.readString();
-        price = in.readInt();
-        quantity = in.readInt();
+        price = in.readString();
+        quantity = in.readString();
         description = in.readString();
     }
 
@@ -63,19 +63,19 @@ public class FoodInfo implements Parcelable {
         Name = name;
     }
 
-    public int getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
-    public int getQuantity() {
+    public String getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
 
@@ -110,8 +110,8 @@ public class FoodInfo implements Parcelable {
         dest.writeString(foodId);
         dest.writeString(image);
         dest.writeString(Name);
-        dest.writeInt(price);
-        dest.writeInt(quantity);
+        dest.writeString(price);
+        dest.writeString(quantity);
         dest.writeString(description);
     }
 }

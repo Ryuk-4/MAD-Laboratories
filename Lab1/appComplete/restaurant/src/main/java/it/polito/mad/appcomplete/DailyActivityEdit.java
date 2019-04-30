@@ -135,6 +135,8 @@ public class DailyActivityEdit extends AppCompatActivity {
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
+        favorite = true;
+
         SharedPreferences.Editor e = sharedpref.edit();
         e.putBoolean("saved", false);
         e.apply();
@@ -167,11 +169,16 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayout() {
+        String Uid = preferences.getString("Uid", "");
+        branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/");
+        branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/");
+
+
         if (getIntent().hasExtra("food_selected")) {
             if (getIntent().getStringExtra("food_selected").compareTo("normal") == 0)
             {
                 initLayoutModifyFood(sharedpref);
-            } else
+            } else if(getIntent().getStringExtra("food_selected").compareTo("favourite") == 0)
             {
                 initLayoutFavoriteFood(foodFavorite);
             }
@@ -182,59 +189,56 @@ public class DailyActivityEdit extends AppCompatActivity {
     private void initLayoutFavoriteFood(SharedPreferences foodFavorite) {
 
         if ( (id = getIntent().getStringExtra("food_position")) != null) {
-
             String Uid = preferences.getString("Uid", "");
-            branchFavouriteFood = database.child("restaurants/" + Uid + "Favourites_Food/" + id);
+            branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/" + id);
 
             branchFavouriteFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    name_edit.setText(dataSnapshot.child("Name").getValue().toString());
+                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
                     editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
                     editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
                     EditDescription.setText(dataSnapshot.child("description").getValue().toString());
 
-                    if ((dataSnapshot.child("photo").getValue() != null)) {
-                        Picasso.get().load(dataSnapshot.child("photo").getValue().toString())
+                    if ((dataSnapshot.child("image").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("image").getValue().toString())
                                 .fit().centerCrop().into(im_edit);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
                 }
             });
 
             favoriteFood.setVisibility(View.GONE);
-            favorite = true;
+            favorite = false;
             editFood = false;
         }
     }
 
     private void initLayoutModifyFood(SharedPreferences sharedpref) {
         if ( (id = getIntent().getStringExtra("food_position")) != null) {
-
             String Uid = preferences.getString("Uid", "");
             branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
-
             branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    name_edit.setText(dataSnapshot.child("Name").getValue().toString());
+                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
                     editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
                     editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
                     EditDescription.setText(dataSnapshot.child("description").getValue().toString());
 
-                    if ((dataSnapshot.child("photo").getValue() != null)) {
-                        Picasso.get().load(dataSnapshot.child("photo").getValue().toString())
+                    if ((dataSnapshot.child("image").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("image").getValue().toString())
                                 .fit().centerCrop().into(im_edit);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
                 }
             });
         }
@@ -375,8 +379,8 @@ public class DailyActivityEdit extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    //photo = rotateImageIfRequired(photo, contentURI);
-                    //photo = getResizedBitmap(photo, 500);
+                    photo = rotateImageIfRequired(photo, contentURI);
+                    photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
                     im_edit.setImageBitmap(photo);
@@ -440,7 +444,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        if (photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if (TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -450,11 +454,15 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         }else{
-            if (i == -1 || favorite)
+            if (favorite)
             {
                 saveNewFood();
             } else
             {
+                im_edit.setDrawingCacheEnabled(true);
+                im_edit.buildDrawingCache();
+                Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
+
                 branchDailyFood.child(id + "/name").setValue(name_edit.getText().toString());
                 branchDailyFood.child(id + "/price").setValue(editTextPrice.getText().toString());
                 branchDailyFood.child(id + "/quantity").setValue(editAvailableQuantity.getText().toString());
@@ -462,7 +470,7 @@ public class DailyActivityEdit extends AppCompatActivity {
 
                 final StorageReference ref = FirebaseStorage.getInstance().getReference()
                         .child("restaurants/food_images/food" + id);
-                final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(photo))
+                final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
                             @Override
@@ -474,7 +482,7 @@ public class DailyActivityEdit extends AppCompatActivity {
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
 
-                                        branchDailyFood.child(id + "/photo").setValue(downloadUrl.toString());
+                                        branchDailyFood.child(id + "/image").setValue(downloadUrl.toString());
                                     }
                                 });
                             }
@@ -485,20 +493,21 @@ public class DailyActivityEdit extends AppCompatActivity {
                 editor.apply();
 
                 Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     }
 
     private void saveNewFood() {
-        String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
+        im_edit.setDrawingCacheEnabled(true);
+        im_edit.buildDrawingCache();
+        Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
         FoodInfo newFood = new FoodInfo();
 
-        newFood.setImage(imageEncoded);
         newFood.setName(name_edit.getText().toString());
-        newFood.setImage(" ");
-        newFood.setPrice(Integer.valueOf(editTextPrice.getText().toString()));
-        newFood.setQuantity(Integer.valueOf(editAvailableQuantity.getText().toString()));
+        newFood.setPrice(editTextPrice.getText().toString());
+        newFood.setQuantity(editAvailableQuantity.getText().toString());
         newFood.setDescription(EditDescription.getText().toString());
 
         final String foodId = branchDailyFood.push().getKey();
@@ -512,7 +521,7 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         final StorageReference ref = FirebaseStorage.getInstance().getReference()
                 .child("restaurants/food_images/food" + foodId);
-        final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(photo))
+        final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
                     @Override
@@ -524,9 +533,9 @@ public class DailyActivityEdit extends AppCompatActivity {
                             public void onSuccess(Uri uri) {
                                 Uri downloadUrl = uri;
 
-                                branchDailyFood.child(foodId + "/photo").setValue(downloadUrl.toString());
+                                branchDailyFood.child(foodId + "/image").setValue(downloadUrl.toString());
                                 if (favoriteFood.isChecked()) {
-                                    branchFavouriteFood.child(foodId + "/photo").setValue(downloadUrl.toString());
+                                    branchFavouriteFood.child(foodId + "/image").setValue(downloadUrl.toString());
                                 }
                             }
                         });

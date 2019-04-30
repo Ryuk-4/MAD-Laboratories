@@ -145,6 +145,7 @@ public class ReservationActivity extends AppCompatActivity
 
         pictureDialog.setTitle("Welcome");
         pictureDialog.setMessage("Before start using our app, please complete your profile.");
+        pictureDialog.setCancelable(false);
         pictureDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
