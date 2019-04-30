@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,8 +20,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -89,7 +93,7 @@ public class CartActivity extends AppCompatActivity{
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
             layoutParams.setMargins(0, 10, 0, 10);
-            linearLayout.setBackground(this.getDrawable(R.drawable.rounded_corner_white));
+            linearLayout.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_white));
 
             cart.addView(linearLayout, layoutParams);
         }
@@ -100,7 +104,7 @@ public class CartActivity extends AppCompatActivity{
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants_tmp").child(restId).child("orders").child("incoming").push();
+                final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Orders").child("Incoming").push();
                 StringBuffer totalOrder = new StringBuffer("");
                 for (OrderRecap o : list)
                 {
@@ -110,14 +114,40 @@ public class CartActivity extends AppCompatActivity{
                     }
                 }
 
-                databaseReference.child("customer").setValue(FirebaseAuth.getInstance().getUid());
-                databaseReference.child("order").setValue(totalOrder.toString());
-                databaseReference.child("time").setValue(spinnerTime.getSelectedItem().toString());
+                databaseReference.child("idPerson").setValue(FirebaseAuth.getInstance().getUid());
+                databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+                databaseReference.child("personOrder").setValue(totalOrder.toString());
+                databaseReference.child("note").setValue(" ");
+                databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
 
-                DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid());
-                databaseReference1.child("previous_order").push().setValue(restId);
-                setResult(RESULT_OK);
-                finish();
+                final DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
+                databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        boolean found = false;
+                        for (DataSnapshot ds : dataSnapshot.getChildren())
+                        {
+                            if (ds.getValue().toString().compareTo(restId) == 0)
+                            {
+                                found = true;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            databaseReference1.push().setValue(restId);
+                        }
+
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
             }
         });
 

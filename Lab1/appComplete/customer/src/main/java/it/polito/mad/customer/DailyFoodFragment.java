@@ -58,7 +58,7 @@ public class DailyFoodFragment extends Fragment {
 
     public DailyFoodFragment setSuggestedFoodInfos(List<SuggestedFoodInfo> suggestedFoodInfos) {
         this.suggestedFoodInfos = suggestedFoodInfos;
-        Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
+        //Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
         return this;
     }
 
@@ -93,7 +93,7 @@ public class DailyFoodFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d("TAG", "onCreate: DailyFoodFragment");
+        //Log.d("TAG", "onCreate: DailyFoodFragment");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -106,7 +106,7 @@ public class DailyFoodFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d("TAG", "onCreateView: DailyFoodFragment");
+        //Log.d("TAG", "onCreateView: DailyFoodFragment");
         //scaricare i dati nell'attivita principale e passare i dati come parametro di costruzione
 
         view = inflater.inflate(R.layout.fragment_daily_food, container, false);
@@ -139,7 +139,7 @@ public class DailyFoodFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.d("TAG", "onAttach: DailyFoodFragment");
+        //Log.d("TAG", "onAttach: DailyFoodFragment");
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {

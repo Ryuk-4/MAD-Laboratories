@@ -392,9 +392,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    String name = ds.child("name").getValue().toString();
-                    String photo = ds.child("photo").getValue().toString();
-                    String description = ds.child("description").getValue().toString();
+                    Object o;
+
+                    String name = ds.child("Profile").child("name").getValue().toString();
+
+                    o = ds.child("Profile").child("imgUrl").getValue();
+                    String photo = new String("");
+
+                    if (o != null)
+                    {
+                        photo = new String(o.toString());
+                    }
+
+                    o = ds.child("Profile").child("description").getValue();
+                    String description = new String("");
+
+                    if (o != null)
+                    {
+                        description = new String(o.toString());
+                    }
+
                     String id = ds.getKey();
 
                     int[] votes;
@@ -403,15 +420,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     for (int i = 0 ; i < 5 ; i++)
                     {
-                        votes[i] = Integer.parseInt(ds.child("review").child((i+1)+"star").getValue().toString());
-                        nVotes+=votes[i];
+                        o = ds.child("review").child((i+1)+"star").getValue();
+
+                        if (o != null)
+                        {
+                            votes[i] = Integer.parseInt(o.toString());
+                            nVotes+=votes[i];
+                        }
                     }
 
                     int i = 1;
                     List<String> typeFood = new ArrayList<>();
                     while (true)
                     {
-                        Object o = ds.child("type_food").child("type"+i).getValue();
+                        o = ds.child("type_food").child("type"+i).getValue();
                         if (o != null)
                             typeFood.add(o.toString());
                         else
@@ -433,8 +455,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants_tmp");
-        databaseReference.addValueEventListener(valueEventListener);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants");
+        databaseReference.addListenerForSingleValueEvent(valueEventListener);
     }
 
     public void onUpdateListNormalFiltered(final String nameRestaurant, final List<String> typeOfFood)
@@ -447,9 +469,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    String name = ds.child("name").getValue().toString();
-                    String photo = ds.child("photo").getValue().toString();
-                    String description = ds.child("description").getValue().toString();
+                    String name = ds.child("Profile").child("name").getValue().toString();
+                    String photo = ds.child("Profile").child("imgUrl").getValue().toString();
+                    String description = ds.child("Profile").child("description").getValue().toString();
                     String id = ds.getKey();
 
                     int[] votes;
@@ -458,8 +480,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     for (int i = 0 ; i < 5 ; i++)
                     {
-                        votes[i] = Integer.parseInt(ds.child("review").child((i+1)+"star").getValue().toString());
-                        nVotes+=votes[i];
+                        Object o = ds.child("review").child((i+1)+"star").getValue();
+
+                        if (o != null)
+                        {
+                            votes[i] = Integer.parseInt(o.toString());
+                            nVotes+=votes[i];
+                        }
                     }
 
                     int i = 1;
@@ -510,8 +537,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         };
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants_tmp");
-        databaseReference.addValueEventListener(valueEventListener);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants");
+        databaseReference.addListenerForSingleValueEvent(valueEventListener);
     }
 
 
@@ -532,9 +559,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        String name = dataSnapshot.child("name").getValue().toString();
-                        String photo = dataSnapshot.child("photo").getValue().toString();
-                        String description = dataSnapshot.child("description").getValue().toString();
+                        String name = dataSnapshot.child("Profile").child("name").getValue().toString();
+                        String photo = dataSnapshot.child("Profile").child("imgUrl").getValue().toString();
+                        String description = dataSnapshot.child("Profile").child("description").getValue().toString();
                         String id = dataSnapshot.getKey();
 
                         int[] votes;
@@ -543,8 +570,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         for (int i = 0 ; i < 5 ; i++)
                         {
-                            votes[i] = Integer.parseInt(dataSnapshot.child("review").child((i+1)+"star").getValue().toString());
-                            nVotes+=votes[i];
+                            Object o = dataSnapshot.child("review").child((i+1)+"star").getValue();
+
+                            if (o != null)
+                            {
+                                votes[i] = Integer.parseInt(o.toString());
+                                nVotes+=votes[i];
+                            }
                         }
 
                         int i = 1;
@@ -575,8 +607,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 for (String s : restaurantId)
                 {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants_tmp").child(s);
-                    databaseReference.addValueEventListener(valueEventListener);
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(s);
+                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
                 }
 
             }

@@ -69,11 +69,10 @@ public class RestaurantActivity
         if (savedInstanceState == null)
             restId = getIntent().getStringExtra("restaurant_selected");
 
-        FirebaseDatabase.getInstance().getReference("restaurants_tmp").child(restId).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String photoURLrestaurant = dataSnapshot.child("photo").getValue().toString();
-
+                String photoURLrestaurant = dataSnapshot.child("Profile").child("imgUrl").getValue().toString();
 
                 getDataDailyFood(dataSnapshot);
                 getDataMenu(dataSnapshot); //to be implemented
@@ -99,12 +98,16 @@ public class RestaurantActivity
     }
 
     private void getDataDailyFood(@NonNull DataSnapshot dataSnapshot) {
-        for (DataSnapshot ds: dataSnapshot.child("daily_food").getChildren())
+        for (DataSnapshot ds: dataSnapshot.child("Daily_Food").getChildren())
         {
             String name = ds.child("name").getValue().toString();
             String description = ds.child("description").getValue().toString();
             String price = ds.child("price").getValue().toString();
-            String photoURLfood = ds.child("photo").getValue().toString();
+            Object o = ds.child("image").getValue();
+            String photoURLfood = new String("");
+
+            if (o != null)
+                 photoURLfood = o.toString();
 
             dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price));
         }
