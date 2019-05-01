@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ProfileActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -62,48 +62,6 @@
             </TextView>
 
             <TextView
-                android:id="@+id/textViewSurnameLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/surnameLabel"/>
-            <TextView
-                android:id="@+id/textViewSurname"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/surnamePerson">
-            </TextView>
-
-            <TextView
-                android:id="@+id/textViewBirthdayLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/birthdayLabel"/>
-            <TextView
-                android:id="@+id/textViewBirthday"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/firtDate">
-            </TextView>
-
-            <TextView
-                android:id="@+id/textViewSexLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/sexLabel"/>
-            <TextView
-                android:id="@+id/textViewSex"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/radioMale">
-            </TextView>
-
-            <TextView
                 android:id="@+id/textViewTelephoneLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,6 +76,33 @@
             </TextView>
 
             <TextView
+                android:id="@+id/textViewHoursLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/openingHoursLabel"/>
+            <TextView
+                android:id="@+id/textViewHours"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:textSize="15sp"
+                android:hint="@string/firstHours"/>
+
+            <TextView
+                android:id="@+id/textViewAddressLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/addressLabel"/>
+            <TextView
+                android:id="@+id/textViewAddress"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:textSize="15sp"
+                android:hint="@string/addressText">
+            </TextView>
+
+            <TextView
                 android:id="@+id/textViewEmailLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -129,6 +114,21 @@
                 android:layout_height="50dp"
                 android:textSize="15sp"
                 android:hint="@string/emailExample">
+            </TextView>
+
+            <TextView
+                android:id="@+id/textViewDescriptionLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/descriptionLabel"/>
+            <TextView
+                android:id="@+id/textViewDescription"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:lines="5"
+                android:textSize="15sp"
+                android:hint="@string/descriptionText">
             </TextView>
 
         </LinearLayout>

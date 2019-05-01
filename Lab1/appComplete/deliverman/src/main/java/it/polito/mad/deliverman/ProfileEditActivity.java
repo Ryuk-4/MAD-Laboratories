@@ -1,7 +1,6 @@
 package it.polito.mad.deliverman;
 
 import android.Manifest;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,55 +21,59 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import android.widget.RadioGroup;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
 
-public class EditActivity extends AppCompatActivity {
+public class ProfileEditActivity extends AppCompatActivity {
+    private static final String TAG = "ProfileEditActivity";
 
-    private static final int GALLERY_REQ= 2000;
+    private static final int GALLERY_REQ = 2000;
     private static final int CAMERA_REQ = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 1000;
 
     private ImageView im_edit;
     private EditText name_edit;
     private EditText phone_edit;
-    private EditText surname_edit;
+    private EditText openingHours_edit;
+    private EditText address_edit;
     private EditText email_edit;
-    private TextView date_edit;
+    private EditText description_edit;
     private Button b;
     private ImageButton ib;
-    private ImageButton ibCalendar;
-    private Calendar calendar;
-    private DatePickerDialog datePickerDialog;
-
-    private int selectedSex;
-    private  RadioGroup radioSexGroup;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref;
+    private SharedPreferences sharedpref, preferences;
 
+    private DatabaseReference database;
+    private DatabaseReference branchProfile;
+    private String Uid;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        switch (requestCode){
+        switch (requestCode) {
 
-            case  MY_CAMERA_PERMISSION_CODE:
+            case MY_CAMERA_PERMISSION_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
                     chooseFromCamera();
@@ -95,8 +99,7 @@ public class EditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_edit);
+        setContentView(R.layout.activity_profile_edit);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -105,20 +108,18 @@ public class EditActivity extends AppCompatActivity {
 
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
-        surname_edit = findViewById(R.id.editTextSurname);
+        openingHours_edit = findViewById(R.id.editTextHours);
+        address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
-        date_edit = findViewById((R.id.textViewBirthday));
-
-        radioSexGroup = findViewById(R.id.radioSex);
+        description_edit = findViewById((R.id.editTextDescription));
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
         im_edit = findViewById(R.id.imageView1);
         ib = findViewById(R.id.imageButton);
-        ibCalendar = findViewById(R.id.imageButtonCalendar);
 
         ib.setOnClickListener(
-                new ImageButton.OnClickListener(){
+                new ImageButton.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         showPictureDialog();
@@ -126,33 +127,12 @@ public class EditActivity extends AppCompatActivity {
                 }
         );
 
-        ibCalendar.setOnClickListener(
-                new ImageButton.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        calendar = Calendar.getInstance();
-                        int day = calendar.get(Calendar.DAY_OF_MONTH);
-                        int month = calendar.get(Calendar.MONTH);
-                        int year = calendar.get(Calendar.YEAR);
-
-                        datePickerDialog = new DatePickerDialog(EditActivity.this,
-                                new DatePickerDialog.OnDateSetListener() {
-                                    @Override
-                                    public void onDateSet(DatePicker datePicker, int myYear, int myMonth, int myDay) {
-                                        date_edit.setText(myDay + "/" + (myMonth+1) + "/" + myYear);
-                                    }
-                                }, year, month, day);
-
-                        datePickerDialog.show();
-                    }
-                }
-        );
 
         b = findViewById(R.id.button);
 
         //When I click on the Save button
         b.setOnClickListener(
-                new Button.OnClickListener(){
+                new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveInfo(v);
@@ -160,9 +140,14 @@ public class EditActivity extends AppCompatActivity {
                 }
         );
 
+        database = FirebaseDatabase.getInstance().getReference();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        Uid = preferences.getString("Uid", " ");
+        branchProfile = database.child("restaurants")
+                .child(Uid).child("Profile");
+
         displayData();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -170,30 +155,25 @@ public class EditActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        if(item.getItemId() == android.R.id.home){
-            if(sharedpref.getBoolean("saved", false) == false){
+        if (item.getItemId() == android.R.id.home) {
+            if (sharedpref.getBoolean("saved", false) == false) {
                 Toast.makeText(this, "Changes not saved!", Toast.LENGTH_LONG).show();
             }
         }
-
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        selectedSex = radioSexGroup.getCheckedRadioButtonId();
-
         outState.putByteArray("profilePicture", photoByteArray);
 
         outState.putString("name", name_edit.getText().toString());
         outState.putString("phone", phone_edit.getText().toString());
-        outState.putString("date", date_edit.getText().toString());
+        outState.putString("address", address_edit.getText().toString());
         outState.putString("email", email_edit.getText().toString());
-        outState.putString("surname", surname_edit.getText().toString());
-        outState.putInt("radioSexId", selectedSex);
+        outState.putString("description", description_edit.getText().toString());
     }
 
     @Override
@@ -202,22 +182,20 @@ public class EditActivity extends AppCompatActivity {
 
         photoByteArray = savedInstanceState.getByteArray("profilePicture");
 
-        if(photoByteArray != null){
+        if (photoByteArray != null) {
             im_edit.setImageBitmap(BitmapFactory.decodeByteArray(photoByteArray,
                     0, photoByteArray.length));
         }
 
         name_edit.setText(savedInstanceState.getString("name"));
         phone_edit.setText(savedInstanceState.getString("phone"));
-        surname_edit.setText(savedInstanceState.getString("surname"));
+        address_edit.setText(savedInstanceState.getString("address"));
         email_edit.setText(savedInstanceState.getString("email"));
-        date_edit.setText(savedInstanceState.getString("date"));
-        selectedSex = savedInstanceState.getInt("radioSexId");
+        description_edit.setText(savedInstanceState.getString("description"));
 
-        radioSexGroup.check(selectedSex);
     }
 
-    public void showPictureDialog(){
+    public void showPictureDialog() {
         AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
         pictureDialog.setTitle("Select Action:");
         pictureDialog.setCancelable(true);
@@ -228,7 +206,7 @@ public class EditActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case 0:
                                 chooseFromGalleryPermission();
                                 break;
@@ -243,11 +221,11 @@ public class EditActivity extends AppCompatActivity {
         pictureDialog.show();
     }
 
-    public void chooseFromGalleryPermission(){
+    public void chooseFromGalleryPermission() {
         int hasPermissionGallery = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        if(hasPermissionGallery == PackageManager.PERMISSION_GRANTED){
+        if (hasPermissionGallery == PackageManager.PERMISSION_GRANTED) {
             chooseFromGallery();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -255,11 +233,11 @@ public class EditActivity extends AppCompatActivity {
         }
     }
 
-    public void chooseFromCameraPermission(){
+    public void chooseFromCameraPermission() {
         int hasPermissionCamera = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA);
 
-        if(hasPermissionCamera == PackageManager.PERMISSION_GRANTED){
+        if (hasPermissionCamera == PackageManager.PERMISSION_GRANTED) {
             chooseFromCamera();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
@@ -267,13 +245,13 @@ public class EditActivity extends AppCompatActivity {
         }
     }
 
-    public void chooseFromGallery(){
+    public void chooseFromGallery() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, GALLERY_REQ);
     }
 
-    public void  chooseFromCamera(){
+    public void chooseFromCamera() {
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, CAMERA_REQ);
     }
@@ -283,13 +261,13 @@ public class EditActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Bitmap photo;
 
-        if(resultCode == this.RESULT_CANCELED){
+        if (resultCode == this.RESULT_CANCELED) {
             return;
         }
 
-        if(requestCode == GALLERY_REQ && resultCode == this.RESULT_OK){
-            if(data != null){
-                try{
+        if (requestCode == GALLERY_REQ && resultCode == this.RESULT_OK) {
+            if (data != null) {
+                try {
                     final Uri contentURI = data.getData();
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
@@ -298,18 +276,17 @@ public class EditActivity extends AppCompatActivity {
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
-                    im_edit.setImageBitmap(photo);
+                    Picasso.get().load(contentURI).fit().centerCrop().into(im_edit);
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else if( requestCode == CAMERA_REQ && resultCode == this.RESULT_OK){
+        } else if (requestCode == CAMERA_REQ && resultCode == this.RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             im_edit.setImageBitmap(photo);
-
 
             photoByteArray = bitmapToByteArray(photo);
             Toast.makeText(this, "Image Saved!", Toast.LENGTH_SHORT).show();
@@ -356,12 +333,15 @@ public class EditActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
-    public void saveInfo(View v){
+    public void saveInfo(View v) {
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        if(TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(phone_edit.getText().toString()) ||
-                TextUtils.isEmpty(surname_edit.getText().toString()) || TextUtils.isEmpty(email_edit.getText().toString())
-        ){
+        if (TextUtils.isEmpty(name_edit.getText().toString()) ||
+                TextUtils.isEmpty(phone_edit.getText().toString()) ||
+                TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
+                TextUtils.isEmpty(address_edit.getText().toString()) ||
+                TextUtils.isEmpty(email_edit.getText().toString()) ||
+                TextUtils.isEmpty(description_edit.getText().toString())) {
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -369,36 +349,42 @@ public class EditActivity extends AppCompatActivity {
             pictureDialog.setMessage("All the fields must be filled.");
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
-        }else{
+        } else {
+
+            Log.d(TAG, "saveInfo: called");
+            branchProfile.child("name").setValue(name_edit.getText().toString());
+            branchProfile.child("phone").setValue(phone_edit.getText().toString());
+            branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+            branchProfile.child("address").setValue(address_edit.getText().toString());
+            branchProfile.child("email").setValue(email_edit.getText().toString());
+            branchProfile.child("description").setValue(description_edit.getText().toString());
+            branchProfile.child("firstTime").setValue(false);
+
+            im_edit.setDrawingCacheEnabled(true);
             im_edit.buildDrawingCache();
+            Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-            Bitmap picture = im_edit.getDrawingCache();
+            final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                    .child("restaurants/profile_images/profile" + Uid);
+            final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
-            String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.d(TAG, "onSuccess: called");
+                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-            editor.putString("imageEncoded", imageEncoded);
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Uri downloadUrl = uri;
 
-            //TODO
-            //Use FIREBASE instead of SharedPreferences
+                                    branchProfile.child("imgUrl").setValue(downloadUrl.toString());
+                                }
+                            });
+                        }
+                    });
 
-            int sexId = radioSexGroup.getCheckedRadioButtonId();
-            View radioButton = radioSexGroup.findViewById(sexId);
-            int idx = radioSexGroup.indexOfChild(radioButton);
-
-            RadioButton r = (RadioButton) radioSexGroup.getChildAt(idx);
-            editor.putString("sex", r.getText().toString());
-
-            //Store the couple <key, value> into the SharedPreferences
-            editor.putString("name", name_edit.getText().toString());
-            editor.putString("phone", phone_edit.getText().toString());
-            editor.putString("surname", surname_edit.getText().toString());
-            editor.putString("email", email_edit.getText().toString());
-            editor.putString("date", date_edit.getText().toString());
             editor.putBoolean("saved", true);
-            if(sharedpref.getBoolean("firstTime", true) == true){
-                editor.putBoolean("firstTime", false);
-            }
-
             editor.apply();
 
             Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
@@ -407,7 +393,7 @@ public class EditActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(sharedpref.getBoolean("saved", false) == false){
+        if (sharedpref.getBoolean("saved", false) == false) {
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
             pictureDialog.setTitle("Exit:");
@@ -415,8 +401,8 @@ public class EditActivity extends AppCompatActivity {
             pictureDialog.setNegativeButton(android.R.string.no, null);
             pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which){
-                    EditActivity.super.onBackPressed();
+                public void onClick(DialogInterface dialog, int which) {
+                    ProfileEditActivity.super.onBackPressed();
                 }
             });
 
@@ -425,39 +411,36 @@ public class EditActivity extends AppCompatActivity {
     }
 
     public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
 
-        if(sharedpref.getBoolean("firstTime", true) == false) {
-            byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+        branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-            String nameEdit = sharedpref.getString("name", "");
-            String phoneEdit = sharedpref.getString("phone", "");
-            String surnameEdit = sharedpref.getString("surname", "");
-            String emailEdit = sharedpref.getString("email", "");
-            String dateEdit = sharedpref.getString("date", "");
-            String sexEdit = sharedpref.getString("sex", "");
+                name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                email_edit.setText(dataSnapshot.child("email").getValue().toString());
 
-            if (imageAsBytes != null) {
-                im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                        0, imageAsBytes.length));
+                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                    if ((dataSnapshot.child("imgUrl").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                .fit().centerCrop().into(im_edit);
+                    }
+                    address_edit.setText(dataSnapshot.child("address").getValue().toString());
+                    description_edit.setText(dataSnapshot.child("description").getValue().toString());
+                    phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
+                    openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+                }
+
             }
-            name_edit.setText(nameEdit);
-            phone_edit.setText(phoneEdit);
-            surname_edit.setText(surnameEdit);
-            email_edit.setText(emailEdit);
-            date_edit.setText(dateEdit);
 
-            if (sexEdit.compareTo(getString(R.string.radioMale)) == 0)
-            {
-                radioSexGroup.check(R.id.radioMale);
-            } else
-            {
-                radioSexGroup.check(R.id.radioFemale);
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
-        }
+        });
+
     }
 
-    private static byte [] bitmapToByteArray(Bitmap photo) {
+    private static byte[] bitmapToByteArray(Bitmap photo) {
         ByteArrayOutputStream streambyte = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.JPEG, 80, streambyte);
         return streambyte.toByteArray();

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_profile"
+            android:title="Profile" />
+         <!--
+             android:icon="@drawable/ic_menu_camera"
+          -->
+        <item
+            android:id="@+id/nav_dailyMenu"
+            android:title="Daily Menu" />
+        <!--
+            android:icon="@drawable/ic_menu_gallery"
+        -->
+        <item
+            android:id="@+id/nav_reservation"
+            android:title="Reservation" />
+        <!--
+            android:icon="@drawable/ic_menu_slideshow"
+        -->
+    </group>
+
+    <item android:title="Options">
+        <menu>
+            <item
+                android:id="@+id/nav_deleteAccount"
+                android:title="Delete Account"
+                android:icon="@drawable/delete_account"
+                android:visible="false"
+                />
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_contactUs"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Contact Us" />
+        </menu>
+    </item>
+
+</menu>
