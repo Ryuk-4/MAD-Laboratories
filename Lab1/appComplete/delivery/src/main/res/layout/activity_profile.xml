@@ -75,7 +75,7 @@
                 android:hint="@string/firstPhone">
             </TextView>
 
-            <TextView
+            <!--<TextView
                 android:id="@+id/textViewHoursLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
                 android:textSize="15sp"
-                android:hint="@string/firstHours"/>
+                android:hint="@string/firstHours"/>-->
 
             <TextView
                 android:id="@+id/textViewAddressLabel"

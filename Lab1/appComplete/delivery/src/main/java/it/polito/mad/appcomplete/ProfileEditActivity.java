@@ -55,7 +55,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private ImageView im_edit;
     private EditText name_edit;
     private EditText phone_edit;
-    private EditText openingHours_edit;
+    //private EditText openingHours_edit;
     private EditText address_edit;
     private EditText email_edit;
     private EditText description_edit;
@@ -108,7 +108,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
-        openingHours_edit = findViewById(R.id.editTextHours);
+        //openingHours_edit = findViewById(R.id.editTextHours);
         address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
         description_edit = findViewById((R.id.editTextDescription));
@@ -143,7 +143,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         Uid = preferences.getString("Uid", " ");
-        branchProfile = database.child("restaurants")
+        branchProfile = database.child("delivery")
                 .child(Uid).child("Profile");
 
         displayData();
@@ -338,7 +338,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(name_edit.getText().toString()) ||
                 TextUtils.isEmpty(phone_edit.getText().toString()) ||
-                TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
+                //TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
                 TextUtils.isEmpty(address_edit.getText().toString()) ||
                 TextUtils.isEmpty(email_edit.getText().toString()) ||
                 TextUtils.isEmpty(description_edit.getText().toString())) {
@@ -354,7 +354,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             Log.d(TAG, "saveInfo: called");
             branchProfile.child("name").setValue(name_edit.getText().toString());
             branchProfile.child("phone").setValue(phone_edit.getText().toString());
-            branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+            //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
             branchProfile.child("address").setValue(address_edit.getText().toString());
             branchProfile.child("email").setValue(email_edit.getText().toString());
             branchProfile.child("description").setValue(description_edit.getText().toString());
@@ -365,7 +365,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
             final StorageReference ref = FirebaseStorage.getInstance().getReference()
-                    .child("restaurants/profile_images/profile" + Uid);
+                    .child("delivery/profile_images/profile" + Uid);
             final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
@@ -427,7 +427,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     address_edit.setText(dataSnapshot.child("address").getValue().toString());
                     description_edit.setText(dataSnapshot.child("description").getValue().toString());
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
-                    openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+                    //openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
                 }
 
             }

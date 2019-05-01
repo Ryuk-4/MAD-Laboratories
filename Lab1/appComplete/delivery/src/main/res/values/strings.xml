@@ -14,7 +14,7 @@
     <string name="emailLabel">Email: </string>
     <string name="emailExample"><i>ex@example.com</i></string>
 
-    <string name="descriptionLabel">Description: </string>
+    <string name="descriptionLabel">About me: </string>
     <string name="descriptionText">Max 5 lines...</string>
 
     <string name="userPic">User Picture</string>

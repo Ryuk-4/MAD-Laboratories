@@ -40,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity
     private Toolbar toolbar;
     private TextView name;
     private TextView phone;
-    private TextView openingHours;
+    //private TextView openingHours;
     private TextView address;
     private TextView email;
     private TextView description;
@@ -74,7 +74,7 @@ public class ProfileActivity extends AppCompatActivity
         im = findViewById(R.id.imageView1);
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
-        openingHours = findViewById(R.id.textViewHours);
+        //openingHours = findViewById(R.id.textViewHours);
         address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
         description = findViewById(R.id.textViewDescription);
@@ -180,7 +180,7 @@ public class ProfileActivity extends AppCompatActivity
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         String Uid = preferences.getString("Uid", " ");
-        DatabaseReference branchProfile = database.child("restaurants/" + Uid + "/Profile");
+        DatabaseReference branchProfile = database.child("delivery/" + Uid + "/Profile");
 
         branchProfile.addValueEventListener(new ValueEventListener() {
             @Override
@@ -199,7 +199,7 @@ public class ProfileActivity extends AppCompatActivity
                     address.setText(dataSnapshot.child("address").getValue().toString());
                     description.setText(dataSnapshot.child("description").getValue().toString());
                     phone.setText(dataSnapshot.child("phone").getValue().toString());
-                    openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+                    //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
                 }
 
             }
