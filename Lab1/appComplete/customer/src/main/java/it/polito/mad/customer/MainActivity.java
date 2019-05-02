@@ -1,108 +1,632 @@
 package it.polito.mad.customer;
 
-import android.content.Context;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ImageView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
-    private ImageView im;
-    private Toolbar toolbar;
-    private TextView surname;
-    private TextView sex;
-    private TextView dateOfBirth;
-    private TextView name;
-    private TextView phone;
-    private TextView address;
-    private TextView email;
-    private SharedPreferences sharedpref;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        OnRestaurantListener,
+        RVANormalRestaurant.updateRestaurantList{
+
+    private FirebaseAuth.AuthStateListener authListener;
+    private List<String> foodSelected;
+    private FirebaseAuth auth;
+    private LinearLayout search_filter_option, type_of_food;
+    private ImageButton buttonFilter, buttonSearch;
+    private RecyclerView rvSuggested, rvNormal;
+    private RVASuggestedRestaurant myAdapterSuggested;
+    private RVANormalRestaurant myAdapterNormal;
+    private CoordinatorLayout coordinator;
+    private EditText textSearch;
+    private static final int FOOD_EACH_LINE = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        toolbar = findViewById(R.id.toolbar);
+        setContentView(R.layout.drawer_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.app_name));
         setSupportActionBar(toolbar);
 
-        im = findViewById(R.id.imageView1);
-        name = findViewById(R.id.textViewName);
-        phone = findViewById(R.id.textViewTelephone);
-        address = findViewById(R.id.textViewAddress);
-        email = findViewById(R.id.textViewEmail);
-        surname = findViewById(R.id.textViewSurname);
-        sex = findViewById(R.id.textViewSex);
-        dateOfBirth = findViewById(R.id.textViewDateOfBirth);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
+        getLayoutReferences();
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
+
+        //get current user
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        addTypeOfFoodFilter();
+
+        buttonFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                collapseExpandFilterView();
+            }
+        });
+
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String searchTyped = textSearch.getText().toString();
+
+                foodSelected = new ArrayList<>();
+                int count = type_of_food.getChildCount();
+                View view = null;
+                TextView innerView = null;
+
+                for (int i = 0 ; i < count ; i++)
+                {
+                    view = type_of_food.getChildAt(i);
+                    for (int j = 0 ; j < FOOD_EACH_LINE ; j++)
+                    {
+                        innerView = (TextView)((LinearLayout)view).getChildAt(j);
+
+                        if (innerView == null)
+                            break;
+
+                        if ((int)innerView.getTag() == R.drawable.rounded_corner_green)
+                        {
+                            foodSelected.add(innerView.getText().toString());
+                        }
+                    }
+                }
+
+                onUpdateListNormalFiltered(searchTyped, foodSelected);
+            }
+        });
+
+        StatusBarUtil.setTransparent(this);
+
+        initDrawer(toolbar);
+
+        initializeCardLayout();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        setContentView(R.layout.drawer_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.app_name));
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        getLayoutReferences();
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
+
+        //get current user
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // user auth state is changed - user is null
+                    // launch login activity
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        addTypeOfFoodFilter();
+
+        buttonFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                collapseExpandFilterView();
+            }
+        });
+
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String searchTyped = textSearch.getText().toString();
+
+                foodSelected = new ArrayList<>();
+                int count = type_of_food.getChildCount();
+                View view = null;
+                TextView innerView = null;
+
+                for (int i = 0 ; i < count ; i++)
+                {
+                    view = type_of_food.getChildAt(i);
+                    for (int j = 0 ; j < FOOD_EACH_LINE ; j++)
+                    {
+                        innerView = (TextView)((LinearLayout)view).getChildAt(j);
+
+                        if (innerView == null)
+                            break;
+
+                        if ((int)innerView.getTag() == R.drawable.rounded_corner_green)
+                        {
+                            foodSelected.add(innerView.getText().toString());
+                        }
+                    }
+                }
+
+                onUpdateListNormalFiltered(searchTyped, foodSelected);
+            }
+        });
+
+        StatusBarUtil.setTransparent(this);
+
+        initDrawer(toolbar);
+
+        initializeCardLayout();
+    }
+
+    private void addTypeOfFoodFilter() {
+        int support = 0;
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0 ; i < getResources().getStringArray(R.array.type_of_food).length ; i++)
+        {
+            if (support == FOOD_EACH_LINE)
+            {
+                type_of_food.addView(linearLayout);
+                linearLayout = new LinearLayout(this);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                support = 0;
+            }
+
+            TextView textView = new TextView(this);
+            textView.setPadding(10, 10, 10, 10);
+            //textView.setId(i);
+            textView.setTextSize(18);
+            textView.setText(getResources().getStringArray(R.array.type_of_food)[i]);
+            textView.setTextColor(this.getResources().getColor(R.color.white));
+            textView.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_red));
+            textView.setTag(R.drawable.rounded_corner_red);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TextView tv = (TextView) v;
+
+                    if ((int)tv.getTag() == R.drawable.rounded_corner_red)
+                    {
+                        tv.setBackground(getResources().getDrawable(R.drawable.rounded_corner_green));
+                        tv.setTag(R.drawable.rounded_corner_green);
+                    } else
+                    {
+                        tv.setBackground(getResources().getDrawable(R.drawable.rounded_corner_red));
+                        tv.setTag(R.drawable.rounded_corner_red);
+                    }
+                }
+            });
+
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            layoutParams.setMargins(0, 10, 16, 10);
+
+            linearLayout.addView(textView, layoutParams);
+
+            support++;
+        }
+
+        if (support != 0)
+        {
+            type_of_food.addView(linearLayout);
+        }
+    }
+
+    private void getLayoutReferences() {
+        coordinator = findViewById(R.id.coordinator);
+        search_filter_option = findViewById(R.id.search_filter_option);
+        buttonFilter = findViewById(R.id.filter_button);
+        type_of_food = findViewById(R.id.type_of_food);
+        buttonSearch = findViewById(R.id.button_search);
+        textSearch = findViewById(R.id.text_search);
+    }
+
+    private void initDrawer(Toolbar toolbar) {
+        DrawerLayout drawer = findViewById(R.id.drawer_main);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(MainActivity.this);
+    }
+
+    private void initializeCardLayout() {
+        initializeCardLayoutSuggestedRestaurant();
+        initializeCardLayoutNormalRestaurant();
+        initializeData();
+
+        findViewById(R.id.progress_bar_favorite).setVisibility(View.GONE);
+        findViewById(R.id.progress_bar_normal).setVisibility(View.GONE);
+    }
+
+    //sign out method
+    public void signOut() {
+        auth.signOut();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        displayData();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
+
+        if (id == R.id.nav_restaurant) {
+
+        } else if (id == R.id.nav_profile) {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_contactUs) {
+
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_main);
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+    private void initializeCardLayoutSuggestedRestaurant() {
+        rvSuggested = (RecyclerView) findViewById(R.id.rvSuggested);
+        rvSuggested.setHasFixedSize(true);
 
-        int id = item.getItemId();
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        rvSuggested.setLayoutManager(llm);
 
-        if(id == R.id.edit_action){
-            //This action will happen when is clicked the edit button in the action bar
-            Intent intent = new Intent(this, EditActivity.class);
-            startActivity(intent);
-        }
+        myAdapterSuggested = new RVASuggestedRestaurant(this, this);
+        rvSuggested.setAdapter(myAdapterSuggested);
 
-        return super.onOptionsItemSelected(item);
+        LinearLayoutManager horizontalLayoutManagaer = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        rvSuggested.setLayoutManager(horizontalLayoutManagaer);
     }
 
-    public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
+    private void initializeCardLayoutNormalRestaurant() {
+        rvNormal = (RecyclerView) findViewById(R.id.rvNormal);
+        rvNormal.setHasFixedSize(false);
 
-        SharedPreferences.Editor editor = sharedpref.edit();
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        rvNormal.setLayoutManager(llm);
 
-        editor.putBoolean("saved", false);
-        editor.apply();
+        myAdapterNormal = new RVANormalRestaurant(this, this);
+        rvNormal.setAdapter(myAdapterNormal);
+    }
 
-        String nameEdit = sharedpref.getString("name", "");
-        String phoneEdit = sharedpref.getString("phone", "");
-        String addressEdit = sharedpref.getString("address", "");
-        String emailEdit = sharedpref.getString("email", "");
-        String surnameEdit = sharedpref.getString("surname", "");
-        String dateEdit = sharedpref.getString("dateOfBirth", "");
-        String sexString = sharedpref.getString("sex", "");
+    private void initializeData(){
+        onUpdateListNormal();
+        onUpdateListSuggested();
+    }
 
-        if(imageAsBytes != null) {
-            im.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
+    @Override
+    public void OnRestaurantClick(String id) {
+        Intent intent = new Intent(MainActivity.this, RestaurantActivity.class);
+        intent.putExtra("restaurant_selected", id);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onUpdateListNormal()
+    {
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    Object o;
+
+                    String name = ds.child("Profile").child("name").getValue().toString();
+
+                    o = ds.child("Profile").child("imgUrl").getValue();
+                    String photo = new String("");
+
+                    if (o != null)
+                    {
+                        photo = new String(o.toString());
+                    }
+
+                    o = ds.child("Profile").child("description").getValue();
+                    String description = new String("");
+
+                    if (o != null)
+                    {
+                        description = new String(o.toString());
+                    }
+
+                    String id = ds.getKey();
+
+                    int[] votes;
+                    int nVotes = 0;
+                    votes = new int[5];
+
+                    for (int i = 0 ; i < 5 ; i++)
+                    {
+                        o = ds.child("review").child((i+1)+"star").getValue();
+
+                        if (o != null)
+                        {
+                            votes[i] = Integer.parseInt(o.toString());
+                            nVotes+=votes[i];
+                        }
+                    }
+
+                    int i = 1;
+                    List<String> typeFood = new ArrayList<>();
+                    while (true)
+                    {
+                        o = ds.child("type_food").child("type"+i).getValue();
+                        if (o != null)
+                            typeFood.add(o.toString());
+                        else
+                            break;
+
+                        i++;
+                    }
+                    //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
+                    myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                }
+                //Log.d("TAG", "onDataChange: finish");
+                myAdapterNormal.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants");
+        databaseReference.addListenerForSingleValueEvent(valueEventListener);
+    }
+
+    public void onUpdateListNormalFiltered(final String nameRestaurant, final List<String> typeOfFood)
+    {
+        myAdapterNormal = new RVANormalRestaurant(this, this);
+        rvNormal.setAdapter(myAdapterNormal);
+
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    String name = ds.child("Profile").child("name").getValue().toString();
+                    String photo = ds.child("Profile").child("imgUrl").getValue().toString();
+                    String description = ds.child("Profile").child("description").getValue().toString();
+                    String id = ds.getKey();
+
+                    int[] votes;
+                    int nVotes = 0;
+                    votes = new int[5];
+
+                    for (int i = 0 ; i < 5 ; i++)
+                    {
+                        Object o = ds.child("review").child((i+1)+"star").getValue();
+
+                        if (o != null)
+                        {
+                            votes[i] = Integer.parseInt(o.toString());
+                            nVotes+=votes[i];
+                        }
+                    }
+
+                    int i = 1;
+                    List<String> typeFood = new ArrayList<>();
+                    while (true)
+                    {
+                        Object o = ds.child("type_food").child("type"+i).getValue();
+                        if (o != null)
+                            typeFood.add(o.toString());
+                        else
+                            break;
+
+                        i++;
+                    }
+
+                    if (nameRestaurant == "" || name.indexOf(nameRestaurant) != -1)
+                    {
+                        if (name.indexOf(nameRestaurant) != -1 && typeOfFood.size() == 0)
+                        {
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                        } else
+                        {
+                            for (String s : typeFood)
+                            {
+                                int j;
+                                for (j = 0 ; j < typeOfFood.size() ; j++)
+                                {
+                                    if (s.compareTo(typeOfFood.get(j)) == 0)
+                                        break;
+                                }
+
+                                if (j != typeOfFood.size())
+                                {
+                                    myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                myAdapterNormal.notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants");
+        databaseReference.addListenerForSingleValueEvent(valueEventListener);
+    }
+
+
+    public void onUpdateListSuggested()
+    {
+        DatabaseReference dr = FirebaseDatabase.getInstance().getReference("customers").child(auth.getUid()).child("previous_order");
+        dr.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> restaurantId = new ArrayList<>();
+
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    restaurantId.add(ds.getValue().toString());
+                }
+
+                ValueEventListener valueEventListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        String name = dataSnapshot.child("Profile").child("name").getValue().toString();
+                        String photo = dataSnapshot.child("Profile").child("imgUrl").getValue().toString();
+                        String description = dataSnapshot.child("Profile").child("description").getValue().toString();
+                        String id = dataSnapshot.getKey();
+
+                        int[] votes;
+                        int nVotes = 0;
+                        votes = new int[5];
+
+                        for (int i = 0 ; i < 5 ; i++)
+                        {
+                            Object o = dataSnapshot.child("review").child((i+1)+"star").getValue();
+
+                            if (o != null)
+                            {
+                                votes[i] = Integer.parseInt(o.toString());
+                                nVotes+=votes[i];
+                            }
+                        }
+
+                        int i = 1;
+                        List<String> typeFood = new ArrayList<>();
+                        while (true)
+                        {
+                            Object o = dataSnapshot.child("type_food").child("type"+i).getValue();
+                            if (o != null)
+                                typeFood.add(o.toString());
+                            else
+                                break;
+
+                            i++;
+                        }
+                        //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+
+                        //Log.d("TAG", "onDataChange: finish");
+                        myAdapterSuggested.notifyDataSetChanged();
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                };
+
+                for (String s : restaurantId)
+                {
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(s);
+                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    void collapseExpandFilterView() {
+        if (search_filter_option.getVisibility() == View.GONE) {
+            // it's collapsed - expand it
+            search_filter_option.setVisibility(View.VISIBLE);
+        } else {
+            // it's expanded - collapse it
+            search_filter_option.setVisibility(View.GONE);
         }
-
-        name.setText(nameEdit);
-        phone.setText(phoneEdit);
-        address.setText(addressEdit);
-        email.setText(emailEdit);
-        dateOfBirth.setText(dateEdit);
-        surname.setText(surnameEdit);
-        sex.setText(sexString);
     }
 }
