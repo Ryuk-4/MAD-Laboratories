@@ -93,5 +93,11 @@
     <string name="resetbtn_text">Reset</string>
 
     <string name="logout">Log Out</string>
+    <string name="surnameLabel">Surname</string>
+    <string name="textPersonName">Butcher</string>
+    <string name="radioMale">Male</string>
+    <string name="radioFemale">Female</string>
+    <string name="sexLabel">Sex</string>
+    <string name="birthdayLabel">Birthdate</string>
 
 </resources>

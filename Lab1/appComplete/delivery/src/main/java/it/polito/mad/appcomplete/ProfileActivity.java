@@ -41,9 +41,9 @@ public class ProfileActivity extends AppCompatActivity
     private TextView name;
     private TextView phone;
     //private TextView openingHours;
-    private TextView address;
+    //private TextView address;
     private TextView email;
-    private TextView description;
+    //private TextView description;
     private SharedPreferences sharedpref, preferences;
 
     private FirebaseAuth auth;
@@ -75,9 +75,9 @@ public class ProfileActivity extends AppCompatActivity
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
         //openingHours = findViewById(R.id.textViewHours);
-        address = findViewById(R.id.textViewAddress);
+        //address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
-        description = findViewById(R.id.textViewDescription);
+        //description = findViewById(R.id.textViewDescription);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
@@ -196,8 +196,8 @@ public class ProfileActivity extends AppCompatActivity
                         Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
                                 .fit().centerCrop().into(im);
                     }
-                    address.setText(dataSnapshot.child("address").getValue().toString());
-                    description.setText(dataSnapshot.child("description").getValue().toString());
+                    //address.setText(dataSnapshot.child("address").getValue().toString());
+                    //description.setText(dataSnapshot.child("description").getValue().toString());
                     phone.setText(dataSnapshot.child("phone").getValue().toString());
                     //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
                 }

@@ -109,9 +109,10 @@ public class ProfileEditActivity extends AppCompatActivity {
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
         //openingHours_edit = findViewById(R.id.editTextHours);
-        address_edit = findViewById(R.id.editTextAddress);
+        //address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
-        description_edit = findViewById((R.id.editTextDescription));
+        //description_edit = findViewById((R.id.editTextDescription));
+        sex_edit = findViewById(R.id.editSex);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
@@ -189,9 +190,9 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         name_edit.setText(savedInstanceState.getString("name"));
         phone_edit.setText(savedInstanceState.getString("phone"));
-        address_edit.setText(savedInstanceState.getString("address"));
+        //address_edit.setText(savedInstanceState.getString("address"));
         email_edit.setText(savedInstanceState.getString("email"));
-        description_edit.setText(savedInstanceState.getString("description"));
+        //description_edit.setText(savedInstanceState.getString("description"));
 
     }
 
@@ -355,9 +356,9 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("name").setValue(name_edit.getText().toString());
             branchProfile.child("phone").setValue(phone_edit.getText().toString());
             //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
-            branchProfile.child("address").setValue(address_edit.getText().toString());
+            //branchProfile.child("address").setValue(address_edit.getText().toString());
             branchProfile.child("email").setValue(email_edit.getText().toString());
-            branchProfile.child("description").setValue(description_edit.getText().toString());
+            //branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
 
             im_edit.setDrawingCacheEnabled(true);
@@ -424,8 +425,8 @@ public class ProfileEditActivity extends AppCompatActivity {
                         Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
                                 .fit().centerCrop().into(im_edit);
                     }
-                    address_edit.setText(dataSnapshot.child("address").getValue().toString());
-                    description_edit.setText(dataSnapshot.child("description").getValue().toString());
+                    //address_edit.setText(dataSnapshot.child("address").getValue().toString());
+                    //description_edit.setText(dataSnapshot.child("description").getValue().toString());
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
                     //openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
                 }

@@ -3,9 +3,6 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <compositeConfiguration>
-          <compositeBuild compositeDefinitionSource="SCRIPT" />
-        </compositeConfiguration>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
@@ -14,6 +11,7 @@
             <option value="$PROJECT_DIR$/customer" />
             <option value="$PROJECT_DIR$/data_layer_access" />
             <option value="$PROJECT_DIR$/deliverman" />
+            <option value="$PROJECT_DIR$/delivery" />
             <option value="$PROJECT_DIR$/restaurant" />
           </set>
         </option>

@@ -71,6 +71,21 @@
                 android:hint="@string/namePerson"/>
 
             <TextView
+                android:id="@+id/textViewSurnameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/surnameLabel" />
+            <EditText
+                android:id="@+id/editTextSurname"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:inputType="textPersonName"
+                android:textSize="20sp"
+                android:hint="@string/textPersonName"/>
+
+
+            <TextView
                 android:id="@+id/textViewTelephoneLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:textSize="20sp"
-                android:hint="@string/firstHours"/>-->
+                android:hint="@string/firstHours"/>
 
             <TextView
                 android:id="@+id/textViewAddressLabel"
@@ -112,7 +127,7 @@
                 android:inputType="text"
                 android:textSize="20sp"
                 android:hint="@string/addressText">
-            </EditText>
+            </EditText>-->
 
             <TextView
                 android:id="@+id/textViewEmailLabel"
@@ -128,12 +143,13 @@
                 android:textSize="20sp"
                 android:hint="@string/emailExample"/>
 
-            <TextView
+            <!--<TextView
                 android:id="@+id/textViewDescriptionLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/descriptionLabel" />
+
             <EditText
                 android:id="@+id/editTextDescription"
                 android:layout_width="fill_parent"
@@ -144,7 +160,7 @@
                 android:lines="5"
                 android:maxLines="10"
                 android:textSize="20sp"
-                android:hint="@string/descriptionText"/>
+                android:hint="@string/descriptionText"/>-->
 
             <Button
                 android:id="@+id/button"
