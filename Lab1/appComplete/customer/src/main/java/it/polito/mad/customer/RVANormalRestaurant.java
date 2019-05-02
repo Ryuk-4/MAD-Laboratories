@@ -66,7 +66,9 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
         }
 
         viewHolder.photo.setContentDescription(reservationInfoList.get(i).getId());
-        Picasso.get().load(reservationInfoList.get(i).getPhoto()).into(viewHolder.photo);
+
+        if (reservationInfoList.get(i).getPhoto().compareTo("") != 0)
+            Picasso.get().load(reservationInfoList.get(i).getPhoto()).into(viewHolder.photo);
 
         viewHolder.ratingBar.setRating(reservationInfoList.get(i).getValueRatinBar());
         //TODO set the stars in the review
