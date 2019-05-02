@@ -91,7 +91,7 @@ public class PreparingReservationFragment extends Fragment
         String Uid = preferences.getString("Uid", " ");
 
         database = FirebaseDatabase.getInstance().getReference();
-        branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
+        branchOrdersInPreparation = database.child("delivery/" + Uid + "/Orders/In_Preparation");
 
         branchOrdersInPreparation.addValueEventListener(new ValueEventListener() {
             @Override
@@ -147,9 +147,9 @@ public class PreparingReservationFragment extends Fragment
 
             database = FirebaseDatabase.getInstance().getReference();
 
-            branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
+            branchOrdersInPreparation = database.child("delivery/" + Uid + "/Orders/In_Preparation");
 
-            branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
+            branchOrdersReady = database.child("delivery/" + Uid + "/Orders/Ready_To_Go");
 
             branchOrdersInPreparation.child(deletedReservationId).removeValue();
             branchOrdersReady.child(deletedReservationId).setValue(restoreItem(deletedItem));

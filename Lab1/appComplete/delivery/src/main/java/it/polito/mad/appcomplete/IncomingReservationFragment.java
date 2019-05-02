@@ -86,7 +86,7 @@ public class IncomingReservationFragment extends Fragment
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+        DatabaseReference branchOrdersIncoming = database.child("delivery/" +
                 preferences.getString("Uid", "") + "/Orders/Incoming");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
@@ -152,13 +152,13 @@ public class IncomingReservationFragment extends Fragment
 
             database = FirebaseDatabase.getInstance().getReference();
 
-            final DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+            final DatabaseReference branchOrdersIncoming = database.child("delivery/" +
                     preferences.getString("Uid", " ") + "/Orders/Incoming");
 
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 
             if (direction == ItemTouchHelper.RIGHT) {
-                final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
+                final DatabaseReference branchOrdersInPreparation = database.child("delivery")
                         .child(preferences.getString("Uid", " ")).child("Orders")
                         .child("In_Preparation");
 

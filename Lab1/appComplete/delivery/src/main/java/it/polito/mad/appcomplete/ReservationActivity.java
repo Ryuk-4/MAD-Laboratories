@@ -108,7 +108,7 @@ public class ReservationActivity extends AppCompatActivity
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchProfile = database.child("restaurants/" +
+        DatabaseReference branchProfile = database.child("delivery/" +
                 preferences.getString("Uid", " ") + "/Profile");
 
         branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {

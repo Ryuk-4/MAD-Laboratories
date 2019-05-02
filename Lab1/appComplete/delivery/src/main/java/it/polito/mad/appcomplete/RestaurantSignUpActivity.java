@@ -144,7 +144,7 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
 
         editor.apply();
 
-        DatabaseReference branchProfile = database.child("restaurants/"+Uid+"/Profile");
+        DatabaseReference branchProfile = database.child("delivery/"+Uid+"/Profile");
 
         branchProfile.child("name").setValue(name);
         branchProfile.child("firstTime").setValue(true);

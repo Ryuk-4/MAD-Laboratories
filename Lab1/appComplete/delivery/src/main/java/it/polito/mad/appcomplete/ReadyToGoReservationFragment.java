@@ -84,7 +84,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
-        branchOrdersReady = database.child("restaurants").child(preferences.getString("Uid", " "))
+        branchOrdersReady = database.child("delivery").child(preferences.getString("Uid", " "))
                 .child("Orders").child("Ready_To_Go");
 
         branchOrdersReady.addValueEventListener(new ValueEventListener() {
