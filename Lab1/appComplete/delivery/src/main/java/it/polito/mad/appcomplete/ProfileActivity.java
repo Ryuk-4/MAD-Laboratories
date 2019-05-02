@@ -44,6 +44,10 @@ public class ProfileActivity extends AppCompatActivity
     //private TextView address;
     private TextView email;
     //private TextView description;
+    private TextView surname;
+    private TextView sex;
+    private TextView dateOfBirth;
+
     private SharedPreferences sharedpref, preferences;
 
     private FirebaseAuth auth;
@@ -78,6 +82,9 @@ public class ProfileActivity extends AppCompatActivity
         //address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
         //description = findViewById(R.id.textViewDescription);
+        surname = findViewById(R.id.textViewSurname);
+        sex = findViewById(R.id.textViewSex);
+        dateOfBirth = findViewById(R.id.textViewDateOfBirth);
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
@@ -200,6 +207,13 @@ public class ProfileActivity extends AppCompatActivity
                     //description.setText(dataSnapshot.child("description").getValue().toString());
                     phone.setText(dataSnapshot.child("phone").getValue().toString());
                     //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+
+                    String surnameEdit = sharedpref.getString("surname", "");
+                    String dateEdit = sharedpref.getString("dateOfBirth", "");
+                    String sexString = sharedpref.getString("sex", "");
+                    dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
+                    surname.setText(dataSnapshot.child("surname").getValue().toString());
+                    sex.setText(dataSnapshot.child("sex").getValue().toString());
                 }
 
             }

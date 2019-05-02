@@ -100,5 +100,8 @@
     <string name="sexLabel">Sex</string>
     <string name="birthdayLabel">Birthdate</string>
     <string name="dateOfBirthLabel">Birthdate</string>
+    <string name="surnameLabel2">Surname</string>
+    <string name="sexLabe2">Sex</string>
+    <string name="dateOfBirth">Birthdate</string>
 
 </resources>
