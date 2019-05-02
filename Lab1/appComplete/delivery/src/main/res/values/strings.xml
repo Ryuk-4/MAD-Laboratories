@@ -99,5 +99,6 @@
     <string name="radioFemale">Female</string>
     <string name="sexLabel">Sex</string>
     <string name="birthdayLabel">Birthdate</string>
+    <string name="dateOfBirthLabel">Birthdate</string>
 
 </resources>

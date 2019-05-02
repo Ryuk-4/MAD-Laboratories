@@ -1,6 +1,7 @@
 package it.polito.mad.appcomplete;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -69,6 +71,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private EditText surname_edit;
     private RadioGroup radioSex;
     private TextView dateOfBirth;
+    private ImageButton calendarButton;
     private DatabaseReference database;
     private DatabaseReference branchProfile;
     private String Uid;
@@ -119,7 +122,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         //description_edit = findViewById((R.id.editTextDescription));
 
         ///////////////////////////////////////////////////////////////////////////////////////////================================
-        //dateOfBirth = findViewById(R.id.dateOfBirthString);
+        dateOfBirth = findViewById(R.id.dateOfBirthString);
         surname_edit = findViewById(R.id.editTextSurname);
 
         //For sex radio button
@@ -162,6 +165,36 @@ public class ProfileEditActivity extends AppCompatActivity {
         branchProfile = database.child("delivery")
                 .child(Uid).child("Profile");
 
+        calendarButton = findViewById(R.id.iconOpenCalendar);
+
+
+
+        calendarButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+
+            public void onClick(View v) {
+
+                DatePickerDialog datePickerDialog;
+
+                datePickerDialog = new DatePickerDialog(ProfileEditActivity.this, new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+                        dateOfBirth.setText(dayOfMonth + "/" + month + "/" + year);
+
+                    }
+
+                }, 1970, 0, 1 );
+
+                datePickerDialog.show();
+
+            }
+
+        });
+
         displayData();
     }
 
@@ -192,7 +225,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         outState.putString("surname", surname_edit.getText().toString());
         //outState.putString("description", description_edit.getText().toString());
-       // outState.putString("dateOfBirth", dateOfBirth.getText().toString());
+        outState.putString("dateOfBirth", dateOfBirth.getText().toString());
 
         // for sex radio button
         int sexId = radioSex.getCheckedRadioButtonId();
@@ -374,7 +407,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                 //TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
                 //TextUtils.isEmpty(address_edit.getText().toString()) ||
                 TextUtils.isEmpty(email_edit.getText().toString())
-                //|| dateOfBirth.getText().toString())
+                || TextUtils.isEmpty(dateOfBirth.getText().toString())
                 //TextUtils.isEmpty(description_edit.getText().toString())
         ) {
 
@@ -394,7 +427,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("email").setValue(email_edit.getText().toString());
             //branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
-            //databaseReference.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
+            branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
             branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
             int sexId = radioSex.getCheckedRadioButtonId();
@@ -480,7 +513,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     else
                         radioSex.check(R.id.radioMale);
 
-                    //dateOfBirth.setText(dateEdit);
+                    dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
                     surname_edit.setText(dataSnapshot.child("surname").getValue().toString());
                 }
 
