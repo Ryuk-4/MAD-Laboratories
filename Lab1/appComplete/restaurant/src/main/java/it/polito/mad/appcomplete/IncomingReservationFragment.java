@@ -56,7 +56,7 @@ public class IncomingReservationFragment extends Fragment
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
         recyclerView = view.findViewById(R.id.recyclerViewIncomingReservation);
-
+        
         initializeReservation();
 
         return view;

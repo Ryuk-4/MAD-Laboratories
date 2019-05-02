@@ -146,11 +146,18 @@
                 android:textSize="20sp"
                 android:hint="@string/descriptionText"/>
 
+            <TextView
+                android:id="@+id/textViewFlagsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/flagText"
+                android:layout_marginTop="4dp"/>
+
             <it.polito.mad.appcomplete.MultiSelectionSpinner
                 android:id="@+id/myMultipleChoiceSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"/>
+                android:layout_marginBottom="4dp" />
             
             <Button
                 android:id="@+id/button"
