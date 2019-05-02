@@ -28,6 +28,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -63,7 +65,9 @@ public class ProfileEditActivity extends AppCompatActivity {
     private ImageButton ib;
     private byte[] photoByteArray;
     private SharedPreferences sharedpref, preferences;
-
+    private EditText surname_edit;
+    private RadioGroup radioSex;
+    private TextView dateOfBirth;
     private DatabaseReference database;
     private DatabaseReference branchProfile;
     private String Uid;
@@ -112,7 +116,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         //address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
         //description_edit = findViewById((R.id.editTextDescription));
-        sex_edit = findViewById(R.id.editSex);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////================================
+        //dateOfBirth = findViewById(R.id.dateOfBirthString);
+        surname_edit = findViewById(R.id.editTextSurname);
+        //radioSex = findViewById(R.id.radioSex);
+
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
@@ -172,9 +181,18 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         outState.putString("name", name_edit.getText().toString());
         outState.putString("phone", phone_edit.getText().toString());
-        outState.putString("address", address_edit.getText().toString());
+        //outState.putString("address", address_edit.getText().toString());
         outState.putString("email", email_edit.getText().toString());
-        outState.putString("description", description_edit.getText().toString());
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        outState.putString("surname", surname_edit.getText().toString());
+        //outState.putString("description", description_edit.getText().toString());
+       // outState.putString("dateOfBirth", dateOfBirth.getText().toString());
+
+       // int sexId = radioSex.getCheckedRadioButtonId();
+        //View radioButton = radioSex.findViewById(sexId);
+        //int idx = radioSex.indexOfChild(radioButton);
+        //RadioButton r = (RadioButton) radioSex.getChildAt(idx);
+        //outState.putString("sex", r.getText().toString());
     }
 
     @Override
@@ -192,8 +210,15 @@ public class ProfileEditActivity extends AppCompatActivity {
         phone_edit.setText(savedInstanceState.getString("phone"));
         //address_edit.setText(savedInstanceState.getString("address"));
         email_edit.setText(savedInstanceState.getString("email"));
+        surname_edit.setText(savedInstanceState.getString("surname"));
         //description_edit.setText(savedInstanceState.getString("description"));
+        dateOfBirth.setText(savedInstanceState.getString("dateOfBirth"));
 
+        String s = savedInstanceState.getString("sex");
+        if (s.compareTo(getString(R.string.radioMale)) == 0)
+            radioSex.check(R.id.radioMale);
+        else
+            radioSex.check(R.id.radioFemale);
     }
 
     public void showPictureDialog() {
@@ -340,9 +365,11 @@ public class ProfileEditActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(name_edit.getText().toString()) ||
                 TextUtils.isEmpty(phone_edit.getText().toString()) ||
                 //TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
-                TextUtils.isEmpty(address_edit.getText().toString()) ||
-                TextUtils.isEmpty(email_edit.getText().toString()) ||
-                TextUtils.isEmpty(description_edit.getText().toString())) {
+                //TextUtils.isEmpty(address_edit.getText().toString()) ||
+                TextUtils.isEmpty(email_edit.getText().toString())
+                //|| dateOfBirth.getText().toString())
+                //TextUtils.isEmpty(description_edit.getText().toString())
+        ) {
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -360,6 +387,9 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("email").setValue(email_edit.getText().toString());
             //branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
+            //databaseReference.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
+            //databaseReference.child("sex").setValue(r.getText().toString());
+            branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
             im_edit.setDrawingCacheEnabled(true);
             im_edit.buildDrawingCache();
@@ -429,6 +459,14 @@ public class ProfileEditActivity extends AppCompatActivity {
                     //description_edit.setText(dataSnapshot.child("description").getValue().toString());
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
                     //openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+
+                    //if (dataSnapshot.child("sex").getValue().equals(false))
+                       // radioSex.check(R.id.radioFemale);
+                    //else
+                       // radioSex.check(R.id.radioMale);
+
+                    //dateOfBirth.setText(dateEdit);
+                    surname_edit.setText(dataSnapshot.child("surname").getValue().toString());
                 }
 
             }
