@@ -16,4 +16,6 @@
     <color name="text_shadow">#7F000000</color>
     <color name="text_shadow_white">#FFFFFF</color>
 
+    <color name="black">#000000</color>
+    <color name="link">#2f4bf2</color>
 </resources>

@@ -6,6 +6,8 @@
     <string name="telephoneLabel">Phone: </string>
     <string name="firstPhone"><i>800-8008123</i></string>
 
+    <string name="openingHoursLabel">Opening hours</string>
+    <string name="firstHours">9:00 - 21:00</string>
     <string name="addressLabel">Address: </string>
     <string name="addressText"><i>Via Roma, 48</i></string>
 
@@ -21,6 +23,7 @@
     <string name="edit_action">Edit</string>
     <string name="menu_refresh">Refresh</string>
 
+    <string name="title_activity_profile">Profile</string>
     <string name="title_activity_edit">EditActivity</string>
 
     <string name="saveButton">SAVE</string>
@@ -32,8 +35,6 @@
     <string name="nav_header_subtitle">Mad Group 39</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_reservation_edit">ReservationEdit</string>
-    <string name="title_activity_reservation_add">ReservationAddActivity</string>
     <string name="title_activity_daily_offer">Your Daily Menu</string>
     <string name="title_activity_daily_offer_edit">Add Food</string>
     <string name="title_activity_daily_offer_edit_favorite">Add Favorite Food</string>
@@ -76,5 +77,21 @@
     <string name="tab_preparation">In preparation</string>
     <string name="tab_to_delivery">Ready to go</string>
 
+    <string name="login_text">LOGIN</string>
+    <string name="sign_up_link"><u>No account yet? Create one</u></string>
+    <string name="reset_pwd_link"><u>Forgot your password?</u></string>
+    <string name="or_string">or</string>
+    <string name="minimum_password_length">Password too short, enter minimum 8 characters.</string>
+    <string name="auth_failed">Authentication failed.</string>
+    <string name="title_activity_restaurant_sign_up">SignUp</string>
+    <string name="sign_up_welcome_text">WELCOME</string>
+    <string name="login_link"><u>Already have an account? Login me</u></string>
+    <string name="sign_up_text">Sign Up</string>
+    <string name="title_activity_restaurant_reset_pwd">RestaurantResetPwdActivity</string>
+    <string name="forgot_pwd_text">Forgot your password?</string>
+    <string name="reset_target_text">We will send you an email with password reset instructions. Please enter your email</string>
+    <string name="resetbtn_text">Reset</string>
+
+    <string name="logout">Log Out</string>
 
 </resources>

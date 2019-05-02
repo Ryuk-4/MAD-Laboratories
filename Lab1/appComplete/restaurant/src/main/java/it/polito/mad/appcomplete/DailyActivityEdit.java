@@ -1,5 +1,6 @@
 package it.polito.mad.appcomplete;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -22,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,7 +36,17 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.jaeger.library.StatusBarUtil;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,6 +57,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     private static final int CAMERA_REQ = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 1000;
 
+    private static final String TAG = "DailyActivityEdit";
 
     private ImageView im_edit;
     private EditText name_edit;
@@ -54,18 +67,19 @@ public class DailyActivityEdit extends AppCompatActivity {
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref, foodFavorite;
+    private SharedPreferences sharedpref, foodFavorite, preferences;
     private CheckBox favoriteFood;
     private boolean favorite, editFood;
     private int i = -1;
-    //private String day;
-    //private ArrayAdapter<CharSequence> adapter1;
-    //Spinner spinner;
 
     private FoodInfo foodInfo;
 
     private Bitmap photo;
 
+    private String id;
+    private DatabaseReference database;
+    private DatabaseReference branchDailyFood;
+    private DatabaseReference branchFavouriteFood;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -100,7 +114,6 @@ public class DailyActivityEdit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_edit);
 
-        //day = getIntent().getStringExtra("day");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -119,6 +132,10 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
         foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
+        database = FirebaseDatabase.getInstance().getReference();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
+        favorite = true;
 
         SharedPreferences.Editor e = sharedpref.edit();
         e.putBoolean("saved", false);
@@ -152,11 +169,16 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayout() {
+        String Uid = preferences.getString("Uid", "");
+        branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/");
+        branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/");
+
+
         if (getIntent().hasExtra("food_selected")) {
             if (getIntent().getStringExtra("food_selected").compareTo("normal") == 0)
             {
                 initLayoutModifyFood(sharedpref);
-            } else
+            } else if(getIntent().getStringExtra("food_selected").compareTo("favourite") == 0)
             {
                 initLayoutFavoriteFood(foodFavorite);
             }
@@ -165,33 +187,61 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayoutFavoriteFood(SharedPreferences foodFavorite) {
-        i = getIntent().getIntExtra("food_position", 0);
 
-        name_edit.setText(foodFavorite.getString("foodName" + i, ""));
-        editTextPrice.setText(foodFavorite.getString("foodPrice" + i, ""));
-        editAvailableQuantity.setText(foodFavorite.getString("foodQuantity" + i, ""));
-        EditDescription.setText(foodFavorite.getString("foodDescription" + i, ""));
+        if ( (id = getIntent().getStringExtra("food_position")) != null) {
+            String Uid = preferences.getString("Uid", "");
+            branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/" + id);
 
-        byte[] imageAsBytes = Base64.decode(foodFavorite.getString("foodImage" + i, ""), Base64.DEFAULT);
-        photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-        im_edit.setImageBitmap(photo);
+            branchFavouriteFood.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
 
-        favoriteFood.setVisibility(View.GONE);
-        favorite = true;
-        editFood = false;
+                    if ((dataSnapshot.child("image").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("image").getValue().toString())
+                                .fit().centerCrop().into(im_edit);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                }
+            });
+
+            favoriteFood.setVisibility(View.GONE);
+            favorite = false;
+            editFood = false;
+        }
     }
 
     private void initLayoutModifyFood(SharedPreferences sharedpref) {
-        i = getIntent().getIntExtra("food_position", 0);
+        if ( (id = getIntent().getStringExtra("food_position")) != null) {
+            String Uid = preferences.getString("Uid", "");
+            branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
+            branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
 
-        name_edit.setText(sharedpref.getString("foodName" + i, ""));
-        editTextPrice.setText(sharedpref.getString("foodPrice" + i, ""));
-        editAvailableQuantity.setText(sharedpref.getString("foodQuantity" + i, ""));
-        EditDescription.setText(sharedpref.getString("foodDescription" + i, ""));
+                    if ((dataSnapshot.child("image").getValue() != null)) {
+                        Picasso.get().load(dataSnapshot.child("image").getValue().toString())
+                                .fit().centerCrop().into(im_edit);
+                    }
+                }
 
-        byte[] imageAsBytes = Base64.decode(sharedpref.getString("foodImage" + i, ""), Base64.DEFAULT);
-        photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-        im_edit.setImageBitmap(photo);
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                }
+            });
+        }
 
         favorite = false;
         editFood = true;
@@ -224,7 +274,6 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
-        //outState.putString("day", spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
         outState.putBoolean("favorite", favorite);
         outState.putBoolean("editFood", editFood);
     }
@@ -330,8 +379,8 @@ public class DailyActivityEdit extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    //photo = rotateImageIfRequired(photo, contentURI);
-                    //photo = getResizedBitmap(photo, 500);
+                    photo = rotateImageIfRequired(photo, contentURI);
+                    photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
                     im_edit.setImageBitmap(photo);
@@ -394,9 +443,8 @@ public class DailyActivityEdit extends AppCompatActivity {
 
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
-        SharedPreferences.Editor editorFavorite = foodFavorite.edit();
 
-        if (photo == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if (TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -406,63 +454,93 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         }else{
-            if (i == -1 || favorite)
+            if (favorite)
             {
-                saveNewFood(editor, editorFavorite);
+                saveNewFood();
             } else
             {
-                String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
+                im_edit.setDrawingCacheEnabled(true);
+                im_edit.buildDrawingCache();
+                Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-                editor.putString("foodName"+i, name_edit.getText().toString());
-                editor.putString("foodPrice"+i, editTextPrice.getText().toString());
-                editor.putString("foodQuantity"+i, editAvailableQuantity.getText().toString());
-                editor.putString("foodDescription"+i, EditDescription.getText().toString());
-                editor.putString("foodImage"+i, imageEncoded);
+                branchDailyFood.child(id + "/name").setValue(name_edit.getText().toString());
+                branchDailyFood.child(id + "/price").setValue(editTextPrice.getText().toString());
+                branchDailyFood.child(id + "/quantity").setValue(editAvailableQuantity.getText().toString());
+                branchDailyFood.child(id + "/description").setValue(EditDescription.getText().toString());
+
+                final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                        .child("restaurants/food_images/food" + id);
+                final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "onSuccess: called");
+                                ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
+
+                                        branchDailyFood.child(id + "/image").setValue(downloadUrl.toString());
+                                    }
+                                });
+                            }
+                        });
 
                 editor.putBoolean("saved", true);
 
                 editor.apply();
 
                 Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+                finish();
             }
         }
     }
 
-    private void saveNewFood(SharedPreferences.Editor editor, SharedPreferences.Editor editorFavorite) {
-        String imageEncoded = Base64.encodeToString(bitmapToByteArray(photo), Base64.DEFAULT);
-        int numberOfFood = sharedpref.getInt("numberOfFood", 0);
-        int numberOfFoodFavorite = foodFavorite.getInt("numberOfFood", 0);
+    private void saveNewFood() {
+        im_edit.setDrawingCacheEnabled(true);
+        im_edit.buildDrawingCache();
+        Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-        if (favoriteFood.isChecked())
-        {
-            editorFavorite.putString("foodName"+numberOfFoodFavorite, name_edit.getText().toString());
-            editorFavorite.putString("foodPrice"+numberOfFoodFavorite, editTextPrice.getText().toString());
-            editorFavorite.putString("foodQuantity"+numberOfFoodFavorite, editAvailableQuantity.getText().toString());
-            editorFavorite.putString("foodDescription"+numberOfFoodFavorite, EditDescription.getText().toString());
-            editorFavorite.putString("foodImage"+numberOfFoodFavorite, imageEncoded);
-            //editor.putString("day"+numberOfFood, spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString());
+        FoodInfo newFood = new FoodInfo();
 
-            numberOfFoodFavorite++;
-            editorFavorite.putInt("numberOfFood", numberOfFoodFavorite);
+        newFood.setName(name_edit.getText().toString());
+        newFood.setPrice(editTextPrice.getText().toString());
+        newFood.setQuantity(editAvailableQuantity.getText().toString());
+        newFood.setDescription(EditDescription.getText().toString());
 
-            editorFavorite.apply();
+        final String foodId = branchDailyFood.push().getKey();
+        newFood.setFoodId(foodId);
+
+        branchDailyFood.child(foodId).setValue(newFood);
+
+        if (favoriteFood.isChecked()) {
+            branchFavouriteFood.child(foodId).setValue(newFood);
         }
 
-        //TODO
-        //Use FIREBASE instead of SharedPreferences
+        final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                .child("restaurants/food_images/food" + foodId);
+        final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
-        //Store the couple <key, value> into the SharedPreferences
-        editor.putString("foodName"+numberOfFood, name_edit.getText().toString());
-        editor.putString("foodPrice"+numberOfFood, editTextPrice.getText().toString());
-        editor.putString("foodQuantity"+numberOfFood, editAvailableQuantity.getText().toString());
-        editor.putString("foodDescription"+numberOfFood, EditDescription.getText().toString());
-        editor.putString("foodImage"+numberOfFood, imageEncoded);
-        editor.putBoolean("saved", true);
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "onSuccess: called");
+                        ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-        numberOfFood++;
-        editor.putInt("numberOfFood", numberOfFood);
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Uri downloadUrl = uri;
 
-        editor.apply();
+                                branchDailyFood.child(foodId + "/image").setValue(downloadUrl.toString());
+                                if (favoriteFood.isChecked()) {
+                                    branchFavouriteFood.child(foodId + "/image").setValue(downloadUrl.toString());
+                                }
+                            }
+                        });
+                    }
+                });
 
         Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
     }
@@ -484,26 +562,6 @@ public class DailyActivityEdit extends AppCompatActivity {
 
             pictureDialog.show();
         }
-    }
-
-    public void displayData() {
-        String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
-
-        String nameEdit = sharedpref.getString("name", "");
-        String phoneEdit = sharedpref.getString("price", "");
-        String addressEdit = sharedpref.getString("quantity", "");
-        String emailEdit = sharedpref.getString("description", "");
-
-        if(imageAsBytes != null) {
-            im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
-        }
-        name_edit.setText(nameEdit);
-        editTextPrice.setText(phoneEdit);
-        editAvailableQuantity.setText(addressEdit);
-        EditDescription.setText(emailEdit);
-
     }
 
     private static byte [] bitmapToByteArray(Bitmap photo) {

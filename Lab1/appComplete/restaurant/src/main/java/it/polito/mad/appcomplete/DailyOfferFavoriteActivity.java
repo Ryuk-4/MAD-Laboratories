@@ -67,7 +67,7 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
                 byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
                 Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
 
-                foodList.add(new FoodInfo(photo, foodName, Integer.parseInt(foodPrice), Integer.parseInt(foodQuantity), foodDescription));
+                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, foodDescription));
 
             }
         }

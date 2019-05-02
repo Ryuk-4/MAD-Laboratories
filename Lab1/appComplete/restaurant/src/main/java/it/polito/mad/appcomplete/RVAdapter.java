@@ -1,11 +1,6 @@
 package it.polito.mad.appcomplete;
 
-
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +11,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -42,15 +38,17 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
 
     @Override
     public void onBindViewHolder(FoodInfoHolder personViewHolder, int i) {
-        personViewHolder.foodName.setText(persons.get(i).Name);
+        personViewHolder.foodName.setText(persons.get(i).getName());
         //personViewHolder.foodName.setShadowLayer(10, 0, 0, Color.WHITE);
-        personViewHolder.foodPrice.setText(Integer.toString(persons.get(i).price) + myContext.getString(R.string.current_money));
+        personViewHolder.foodPrice.setText(persons.get(i).getPrice() + myContext.getString(R.string.current_money));
 
         //personViewHolder.foodDescription.setText(persons.get(i).description);
-        personViewHolder.Quantity.setText(Integer.toString(persons.get(i).quantity));
+        personViewHolder.Quantity.setText(persons.get(i).getQuantity());
 
-        if (persons.get(i).image != null)
-            personViewHolder.foodImage.setImageBitmap(persons.get(i).image);
+        if (persons.get(i).getImage() != null){
+            Picasso.get().load(persons.get(i).getImage())
+                    .fit().centerCrop().into(personViewHolder.foodImage);
+        }
 
     }
 

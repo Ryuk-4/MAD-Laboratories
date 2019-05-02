@@ -24,8 +24,14 @@
         -->
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Options">
         <menu>
+            <item
+                android:id="@+id/nav_deleteAccount"
+                android:title="Delete Account"
+                android:icon="@drawable/delete_account"
+                android:visible="false"
+                />
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
