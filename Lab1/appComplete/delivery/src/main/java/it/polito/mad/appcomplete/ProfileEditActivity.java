@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -120,7 +121,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         ///////////////////////////////////////////////////////////////////////////////////////////================================
         //dateOfBirth = findViewById(R.id.dateOfBirthString);
         surname_edit = findViewById(R.id.editTextSurname);
-        //radioSex = findViewById(R.id.radioSex);
+
+        //For sex radio button
+        radioSex = findViewById(R.id.radioSex);
+
+
+
 
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
@@ -188,11 +194,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         //outState.putString("description", description_edit.getText().toString());
        // outState.putString("dateOfBirth", dateOfBirth.getText().toString());
 
-       // int sexId = radioSex.getCheckedRadioButtonId();
-        //View radioButton = radioSex.findViewById(sexId);
-        //int idx = radioSex.indexOfChild(radioButton);
-        //RadioButton r = (RadioButton) radioSex.getChildAt(idx);
-        //outState.putString("sex", r.getText().toString());
+        // for sex radio button
+        int sexId = radioSex.getCheckedRadioButtonId();
+        View radioButton = radioSex.findViewById(sexId);
+        int idx = radioSex.indexOfChild(radioButton);
+        RadioButton r = (RadioButton) radioSex.getChildAt(idx);
+        outState.putString("sex", r.getText().toString());
     }
 
     @Override
@@ -388,8 +395,16 @@ public class ProfileEditActivity extends AppCompatActivity {
             //branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
             //databaseReference.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
-            //databaseReference.child("sex").setValue(r.getText().toString());
             branchProfile.child("surname").setValue(surname_edit.getText().toString());
+
+            int sexId = radioSex.getCheckedRadioButtonId();
+            View radioButton = radioSex.findViewById(sexId);
+            int idx = radioSex.indexOfChild(radioButton);
+            RadioButton r = (RadioButton) radioSex.getChildAt(idx);
+            branchProfile.child("sex").setValue(r.getText().toString());
+
+
+
 
             im_edit.setDrawingCacheEnabled(true);
             im_edit.buildDrawingCache();
@@ -460,10 +475,10 @@ public class ProfileEditActivity extends AppCompatActivity {
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
                     //openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
 
-                    //if (dataSnapshot.child("sex").getValue().equals(false))
-                       // radioSex.check(R.id.radioFemale);
-                    //else
-                       // radioSex.check(R.id.radioMale);
+                    if (dataSnapshot.child("sex").getValue().equals("Female"))
+                        radioSex.check(R.id.radioFemale);
+                    else
+                        radioSex.check(R.id.radioMale);
 
                     //dateOfBirth.setText(dateEdit);
                     surname_edit.setText(dataSnapshot.child("surname").getValue().toString());
