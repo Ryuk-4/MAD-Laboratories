@@ -123,11 +123,14 @@ public class PreparingReservationFragment extends Fragment
         recyclerView.setAdapter(myAdapter);
 
         // adding item touch helper
-        ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
-                ItemTouchHelper.RIGHT, this, getActivity(), false);
+        try {
+            ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
+                    ItemTouchHelper.RIGHT, this, getActivity(), false);
 
-        new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
-
+            new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
+        } catch (NullPointerException e){
+            Log.w(TAG, "initializeRecyclerViewReservation: ", e);
+        }
     }
 
     @Override
