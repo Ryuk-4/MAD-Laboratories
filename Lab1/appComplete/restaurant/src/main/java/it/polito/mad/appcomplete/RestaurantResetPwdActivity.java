@@ -66,13 +66,13 @@ public class RestaurantResetPwdActivity extends AppCompatActivity {
                                     Toast.makeText(RestaurantResetPwdActivity.this,
                                             "Failed to send reset email!", Toast.LENGTH_LONG).show();
                                 }
-
+                                finish();
                             }
                         });
             }
 
         });
-        finish();
+
     }
 
 }

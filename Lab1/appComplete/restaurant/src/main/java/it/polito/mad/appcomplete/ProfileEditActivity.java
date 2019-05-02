@@ -394,6 +394,7 @@ public class ProfileEditActivity extends AppCompatActivity
             String[] item = s.split(",");
             Log.d(TAG, "saveInfo: " + item[0]);
 
+            database.child("restaurants/" + Uid + "/type_food").removeValue();
             for (String str : item) {
                 database.child("restaurants/" + Uid + "/type_food").push().setValue(str.trim());
             }
@@ -481,13 +482,6 @@ public class ProfileEditActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<String> item = new ArrayList<>();
-                //HashMap<String, String> map = new HashMap<>();
-/*
-                for (int i = 0; i < (int) dataSnapshot.getChildrenCount(); i++){
-                    //TODO
-                    map.put(dataSnapshot.getKey(), dataSnapshot.getValue(String.class));
-                    item.add(map.get(dataSnapshot.getKey()));
-                }*/
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     snapshot.getKey();
