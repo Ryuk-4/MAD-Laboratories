@@ -165,11 +165,13 @@ public class IncomingReservationFragment extends Fragment
 
                 // delete order from restaurant
                 final DatabaseReference ref = branchOrdersIncoming.child(deletedReservationId);
-                String orderID= ref.child("orderID").toString();
-                String restaurantID= ref.child("restaurantID").toString();
+                //String orderID= ref.child("orderID").toString();
+                //String restaurantID= ref.child("restaurantID").toString();
+                //String restaurantID= "-LdyA3HAcMsrTWykbRN6";
+                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
                 final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
                         .child(restaurantID).child("Orders").child("Ready_To_Go");
-                branchOrdersInRestaurant.child(orderID).removeValue();
+                branchOrdersInRestaurant.child(deletedReservationId).removeValue();
 
                 // Show undo message
                 Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
