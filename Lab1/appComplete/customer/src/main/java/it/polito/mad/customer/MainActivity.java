@@ -338,6 +338,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
         } else if (id == R.id.nav_share) {
 
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(MainActivity.this, OrdersActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_contactUs) {
 
         }
@@ -429,17 +432,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     }
 
-                    int i = 1;
                     List<String> typeFood = new ArrayList<>();
-                    while (true)
+                    for (DataSnapshot ds1 : ds.child("type_food").getChildren())
                     {
-                        o = ds.child("type_food").child("type"+i).getValue();
-                        if (o != null)
-                            typeFood.add(o.toString());
-                        else
-                            break;
-
-                        i++;
+                        Object obj = ds1.getValue();
+                        if (obj != null)
+                            typeFood.add(obj.toString());
                     }
                     //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
                     myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
@@ -491,15 +489,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     int i = 1;
                     List<String> typeFood = new ArrayList<>();
-                    while (true)
+                    for (DataSnapshot ds1 : ds.child("type_food").getChildren())
                     {
-                        Object o = ds.child("type_food").child("type"+i).getValue();
+                        Object o = ds1.getValue();
                         if (o != null)
                             typeFood.add(o.toString());
-                        else
-                            break;
-
-                        i++;
                     }
 
                     if (nameRestaurant == "" || name.indexOf(nameRestaurant) != -1)
@@ -552,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    restaurantId.add(ds.getValue().toString());
+                    restaurantId.add(ds.child("restaurant").getValue().toString());
                 }
 
                 ValueEventListener valueEventListener = new ValueEventListener() {
@@ -581,15 +575,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         int i = 1;
                         List<String> typeFood = new ArrayList<>();
-                        while (true)
+                        for (DataSnapshot ds : dataSnapshot.child("type_food").getChildren())
                         {
-                            Object o = dataSnapshot.child("type_food").child("type"+i).getValue();
+                            Object o = ds.getValue();
                             if (o != null)
                                 typeFood.add(o.toString());
-                            else
-                                break;
-
-                            i++;
                         }
                         //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
                         myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());

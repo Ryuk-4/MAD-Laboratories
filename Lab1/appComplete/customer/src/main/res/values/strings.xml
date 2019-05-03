@@ -84,6 +84,7 @@
     <string name="delivery_address">Delivery Address</string>
     <string name="your_cart">Your Cart</string>
     <string name="amount">amount</string>
+    <string name="your_orders">Your Orders</string>
 
 
     <string-array name="time_orders">

@@ -146,6 +146,9 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
             startActivity(intent);
         } else if (id == R.id.nav_profile) {
 
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(ProfileActivity.this, OrdersActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
