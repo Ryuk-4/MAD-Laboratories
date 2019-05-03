@@ -179,6 +179,7 @@ public class IncomingReservationFragment extends Fragment
                     @Override
                     public void onClick(View view) {
                         // undo is selected, restore the deleted item
+                        branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersInPreparation.child(deletedReservationId).removeValue();
                     }
