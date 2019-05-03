@@ -152,28 +152,33 @@ public class IncomingReservationFragment extends Fragment
 
             database = FirebaseDatabase.getInstance().getReference();
 
+            //Delete from "incoming"
             final DatabaseReference branchOrdersIncoming = database.child("delivery/" +
                     preferences.getString("Uid", " ") + "/Orders/Incoming");
-
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 
-            if (direction == ItemTouchHelper.RIGHT) {
+            if (direction == ItemTouchHelper.RIGHT)
+            {
                 final DatabaseReference branchOrdersInPreparation = database.child("delivery")
-                        .child(preferences.getString("Uid", " ")).child("Orders")
-                        .child("finished");
-
+                        .child(preferences.getString("Uid", " ")).child("Orders").child("finished");
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
-                Snackbar snackbar = Snackbar
-                        .make(recyclerView, name + "\'s reservation finished", Snackbar.LENGTH_LONG);
+                // delete order from restaurant
+                final DatabaseReference ref = branchOrdersIncoming.child(deletedReservationId);
+                String orderID= ref.child("orderID").toString();
+                String restaurantID= ref.child("restaurantID").toString();
+                final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
+                        .child(restaurantID).child("Orders").child("Ready_To_Go");
+                branchOrdersInRestaurant.child(orderID).removeValue();
+
+                // Show undo message
+                Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
                         // undo is selected, restore the deleted item
                         branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersInPreparation.child(deletedReservationId).removeValue();
-
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);

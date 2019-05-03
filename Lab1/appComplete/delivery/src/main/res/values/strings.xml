@@ -42,7 +42,7 @@
     <string name="current_money">\u20ac</string>
 
     <string name="delete">DELETE</string>
-    <string name="cookProcess">COOK</string>
+    <string name="cookProcess">Finish</string>
     <string name="endProcess">READY</string>
 
     <string name="timeLabel">Time:</string>
