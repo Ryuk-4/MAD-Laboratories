@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Restaurant</string>
+    <string name="app_name">Delivery</string>
     <string name="nameLabel">Name: </string>
     <string name="namePerson"><i>Luigis</i></string>
 
@@ -73,9 +73,8 @@
     <string name="addFavorite">Add Favorite</string>
 
     <string name="title_activity_reservation">ReservationActivity</string>
-    <string name="tab_incoming">Incoming</string>
-    <string name="tab_preparation">In preparation</string>
-    <string name="tab_to_delivery">Ready to go</string>
+    <string name="tab_incoming">New</string>
+    <string name="tab_to_delivery">Delivered</string>
 
     <string name="login_text">LOGIN</string>
     <string name="sign_up_link"><u>No account yet? Create one</u></string>

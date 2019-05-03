@@ -49,7 +49,7 @@ public class ReservationActivity extends AppCompatActivity
     //The {@link ViewPager} that will host the section contents.
     private ViewPager mViewPager;
 
-    private PreparingReservationFragment prepFragment;
+    //private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
     private IncomingReservationFragment incFragment;
 
@@ -127,7 +127,7 @@ public class ReservationActivity extends AppCompatActivity
 
         incFragment = new IncomingReservationFragment();
 
-        prepFragment = new PreparingReservationFragment();
+        //prepFragment = new PreparingReservationFragment();
 
         endFragment = new ReadyToGoReservationFragment();
 
@@ -248,7 +248,7 @@ public class ReservationActivity extends AppCompatActivity
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mSectionsPagerAdapter.addFragments(incFragment, "Incoming");
-        mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
+        //mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
         mSectionsPagerAdapter.addFragments(endFragment, "Ready To Go");
 
         viewPager.setAdapter(mSectionsPagerAdapter);

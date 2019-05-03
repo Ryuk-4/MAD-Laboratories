@@ -38,11 +38,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/tab_incoming" />
 
-            <android.support.design.widget.TabItem
-                android:id="@+id/tabInPreparationOrders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_preparation" />
+
 
             <android.support.design.widget.TabItem
                 android:id="@+id/tabToDelivery"

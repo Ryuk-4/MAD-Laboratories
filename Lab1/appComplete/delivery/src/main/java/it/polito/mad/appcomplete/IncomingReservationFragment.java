@@ -160,12 +160,12 @@ public class IncomingReservationFragment extends Fragment
             if (direction == ItemTouchHelper.RIGHT) {
                 final DatabaseReference branchOrdersInPreparation = database.child("delivery")
                         .child(preferences.getString("Uid", " ")).child("Orders")
-                        .child("In_Preparation");
+                        .child("finished");
 
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
                 Snackbar snackbar = Snackbar
-                        .make(recyclerView, name + "\'s reservation in preparation", Snackbar.LENGTH_LONG);
+                        .make(recyclerView, name + "\'s reservation finished", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

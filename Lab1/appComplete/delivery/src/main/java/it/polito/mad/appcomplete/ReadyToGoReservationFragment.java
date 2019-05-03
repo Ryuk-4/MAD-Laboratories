@@ -85,7 +85,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
 
         database = FirebaseDatabase.getInstance().getReference();
         branchOrdersReady = database.child("delivery").child(preferences.getString("Uid", " "))
-                .child("Orders").child("Ready_To_Go");
+                .child("Orders").child("finished");
 
         branchOrdersReady.addValueEventListener(new ValueEventListener() {
             @Override
