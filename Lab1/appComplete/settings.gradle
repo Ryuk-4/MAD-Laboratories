@@ -1,1 +1,1 @@
-include ':restaurant', ':customer', ':deliverman', ':data_layer_access', ':delivery'
+include ':restaurant', ':customer', ':deliverman', ':data_layer_access', ':delivery', ':deliver'

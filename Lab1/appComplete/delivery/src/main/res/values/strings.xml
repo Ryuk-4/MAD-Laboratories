@@ -103,4 +103,7 @@
     <string name="sexLabe2">Sex</string>
     <string name="dateOfBirth">Birthdate</string>
 
+    //for new notification
+    <string name="new_order">New Order</string>
+
 </resources>

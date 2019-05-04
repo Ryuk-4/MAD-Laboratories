@@ -127,12 +127,11 @@ public class ProfileActivity extends AppCompatActivity
 
         branchOrders.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+            {
                 newOrders = dataSnapshot.getValue(Boolean.class);
-                if(newOrders == true) {
-                    Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
-                            .show();
-                }
+                if(newOrders == true)
+                    Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG).show();
 
                 invalidateOptionsMenu();
             }
