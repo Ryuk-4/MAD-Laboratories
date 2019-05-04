@@ -389,10 +389,13 @@ public class ProfileEditActivity extends AppCompatActivity
             branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
 
+            SharedPreferences.Editor editor1 = preferences.edit();
+            editor1.putString("address", address_edit.getText().toString());
+            editor1.apply();
+
             String s = multiSelectionSpinner.getSelectedItemsAsString();
 
             String[] item = s.split(",");
-            Log.d(TAG, "saveInfo: " + item[0]);
 
             database.child("restaurants/" + Uid + "/type_food").removeValue();
             for (String str : item) {

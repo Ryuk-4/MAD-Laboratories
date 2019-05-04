@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,6 +37,7 @@ public class IncomingReservationFragment extends Fragment
     private SwipeRefreshLayout mySwipeRefreshLayout;
 
     private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
     private DatabaseReference database;
 
     public IncomingReservationFragment() {
@@ -56,34 +56,15 @@ public class IncomingReservationFragment extends Fragment
         mySwipeRefreshLayout.setOnRefreshListener(this);
 
         recyclerView = view.findViewById(R.id.recyclerViewIncomingReservation);
-        
+
+        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+
         initializeReservation();
 
         return view;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        int id = item.getItemId();
-
-        if (id == R.id.menu_refresh) {
-
-            /*
-             * TODO: mySwipeRefreshLayout.setRefreshing(true);
-             * TODO: myUpdateOP.
-             */
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     private void initializeReservation() {
-        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
@@ -101,6 +82,25 @@ public class IncomingReservationFragment extends Fragment
                     reservationInfoList.add(restoreItem(value));
                 }
 
+                DatabaseReference branchOrders = database.child("restaurants/" +
+                                preferences.getString("Uid", "") + "/Orders/");
+
+                if (reservationInfoList.size() == 0){
+                    branchOrders.child("IncomingReservationFlag").setValue(false);
+
+                    editor = preferences.edit();
+                    editor.putBoolean("IncomingReservation", false);
+                    editor.apply();
+                } else {
+                    branchOrders.child("IncomingReservation").setValue(true);
+
+                    editor = preferences.edit();
+                    editor.putBoolean("IncomingReservation", true);
+                    editor.apply();
+                }
+
+
+                getActivity().invalidateOptionsMenu();
                 initializeRecyclerViewReservation();
             }
 
@@ -147,7 +147,6 @@ public class IncomingReservationFragment extends Fragment
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());
             Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
-            //final int deletedIndex = viewHolder.getAdapterPosition();
             //Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
@@ -161,12 +160,17 @@ public class IncomingReservationFragment extends Fragment
 
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 
+            final DatabaseReference statusOrder = database.child("customers").child(deletedItem.getIdPerson())
+                    .child("previous_order").child(deletedReservationId).child("order_status");
+
             if (direction == ItemTouchHelper.RIGHT) {
                 final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
                         .child(preferences.getString("Uid", " ")).child("Orders")
                         .child("In_Preparation");
 
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
+
+                statusOrder.setValue("In_Preparation");
 
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation in preparation", Snackbar.LENGTH_LONG);
@@ -178,6 +182,7 @@ public class IncomingReservationFragment extends Fragment
                         branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersInPreparation.child(deletedReservationId).removeValue();
 
+                        statusOrder.setValue("pending");
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
@@ -185,6 +190,8 @@ public class IncomingReservationFragment extends Fragment
 
             } else if (direction == ItemTouchHelper.LEFT) {
                 // showing snack bar with Undo option
+
+                statusOrder.setValue("canceled");
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener() {
@@ -209,6 +216,7 @@ public class IncomingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
+        res.setPersonAddress(reservationInfo.getPersonAddress());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {

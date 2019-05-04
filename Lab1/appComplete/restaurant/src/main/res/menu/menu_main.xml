@@ -2,6 +2,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="it.polito.mad.appcomplete.ProfileActivity">
+
+    <item
+        android:id="@+id/new_order_incoming"
+        android:title="@string/new_order"
+        android:icon="@drawable/notification_button"
+        android:visible="true"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/edit_action"
         android:title="@string/edit_action"
@@ -21,5 +29,6 @@
     <item
         android:id="@+id/menu_refresh"
         android:title="@string/menu_refresh"
+        android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

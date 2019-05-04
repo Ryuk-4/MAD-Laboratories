@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -63,6 +64,9 @@ public class DailyOfferActivity
     private GoogleSignInClient mGoogleSignInClient;
 
     private Menu mMenu;
+
+    private boolean newOrders;
+    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +133,28 @@ public class DailyOfferActivity
         mMenu = navigationView.getMenu();
         mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        database = FirebaseDatabase.getInstance().getReference();
+        branchOrders = database.child("restaurants/" +
+                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
+
+        branchOrders.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                newOrders = dataSnapshot.getValue(Boolean.class);
+
+                if(newOrders == true) {
+                    Toast.makeText(DailyOfferActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
+                            .show();
+                }
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
         initializeData();
     }
 
@@ -141,8 +167,6 @@ public class DailyOfferActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
         // if login == false then hide logout button
         if (!preferences.getBoolean("login", true)) {
             menu.findItem(R.id.logoutButton).setVisible(false);
@@ -150,6 +174,12 @@ public class DailyOfferActivity
         } else {
             menu.findItem(R.id.logoutButton).setVisible(true);
             menu.findItem(R.id.edit_action).setVisible(false);
+        }
+
+        if (newOrders == false) {
+            menu.findItem(R.id.new_order_incoming).setVisible(false);
+        } else {
+            menu.findItem(R.id.new_order_incoming).setVisible(true);
         }
 
         return super.onPrepareOptionsMenu(menu);
@@ -171,6 +201,12 @@ public class DailyOfferActivity
                 logout();
                 finish();
                 break;
+
+            case R.id.new_order_incoming:
+                branchOrders.setValue(false);
+                startActivity(new Intent(this, ReservationActivity.class));
+                finish();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -190,7 +226,6 @@ public class DailyOfferActivity
     }
 
     private void initializeData(){
-        database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         String Uid = preferences.getString("Uid", "");
