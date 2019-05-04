@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -55,6 +56,12 @@ public class ProfileActivity extends AppCompatActivity
     private GoogleSignInClient mGoogleSignInClient;
 
     private Menu mMenu;
+
+
+    // For new incoming ordrs notification:
+    private DatabaseReference database;
+    private boolean newOrders;
+    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +118,30 @@ public class ProfileActivity extends AppCompatActivity
 
         mMenu = navigationView.getMenu();
         mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+
+        // For new incoming notification:
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        database = FirebaseDatabase.getInstance().getReference();
+        branchOrders = database.child("delivery/" +
+                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
+
+        branchOrders.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                newOrders = dataSnapshot.getValue(Boolean.class);
+                if(newOrders == true) {
+                    Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
+                            .show();
+                }
+
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -161,6 +192,18 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (newOrders == false) {
+            menu.findItem(R.id.new_order_incoming).setVisible(false);
+        } else {
+            menu.findItem(R.id.new_order_incoming).setVisible(true);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -175,6 +218,13 @@ public class ProfileActivity extends AppCompatActivity
 
             case R.id.logoutButton:
                 logout();
+                finish();
+                break;
+
+
+            case R.id.new_order_incoming:
+                branchOrders.setValue(false);
+                startActivity(new Intent(this, ReservationActivity.class));
                 finish();
                 break;
         }
