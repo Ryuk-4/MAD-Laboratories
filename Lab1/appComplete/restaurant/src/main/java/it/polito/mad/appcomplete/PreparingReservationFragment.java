@@ -155,13 +155,15 @@ public class PreparingReservationFragment extends Fragment
                         deliveryManUid = data.getKey();
 
                         ReservationInfo res = new ReservationInfo(deletedItem.getNamePerson(),
-                                deletedItem.getPersonAddress(), Uid,
+                                deletedItem.getAddressOrder(), Uid,
                                 preferences.getString("address", ""));
 
                         orderID = deliveryMan.child(deliveryManUid + "/Orders/Incoming").push().getKey();
                         //deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID)
                         //        .setValue(res);
 
+
+                        Log.d(TAG, "onDataChange: id: " +res.getRestaurantId()+ " address: " + res.getRestaurantAddress());
                         deliveryMan.child("pCpWKzkjBPcKNnGaiyMN7K1Mw1J3/Orders/Incoming").child(orderID)
                                 .setValue(res);
 
@@ -203,7 +205,7 @@ public class PreparingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setPersonOrder(reservationInfo.getPersonOrder());
-        res.setPersonAddress(reservationInfo.getPersonAddress());
+        res.setAddressOrder(reservationInfo.getAddressOrder());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {

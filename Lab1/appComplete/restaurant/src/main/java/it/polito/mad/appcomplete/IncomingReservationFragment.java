@@ -92,15 +92,19 @@ public class IncomingReservationFragment extends Fragment
                     editor.putBoolean("IncomingReservation", false);
                     editor.apply();
                 } else {
-                    branchOrders.child("IncomingReservation").setValue(true);
+                    branchOrders.child("IncomingReservationFlag").setValue(true);
 
                     editor = preferences.edit();
                     editor.putBoolean("IncomingReservation", true);
                     editor.apply();
                 }
 
+                try {
+                    getActivity().invalidateOptionsMenu();
+                } catch (NullPointerException e){
+                    Log.w(TAG, "onDataChange: ", e);
+                }
 
-                getActivity().invalidateOptionsMenu();
                 initializeRecyclerViewReservation();
             }
 
@@ -216,7 +220,7 @@ public class IncomingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
-        res.setPersonAddress(reservationInfo.getPersonAddress());
+        res.setAddressOrder(reservationInfo.getAddressOrder());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {

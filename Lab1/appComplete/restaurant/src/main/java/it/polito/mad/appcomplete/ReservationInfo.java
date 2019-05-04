@@ -6,7 +6,7 @@ public class ReservationInfo {
     private String orderID;
     private String namePerson;
     private String idPerson;
-    private String personAddress;
+    private String addressOrder;
     private String timeReservation;
     private String personOrder;
     private String restaurantId;
@@ -19,13 +19,29 @@ public class ReservationInfo {
         this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
-        this.personAddress = personAddress;
+        this.addressOrder = personAddress;
         this.personOrder = personOrder;
     }
 
-    public ReservationInfo(String namePerson, String personAddress, String restaurantId,String restaurantAddress){
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+
+    public void setRestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
+    }
+
+    public ReservationInfo(String namePerson, String personAddress, String restaurantId, String restaurantAddress){
         this.namePerson = namePerson;
-        this.personAddress = personAddress;
+        this.addressOrder = personAddress;
         this.restaurantId = restaurantId;
         this.restaurantAddress = restaurantAddress;
     }
@@ -36,7 +52,7 @@ public class ReservationInfo {
         this.namePerson = "";
         this.timeReservation = "";
         this.personOrder = "";
-        this.personAddress = "";
+        this.addressOrder = "";
         this.note = "";
     }
 
@@ -84,12 +100,12 @@ public class ReservationInfo {
         return personOrder;
     }
 
-    public String getPersonAddress() {
-        return personAddress;
+    public String getAddressOrder() {
+        return addressOrder;
     }
 
-    public void setPersonAddress(String personAddress) {
-        this.personAddress = personAddress;
+    public void setAddressOrder(String personAddress) {
+        this.addressOrder = personAddress;
     }
 
     public String getNote() {
