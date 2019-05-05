@@ -235,11 +235,11 @@ public class LoginActivity extends AppCompatActivity {
             String photo = user.getPhotoUrl().toString();
 
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-            databaseReference.child("customers/"+user.getUid()+"/name").setValue(name);
-            databaseReference.child("customers/"+user.getUid()+"/surname").setValue(surname);
-            databaseReference.child("customers/"+user.getUid()+"/email").setValue(email);
-            databaseReference.child("customers/"+user.getUid()+"/phone").setValue(phoneNumber);
-            databaseReference.child("customers/"+user.getUid()+"/photo").setValue(photo);
+            databaseReference.child("customers/"+user.getUid()+"/Profile/name").setValue(name);
+            databaseReference.child("customers/"+user.getUid()+"/Profile/surname").setValue(surname);
+            databaseReference.child("customers/"+user.getUid()+"/Profile/email").setValue(email);
+            databaseReference.child("customers/"+user.getUid()+"/Profile/phone").setValue(phoneNumber);
+            databaseReference.child("customers/"+user.getUid()+"/Profile/photo").setValue(photo);
         }
     }
 }

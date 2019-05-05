@@ -45,6 +45,10 @@ import com.jaeger.library.StatusBarUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         OnRestaurantListener,
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CoordinatorLayout coordinator;
     private EditText textSearch;
     private static final int FOOD_EACH_LINE = 4;
+    private String currentRestId;
+    public boolean updating=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,11 +218,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        StatusBarUtil.setTransparent(this);
+        //StatusBarUtil.setTransparent(this);
 
         initDrawer(toolbar);
 
         initializeCardLayout();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (authListener != null) {
+            auth.removeAuthStateListener(authListener);
+        }
     }
 
     private void addTypeOfFoodFilter() {
@@ -309,25 +334,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        auth.addAuthStateListener(authListener);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (authListener != null) {
-            auth.removeAuthStateListener(authListener);
-        }
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         int id = menuItem.getItemId();
 
@@ -371,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rvNormal.setLayoutManager(llm);
 
-        myAdapterNormal = new RVANormalRestaurant(this, this);
+        myAdapterNormal = new RVANormalRestaurant(this, this, this);
         rvNormal.setAdapter(myAdapterNormal);
     }
 
@@ -381,9 +387,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void OnRestaurantClick(String id) {
+    public void OnRestaurantClick(String id, String name) {
         Intent intent = new Intent(MainActivity.this, RestaurantActivity.class);
         intent.putExtra("restaurant_selected", id);
+        intent.putExtra("restaurant_name", name);
         startActivity(intent);
     }
 
@@ -393,6 +400,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                long nRest = dataSnapshot.getChildrenCount();
+                int count = 0;
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     Object o;
@@ -444,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 //Log.d("TAG", "onDataChange: finish");
                 myAdapterNormal.notifyDataSetChanged();
-
+                updating = false;
             }
 
             @Override
@@ -455,11 +464,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants");
         databaseReference.addListenerForSingleValueEvent(valueEventListener);
+
     }
+
 
     public void onUpdateListNormalFiltered(final String nameRestaurant, final List<String> typeOfFood)
     {
-        myAdapterNormal = new RVANormalRestaurant(this, this);
+        myAdapterNormal = new RVANormalRestaurant(this, this, this);
         rvNormal.setAdapter(myAdapterNormal);
 
         ValueEventListener valueEventListener = new ValueEventListener() {
@@ -467,9 +478,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
+
+                    Object o;
+
                     String name = ds.child("Profile").child("name").getValue().toString();
-                    String photo = ds.child("Profile").child("imgUrl").getValue().toString();
-                    String description = ds.child("Profile").child("description").getValue().toString();
+
+                    o = ds.child("Profile").child("imgUrl").getValue();
+                    String photo = new String("");
+
+                    if (o != null)
+                    {
+                        photo = new String(o.toString());
+                    }
+
+                    o = ds.child("Profile").child("description").getValue();
+                    String description = new String("");
+
+                    if (o != null)
+                    {
+                        description = new String(o.toString());
+                    }
+
                     String id = ds.getKey();
 
                     int[] votes;
@@ -478,11 +507,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     for (int i = 0 ; i < 5 ; i++)
                     {
-                        Object o = ds.child("review").child((i+1)+"star").getValue();
+                        Object obj = ds.child("review").child((i+1)+"star").getValue();
 
-                        if (o != null)
+                        if (obj != null)
                         {
-                            votes[i] = Integer.parseInt(o.toString());
+                            votes[i] = Integer.parseInt(obj.toString());
                             nVotes+=votes[i];
                         }
                     }
@@ -491,9 +520,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     List<String> typeFood = new ArrayList<>();
                     for (DataSnapshot ds1 : ds.child("type_food").getChildren())
                     {
-                        Object o = ds1.getValue();
-                        if (o != null)
-                            typeFood.add(o.toString());
+                        Object obj = ds1.getValue();
+                        if (obj != null)
+                            typeFood.add(obj.toString());
                     }
 
                     if (nameRestaurant == "" || name.indexOf(nameRestaurant) != -1)
@@ -538,15 +567,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void onUpdateListSuggested()
     {
-        DatabaseReference dr = FirebaseDatabase.getInstance().getReference("customers").child(auth.getUid()).child("previous_order");
+        Log.d("TAG", "onUpdateListSuggested: "+FirebaseAuth.getInstance().getUid());
+        DatabaseReference dr = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
         dr.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<String> restaurantId = new ArrayList<>();
+                Set<String> restaurantId = new TreeSet<>();
 
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    restaurantId.add(ds.child("restaurant").getValue().toString());
+                    Object o = ds.child("restaurant").getValue();
+                    if (o != null)
+                    {
+                        restaurantId.add(o.toString());
+                    } else
+                    {
+                        break;
+                    }
+
                 }
 
                 ValueEventListener valueEventListener = new ValueEventListener() {

@@ -17,10 +17,11 @@ class OrdersInfo {
     private String address;
     private Map<String, Integer> foodAmount;
     private Map<String, Float> foodPrice;
+    private Map<String, String> foodId;
     private OrderState state;
 
 
-    public OrdersInfo(String restaurantName, String restaurantId, String time, String address, Map<String, Integer> foodAmount, Map<String, Float> foodPrice, OrderState state, String orderId) {
+    public OrdersInfo(String restaurantName, String restaurantId, String time, String address, Map<String, Integer> foodAmount, Map<String, Float> foodPrice, Map<String, String> foodId, OrderState state, String orderId) {
         this.restaurantName = restaurantName;
         this.restaurantId = restaurantId;
         this.time = time;
@@ -29,6 +30,15 @@ class OrdersInfo {
         this.foodPrice = foodPrice;
         this.state = state;
         this.orderId = orderId;
+        this.foodId = foodId;
+    }
+
+    public Map<String, String> getFoodId() {
+        return foodId;
+    }
+
+    public void setFoodId(Map<String, String> foodId) {
+        this.foodId = foodId;
     }
 
     public String getOrderId() {

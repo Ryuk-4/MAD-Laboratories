@@ -17,10 +17,10 @@
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:toolbarId="@id/toolbar"
             android:background="@color/light_background_color">
 
@@ -30,7 +30,9 @@
                 android:fitsSystemWindows="true"
                 android:gravity="center"
                 android:scaleType="centerCrop"
-                android:src="@drawable/food" />
+                android:layout_marginTop="0dp"
+                android:src="@drawable/food"
+                app:layout_collapseMode="parallax"/>
 
             <LinearLayout
                 android:layout_width="350dp"

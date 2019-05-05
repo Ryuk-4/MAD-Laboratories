@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,6 +41,7 @@ public class CartActivity extends AppCompatActivity{
     private List<OrderRecap> list;
     private Spinner spinnerTime;
     private EditText orderAddress;
+    private String restName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +57,12 @@ public class CartActivity extends AppCompatActivity{
         Bundle bundle = getIntent().getExtras();
         list = bundle.getParcelableArrayList("data");
         restId = bundle.getString("restId");
+        restName = bundle.getString("restName");
         int partial = 0;
 
         for (OrderRecap orderRecap : list)
         {
-            addFoodOrder(partial, orderRecap);
+            partial = addFoodOrder(partial, orderRecap);
         }
 
         totalAmount.setText("Total amount: "+Integer.toString(partial)+"€");
@@ -98,7 +101,7 @@ public class CartActivity extends AppCompatActivity{
         orderAddress = findViewById(R.id.order_address);
     }
 
-    private void addFoodOrder(int partial, OrderRecap orderRecap) {
+    private int addFoodOrder(int partial, OrderRecap orderRecap) {
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -111,11 +114,12 @@ public class CartActivity extends AppCompatActivity{
         TextView tvName = new TextView(this);
         tvName.setText(name);
         tvName.setPadding(10, 0, 0, 0);
-        tvName.setTextSize(18);
+        tvName.setTextSize(22);
+        tvName.setTypeface(null, Typeface.BOLD);
         TextView tvQuantity = new TextView(this);
         tvQuantity.setText(quantity+"pcs");
         tvQuantity.setTextSize(18);
-        tvQuantity.setPadding(10, 0, 0, 0);
+        tvQuantity.setPadding(20, 0, 0, 0);
         TextView tvPrice = new TextView(this);
         tvPrice.setText(price+"€");
         tvPrice.setTextSize(18);
@@ -133,6 +137,8 @@ public class CartActivity extends AppCompatActivity{
         linearLayout.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_white));
 
         cart.addView(linearLayout, layoutParams);
+
+        return partial;
     }
 
     private String saveOrderToRestaurant() {
@@ -152,6 +158,7 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("personOrder").setValue(totalOrder.toString());
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
+        databaseReference.child("addressOrder").setValue(orderAddress.getText().toString());
 
         return databaseReference.getKey();
     }
@@ -172,6 +179,7 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
         databaseReference.child("addressReservation").setValue(orderAddress.getText().toString());
         databaseReference.child("restaurant").setValue(restId);
+        databaseReference.child("restaurant_name").setValue(restName);
         databaseReference.child("order_status").setValue("pending");
     }
 

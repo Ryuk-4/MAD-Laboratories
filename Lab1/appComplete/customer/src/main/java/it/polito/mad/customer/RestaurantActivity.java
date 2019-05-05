@@ -43,7 +43,7 @@ public class RestaurantActivity
     private TabLayout tabLayout;
     private ImageView imageView;
     private Toolbar toolbar;
-    private String restId;
+    private String restId, restName;
     private List<SuggestedFoodInfo> dailyFoodInfoList;
     private myFragmentPageAdapter adapter;
 
@@ -57,27 +57,33 @@ public class RestaurantActivity
 
         dailyFoodInfoList = new ArrayList<>();
 
-
-
         tabLayout = findViewById(R.id.htab_tabs);
         imageView = findViewById(R.id.htab_header);
 
+        this.getSharedPreferences("orders_info", Context.MODE_PRIVATE).edit().clear().commit();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         StatusBarUtil.setTransparent(this);
 
         if (savedInstanceState == null)
+        {
             restId = getIntent().getStringExtra("restaurant_selected");
+            restName = getIntent().getStringExtra("restaurant_name");
+        }
+
 
         FirebaseDatabase.getInstance().getReference("restaurants").child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String photoURLrestaurant = dataSnapshot.child("Profile").child("imgUrl").getValue().toString();
+                Object object = dataSnapshot.child("Profile").child("imgUrl").getValue();
+                String photoURLrestaurant = "";
+
+                if (object != null)
+                    photoURLrestaurant = object.toString();
 
                 getDataDailyFood(dataSnapshot);
                 getDataMenu(dataSnapshot); //to be implemented
                 getDataReviews(dataSnapshot); //to be implemented
-
 
                 adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList);
 
@@ -85,7 +91,8 @@ public class RestaurantActivity
                 viewPager.setAdapter(adapter);
                 tabLayout.setupWithViewPager(viewPager);
 
-                Picasso.get().load(photoURLrestaurant).into(imageView);
+                if (photoURLrestaurant != "")
+                    Picasso.get().load(photoURLrestaurant).into(imageView);
             }
 
             @Override
@@ -157,6 +164,7 @@ public class RestaurantActivity
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("data", (ArrayList<? extends Parcelable>) orders);
             bundle.putString("restId", restId);
+            bundle.putString("restName", restName);
             intent.putExtras(bundle);
             startActivityForResult(intent, REQUEST_CART);
 
