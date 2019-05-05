@@ -1,3 +1,4 @@
+/*
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
@@ -61,13 +62,13 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
                 String foodName = sharedpref.getString("foodName" + i, "");
                 String foodQuantity = sharedpref.getString("foodQuantity" + i, "");
                 String foodPrice = sharedpref.getString("foodPrice" + i, "");
-                String foodDescription = sharedpref.getString("foodDescription" + i, "");
+                String restaurantAddress = sharedpref.getString("restaurantAddress" + i, "");
                 String foodImage = sharedpref.getString("foodImage" + i, "");
 
                 byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
                 Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
 
-                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, foodDescription));
+                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, restaurantAddress));
 
             }
         }
@@ -131,3 +132,4 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
         }
     }
 }
+*/

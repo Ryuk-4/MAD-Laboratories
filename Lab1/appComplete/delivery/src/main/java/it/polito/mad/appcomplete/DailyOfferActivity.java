@@ -1,3 +1,4 @@
+/*
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
@@ -330,3 +331,4 @@ public class DailyOfferActivity
 
 
 
+*/

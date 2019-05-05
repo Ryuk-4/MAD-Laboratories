@@ -39,6 +39,8 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         viewHolder.time.setText(reservationInfoList.get(i).getTimeReservation());
         viewHolder.order.setText(reservationInfoList.get(i).getPersonOrder());
         viewHolder.note.setText(reservationInfoList.get(i).getNote());
+        viewHolder.restaurantAddress.setText(reservationInfoList.get(i).getRestaurantAddress());
+        viewHolder.custommerAddress.setText(reservationInfoList.get(i).getAddressOrder());
     }
 
     @Override
@@ -53,6 +55,8 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         TextView order;
         TextView note;
         RelativeLayout reservationLayoutItem;
+        TextView restaurantAddress;
+        TextView custommerAddress;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -61,6 +65,8 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
             time = itemView.findViewById(R.id.reservation_time);
             order = itemView.findViewById(R.id.reservation_plate);
             note = itemView.findViewById(R.id.reservation_note);
+            restaurantAddress = itemView.findViewById(R.id.restaurantAddress);
+            custommerAddress = itemView.findViewById(R.id.custommerAddress);
 
             reservationLayoutItem = itemView.findViewById(R.id.layout_reservationCardView_item);
         }

@@ -11,14 +11,16 @@ public class FoodInfo implements Parcelable {
     private String price;
     private  String quantity;
     private  String description;
+    private  String restaurantAddress;
 
-    public FoodInfo(String foodId, String image, String name, String price, String quantity, String description) {
+    public FoodInfo(String foodId, String image, String name, String price, String quantity, String description,String restaurantAddress) {
         this.foodId = foodId;
         this.image = image;
         this.Name = name;
         this.price = price;
         this.quantity = quantity;
         this.description = description;
+        this.restaurantAddress = restaurantAddress;
     }
 
     public FoodInfo(){
@@ -87,6 +89,13 @@ public class FoodInfo implements Parcelable {
         this.description = description;
     }
 
+    public String getrestaurantAddress() {
+        return restaurantAddress;
+    }
+
+    public void setrestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
+    }
 
     public static final Creator<FoodInfo> CREATOR = new Creator<FoodInfo>() {
         @Override
@@ -113,5 +122,6 @@ public class FoodInfo implements Parcelable {
         dest.writeString(price);
         dest.writeString(quantity);
         dest.writeString(description);
+        dest.writeString(restaurantAddress);
     }
 }
