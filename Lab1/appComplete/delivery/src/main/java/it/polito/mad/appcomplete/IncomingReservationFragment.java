@@ -40,6 +40,9 @@ public class IncomingReservationFragment extends Fragment
     private SharedPreferences preferences;
     private DatabaseReference database;
 
+    // for notification
+    private SharedPreferences.Editor editor;
+
     public IncomingReservationFragment() {
         // Required empty public constructor
     }
@@ -101,6 +104,30 @@ public class IncomingReservationFragment extends Fragment
                     reservationInfoList.add(restoreItem(value));
                 }
 
+                /////for notification
+                DatabaseReference branchOrders = database.child("delivery/" +
+                        preferences.getString("Uid", "") + "/Orders/");
+
+                if (reservationInfoList.size() == 0){
+                    branchOrders.child("IncomingReservationFlag").setValue(false);
+
+                    editor = preferences.edit();
+                    editor.putBoolean("IncomingReservation", false);
+                    editor.apply();
+                } else {
+                    branchOrders.child("IncomingReservationFlag").setValue(true);
+
+                    editor = preferences.edit();
+                    editor.putBoolean("IncomingReservation", true);
+                    editor.apply();
+                }
+
+                try {
+                    getActivity().invalidateOptionsMenu();
+                } catch (NullPointerException e){
+                    Log.w(TAG, "onDataChange: ", e);
+                }
+                ///////////////////
                 initializeRecyclerViewReservation();
             }
 
@@ -155,23 +182,27 @@ public class IncomingReservationFragment extends Fragment
             //Delete from "incoming"
             final DatabaseReference branchOrdersIncoming = database.child("delivery/" +
                     preferences.getString("Uid", " ") + "/Orders/Incoming");
-            branchOrdersIncoming.child(deletedReservationId).removeValue();
 
             if (direction == ItemTouchHelper.RIGHT)
             {
+                // Add to finished branch:
                 final DatabaseReference branchOrdersInPreparation = database.child("delivery")
                         .child(preferences.getString("Uid", " ")).child("Orders").child("finished");
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
-                // delete order from restaurant
-                final DatabaseReference ref = branchOrdersIncoming.child(deletedReservationId);
-                //String orderID= ref.child("orderID").toString();
-                //String restaurantID= ref.child("restaurantID").toString();
-                //String restaurantID= "-LdyA3HAcMsrTWykbRN6";
-                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
+                //Get restaurantID:
+                final DatabaseReference one = database.child("delivery")
+                        .child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
+                String restaurantID=one.child(deletedReservationId).child("restaurantId").toString();
+
+                // delete order from restaurant:
+                //String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
                 final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
                         .child(restaurantID).child("Orders").child("Ready_To_Go");
-                branchOrdersInRestaurant.child(deletedReservationId).removeValue();
+                branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");
+
+                //Removing order from incoming branch:
+                //branchOrdersIncoming.child(deletedReservationId).removeValue();
 
                 // Show undo message
                 Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
@@ -214,6 +245,10 @@ public class IncomingReservationFragment extends Fragment
         res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
+
+        res.setRestaurantAddress(reservationInfo.getRestaurantAddress());
+        res.setAddressOrder(reservationInfo.getAddressOrder());
+        res.setRestaurantId(reservationInfo.getRestaurantId());
 
         if (reservationInfo.getNote() != null) {
             res.setNote(reservationInfo.getNote());

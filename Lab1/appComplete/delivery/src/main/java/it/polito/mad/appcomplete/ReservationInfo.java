@@ -12,14 +12,22 @@ public class ReservationInfo implements Parcelable {
     private String timeReservation;
     private String personOrder;
     private String note;
+    private String restaurantAddress;
+    private String addressOrder;
+    private String restaurantId;
 
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note) {
+    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note
+                            ,String restaurantAddress,String addressOrder, String restaurantId )
+    {
         this.orderID = orderID;
         this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
         this.personOrder = personOrder;
         this.note = note;
+        this.restaurantAddress = restaurantAddress;
+        this.addressOrder = addressOrder;
+        this.restaurantId = restaurantId;
     }
 
     public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder) {
@@ -37,6 +45,9 @@ public class ReservationInfo implements Parcelable {
         this.timeReservation = " ";
         this.personOrder = " ";
         this.note = " ";
+        this.restaurantAddress = " ";
+        this.addressOrder = " ";
+        this.restaurantId = " ";
     }
 
     protected ReservationInfo(Parcel in) {
@@ -46,6 +57,9 @@ public class ReservationInfo implements Parcelable {
         timeReservation = in.readString();
         personOrder = in.readString();
         note = in.readString();
+        restaurantAddress = in.readString();
+        addressOrder =  in.readString();
+        restaurantId =  in.readString();
     }
 
     public static final Creator<ReservationInfo> CREATOR = new Creator<ReservationInfo>() {
@@ -84,6 +98,16 @@ public class ReservationInfo implements Parcelable {
         this.timeReservation = timeReservation;
     }
 
+    public void setRestaurantAddress(String aa) {
+        this.restaurantAddress = aa;
+    }
+    public void setAddressOrder(String aa) {
+        this.addressOrder = aa;
+    }
+    public void setRestaurantId(String aa) {
+        this.restaurantId = aa;
+    }
+
     public void setPhonePerson(String phonePerson) {
         this.personOrder = phonePerson;
     }
@@ -114,6 +138,16 @@ public class ReservationInfo implements Parcelable {
 
     public String getIdPerson() {
         return idPerson;
+    }
+
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+    public String getAddressOrder() {
+        return addressOrder;
+    }
+    public String getRestaurantId() {
+        return restaurantId;
     }
 
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {

@@ -59,6 +59,11 @@ public class ReservationActivity extends AppCompatActivity
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
 
+    // for notification
+    private DatabaseReference branchOrders;
+    private DatabaseReference database;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +112,7 @@ public class ReservationActivity extends AppCompatActivity
         mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchProfile = database.child("delivery/" +
                 preferences.getString("Uid", " ") + "/Profile");
 
@@ -168,10 +173,22 @@ public class ReservationActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.logoutButton:
+                logout();
+                break;
 
-        if (id == R.id.logoutButton) {
-            logout();
+            case R.id.new_order_incoming:
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("IncomingReservation", false);
+                editor.apply();
+
+                branchOrders = database.child("delivery/" +
+                        preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
+                branchOrders.setValue(false);
+
+                invalidateOptionsMenu();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -189,6 +206,17 @@ public class ReservationActivity extends AppCompatActivity
             menu.findItem(R.id.logoutButton).setVisible(true);
             menu.findItem(R.id.edit_action).setVisible(false);
         }
+
+        boolean newOrders = preferences.getBoolean("IncomingReservation", false);
+
+
+        if (newOrders == false) {
+            menu.findItem(R.id.new_order_incoming).setVisible(false);
+        } else {
+            menu.findItem(R.id.new_order_incoming).setVisible(true);
+        }
+
+
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -229,8 +257,8 @@ public class ReservationActivity extends AppCompatActivity
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_dailyMenu) {
-            Intent intent = new Intent(this, DailyOfferActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(this, DailyOfferActivity.class);
+            //startActivity(intent);
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
