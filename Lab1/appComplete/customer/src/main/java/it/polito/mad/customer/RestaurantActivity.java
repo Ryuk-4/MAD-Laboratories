@@ -192,6 +192,8 @@ public class RestaurantActivity
 
                 pictureDialog.show();
             }
+
+            finish();
         }
 
         return true;
