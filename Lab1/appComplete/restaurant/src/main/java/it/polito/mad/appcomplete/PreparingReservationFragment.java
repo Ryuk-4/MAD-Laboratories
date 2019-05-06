@@ -185,7 +185,7 @@ public class PreparingReservationFragment extends Fragment
                     branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
                     branchOrdersReady.child(deletedReservationId).removeValue();
                     deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID).removeValue();
-                    
+
                     statusOrder.setValue("In_Preparation");
                 }
             });
