@@ -31,10 +31,11 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
     private OnRestaurantListener onRestaurantListener;
     private updateRestaurantList updateRestaurantList;
 
-    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener){
+    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener, updateRestaurantList updateRestaurantList){
         this.myContext = myContext;
         this.reservationInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
+        this.updateRestaurantList = updateRestaurantList;
     }
 
     @Override
@@ -46,7 +47,7 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
 
     @Override
     public void onBindViewHolder(@NonNull RVANormalRestaurant.ViewHolder viewHolder, final int i) {
-
+        //Log.d(TAG, "onBindViewHolder: bind");
         List<String> typeFood = reservationInfoList.get(i).getTypeOfFood();
 
         viewHolder.name.setText(reservationInfoList.get(i).getName());
@@ -119,7 +120,7 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
 
         @Override
         public void onClick(View v) {
-            onRestaurantListener.OnRestaurantClick(itemView.findViewById(R.id.restaurant_image_normal).getContentDescription().toString());
+            onRestaurantListener.OnRestaurantClick(itemView.findViewById(R.id.restaurant_image_normal).getContentDescription().toString(), ((TextView) itemView.findViewById(R.id.restaurant_name)).getText().toString());
         }
     }
 

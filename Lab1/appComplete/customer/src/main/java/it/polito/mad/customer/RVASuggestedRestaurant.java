@@ -117,7 +117,7 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
 
         @Override
         public void onClick(View v) {
-            onRestaurantListener.OnRestaurantClick(itemView.findViewById(R.id.restaurant_image_suggested).getContentDescription().toString());
+            onRestaurantListener.OnRestaurantClick(itemView.findViewById(R.id.restaurant_image_suggested).getContentDescription().toString(), ((TextView) itemView.findViewById(R.id.restaurant_name)).getText().toString());
         }
     }
 }

@@ -17,6 +17,12 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
 
@@ -110,31 +116,108 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
     }
 
     public void displayData() {
-        String imageURL = sharedpref.getString("imageEncoded", "");
+        //final String imageURL = sharedpref.getString("imageEncoded", "");
 
         SharedPreferences.Editor editor = sharedpref.edit();
 
         editor.putBoolean("saved", false);
         editor.apply();
 
-        String nameEdit = sharedpref.getString("name", "");
-        String phoneEdit = sharedpref.getString("phone", "");
-        String addressEdit = sharedpref.getString("address", "");
-        String emailEdit = sharedpref.getString("email", "");
-        String surnameEdit = sharedpref.getString("surname", "");
-        String dateEdit = sharedpref.getString("dateOfBirth", "");
-        String sexString = sharedpref.getString("sex", "");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("Profile");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Object o;
+                String nameEdit = "";
+                String phoneEdit = "";
+                String addressEdit = "";
+                String emailEdit = "";
+                String surnameEdit = "";
+                String dateEdit = "";
+                String sexString = "";
+                String imageURL = "";
 
-        if (imageURL.compareTo("") != 0)
-            Picasso.get().load(imageURL).into(im);
+                o = dataSnapshot.child("name").getValue();
+                if (o != null)
+                {
+                    nameEdit = o.toString();
+                }
 
-        name.setText(nameEdit);
-        phone.setText(phoneEdit);
-        address.setText(addressEdit);
-        email.setText(emailEdit);
-        dateOfBirth.setText(dateEdit);
-        surname.setText(surnameEdit);
-        sex.setText(sexString);
+                o = dataSnapshot.child("email").getValue();
+                if (o != null)
+                {
+                    emailEdit = o.toString();
+                }
+
+                o = dataSnapshot.child("surname").getValue();
+                if (o != null)
+                {
+                    surnameEdit = o.toString();
+                }
+
+                o = dataSnapshot.child("phone").getValue();
+                if (o != null)
+                {
+                    phoneEdit = o.toString();
+                }
+
+                o = dataSnapshot.child("address").getValue();
+                if (o != null)
+                {
+                    addressEdit = o.toString();
+                }
+
+                o = dataSnapshot.child("dateOfBirth").getValue();
+                if (o != null)
+                {
+                    dateEdit = o.toString();
+                }
+
+                o = dataSnapshot.child("sex").getValue();
+                if (o != null)
+                {
+                    sexString = o.toString();
+                }
+
+                o = dataSnapshot.child("photo").getValue();
+                if (o != null)
+                {
+                    imageURL = o.toString();
+                }
+
+                if (imageURL.compareTo("") != 0)
+                    Picasso.get().load(imageURL).into(im);
+
+                name.setText(nameEdit);
+                phone.setText(phoneEdit);
+                address.setText(addressEdit);
+                email.setText(emailEdit);
+                dateOfBirth.setText(dateEdit);
+                surname.setText(surnameEdit);
+                sex.setText(sexString);
+
+
+                sharedpref.edit().clear().commit();
+                SharedPreferences.Editor editor = sharedpref.edit();
+
+                editor.putString("name", nameEdit);
+                editor.putString("surname", surnameEdit);
+                editor.putString("phone", phoneEdit);
+                editor.putString("address", addressEdit);
+                editor.putString("dateOfBirth", addressEdit);
+                editor.putString("sex", sexString);
+                editor.putString("imageEncoded", imageURL);
+
+                editor.commit();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
     @Override
@@ -146,6 +229,9 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
             startActivity(intent);
         } else if (id == R.id.nav_profile) {
 
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(ProfileActivity.this, OrdersActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {

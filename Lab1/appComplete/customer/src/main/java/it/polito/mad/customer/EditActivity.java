@@ -48,6 +48,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -163,6 +164,9 @@ public class EditActivity extends AppCompatActivity{
         });
 
         displayData();
+
+        StatusBarUtil.setTransparent(this);
+
     }
 
 
@@ -384,7 +388,7 @@ public class EditActivity extends AppCompatActivity{
             pictureDialog.show();
         } else{
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(user.getUid());
+            final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(user.getUid()).child("Profile");
             int sexId = radioSex.getCheckedRadioButtonId();
             View radioButton = radioSex.findViewById(sexId);
             int idx = radioSex.indexOfChild(radioButton);

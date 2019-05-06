@@ -1,0 +1,130 @@
+{
+  "project_info": {
+    "project_number": "77895527913",
+    "firebase_url": "https://madapplicationgruop39.firebaseio.com",
+    "project_id": "madapplicationgruop39",
+    "storage_bucket": "madapplicationgruop39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77895527913:android:c10956dab878ca88",
+        "android_client_info": {
+          "package_name": "it.polito.mad.appcomplete"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77895527913-jorp6q2tph650sg1e64oqigd58s3o0l7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.polito.mad.appcomplete",
+            "certificate_hash": "6b8bc1bb54520c0b00a1c06ed834fbf4ed1a10f3"
+          }
+        },
+        {
+          "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApBO6kf1eTNxublx3LAKm1gpP09HqObSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77895527913:android:51551915f81003ca",
+        "android_client_info": {
+          "package_name": "it.polito.mad.customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77895527913-787b5lkf5lf37c9kl9vvr1k568t9nnn4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.polito.mad.customer",
+            "certificate_hash": "a29b015f64e4976c8e372705fd35d4e68e2a4dfd"
+          }
+        },
+        {
+          "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApBO6kf1eTNxublx3LAKm1gpP09HqObSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77895527913:android:1fea6986f1c70d0d",
+        "android_client_info": {
+          "package_name": "it.polito.mad.data_layer_access"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "77895527913-irrtqs4dv4e9svqk10k85ehv0098lae7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.polito.mad.data_layer_access",
+            "certificate_hash": "a29b015f64e4976c8e372705fd35d4e68e2a4dfd"
+          }
+        },
+        {
+          "client_id": "77895527913-1vm1bveh1icodego7of3afuflknb7os0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.polito.mad.data_layer_access",
+            "certificate_hash": "6b8bc1bb54520c0b00a1c06ed834fbf4ed1a10f3"
+          }
+        },
+        {
+          "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApBO6kf1eTNxublx3LAKm1gpP09HqObSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

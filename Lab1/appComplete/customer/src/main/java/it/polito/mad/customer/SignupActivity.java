@@ -136,9 +136,9 @@ public class SignupActivity extends AppCompatActivity {
     private void saveProfileInfoFirebase(String uId, String name, String surname, String email, String phoneNumber)
     {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-            databaseReference.child("customers/"+uId+"/name").setValue(name);
-            databaseReference.child("customers/"+uId+"/surname").setValue(surname);
-            databaseReference.child("customers/"+uId+"/email").setValue(email);
-            databaseReference.child("customers/"+uId+"/phone").setValue(phoneNumber);
+            databaseReference.child("customers/"+uId+"/Profile/name").setValue(name);
+            databaseReference.child("customers/"+uId+"/Profile/surname").setValue(surname);
+            databaseReference.child("customers/"+uId+"/Profile/email").setValue(email);
+            databaseReference.child("customers/"+uId+"/Profile/phone").setValue(phoneNumber);
     }
 }

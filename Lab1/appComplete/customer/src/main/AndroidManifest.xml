@@ -18,14 +18,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".CartActivity"
+        <activity
+            android:name=".OrdersActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/your_orders"/>
+        <activity
+            android:name=".CartActivity"
             android:label="@string/your_cart"
             android:parentActivityName=".RestaurantActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RestaurantActivity"
-            android:parentActivityName=".MainActivity"
             android:label="@string/restaurant"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
