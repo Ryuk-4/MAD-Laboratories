@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,8 +49,8 @@ public class IncomingReservationFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
         Log.d(TAG, "onCreateView: called");
 
         View view = inflater.inflate(R.layout.fragment_incoming_reservation, container, false);
@@ -156,84 +157,150 @@ public class IncomingReservationFragment extends Fragment
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
     }
 
-    /*
-     * callback when recycler view is swiped
-     * item will be removed on swiped
-     * undo option will be provided in snackbar to restore the item
-     */
     @Override
-    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction, int position) {
-        if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder) {
-            // get the removed item name to display it in snack bar
-            String name = reservationInfoList.get(viewHolder.getAdapterPosition()).getNamePerson();
-
-            // backup of removed item for undo purpose
-            final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());
-            Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
-            //final int deletedIndex = viewHolder.getAdapterPosition();
-            //Log.d(TAG, "onSwiped: deletedIndex " + deletedIndex);
+    public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction, int position)
+    {
+        if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder)
+        {
+            //String name = reservationInfoList.get(viewHolder.getAdapterPosition()).getNamePerson();
+            final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());  // backup of removed item for undo purpose
             final String deletedReservationId = deletedItem.getOrderID();
-            Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
-
             preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
-            database = FirebaseDatabase.getInstance().getReference();
-
-            //Delete from "incoming"
-            final DatabaseReference branchOrdersIncoming = database.child("delivery/" +
-                    preferences.getString("Uid", " ") + "/Orders/Incoming");
 
             if (direction == ItemTouchHelper.RIGHT)
             {
+                final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                ValueEventListener postListener = new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        // Add to finished branch:
+                            final DatabaseReference branchOrdersInPreparation = mDatabase.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("finished");
+                            branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
+
+                        // Add delivered flag to restaurant:
+                            //String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
+                            String restaurantID = dataSnapshot.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming").child(deletedReservationId).child("restaurantId").getValue(String.class);
+                            final DatabaseReference branchOrdersInRestaurant = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
+                            branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");
+
+                        //Removing order from incoming branch:
+                            final DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming");
+                            branchOrdersIncoming.child(deletedReservationId).removeValue();
+
+                        // Show undo message
+                            Snackbar snackbar = Snackbar.make(recyclerView,   " delivery finished", Snackbar.LENGTH_LONG);
+                            snackbar.setAction("UNDO", new View.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(View view)
+                                {
+                                    //branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                                    branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                                    branchOrdersInPreparation.child(deletedReservationId).removeValue();
+
+                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                    ValueEventListener postListener = new ValueEventListener()
+                                    {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot)
+                                        {
+                                            String restaurantID = dataSnapshot.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming").child(deletedReservationId).child("restaurantId").getValue(String.class);
+                                            // return delivery flag to in_delivery for restaurant branch:
+                                            final DatabaseReference branchOrdersInRestaurant = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
+                                            branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("in_delivery");
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {  }
+                                    };
+                                    mDatabase.addValueEventListener(postListener);
+
+                                }
+                            });
+                            snackbar.setActionTextColor(Color.YELLOW);
+                            snackbar.show();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {  }
+                };
+                mDatabase.addValueEventListener(postListener);
+
+
+
+                //====================================================
+                //Snackbar.make(recyclerView,  "resID"+restaurantID, Snackbar.LENGTH_LONG).show();
+
                 // Add to finished branch:
-                final DatabaseReference branchOrdersInPreparation = database.child("delivery")
+                /*final DatabaseReference branchOrdersInPreparation = database.child("delivery")
                         .child(preferences.getString("Uid", " ")).child("Orders").child("finished");
-                branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));*/
 
-                //Get restaurantID:
-                final DatabaseReference one = database.child("delivery")
-                        .child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
-                String restaurantID=one.child(deletedReservationId).child("restaurantId").toString();
-
-                // delete order from restaurant:
+                // Add delivered flag to restaurant:
                 //String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
-                final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
+             /*   final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
                         .child(restaurantID).child("Orders").child("Ready_To_Go");
-                branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");
+                branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");*/
 
                 //Removing order from incoming branch:
                 //branchOrdersIncoming.child(deletedReservationId).removeValue();
 
                 // Show undo message
-                Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
-                snackbar.setAction("UNDO", new View.OnClickListener() {
+               // Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
+               /* snackbar.setAction("UNDO", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // undo is selected, restore the deleted item
-                        branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                        //branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
                         branchOrdersInPreparation.child(deletedReservationId).removeValue();
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();
+                snackbar.show();*/
 
-            } else if (direction == ItemTouchHelper.LEFT) {
-                // showing snack bar with Undo option
-                Snackbar snackbar = Snackbar
-                        .make(recyclerView, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
-                snackbar.setAction("UNDO", new View.OnClickListener() {
+
+
+            } else if (direction == ItemTouchHelper.LEFT)
+            {
+                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
+                final DatabaseReference branchOrdersInRestaurant1 = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
+                branchOrdersInRestaurant1.child(deletedReservationId).child("status_order").setValue("in_delivery");
+
+                // Show undo message
+                Snackbar snackbar = Snackbar.make(recyclerView,   " in delivery", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", new View.OnClickListener()
+                {
                     @Override
-                    public void onClick(View view) {
+                    public void onClick(View view)
+                    {
 
-                        // undo is selected, restore the deleted item
-                        branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
+                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                        ValueEventListener postListener = new ValueEventListener()
+                        {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot)
+                            {
+                                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
+                                final DatabaseReference branchOrdersInRestaurant1 = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
+                                branchOrdersInRestaurant1.child(deletedReservationId).child("status_order").setValue(".....");
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {  }
+                        };
+                        mDatabase.addValueEventListener(postListener);
 
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
                 snackbar.show();
             }
+
+
+
         }
     }
 
