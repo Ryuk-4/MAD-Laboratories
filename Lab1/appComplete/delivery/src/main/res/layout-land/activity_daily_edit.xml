@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileEditActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#ff751A"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+
+        <ImageView
+            android:id="@+id/foodImage"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="48dp"
+            android:contentDescription="@string/userPic"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_user_image" />
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginRight="16dp"
+            android:background="#F6F6F5"
+            android:scrollbars="vertical">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <!--<Spinner
+                    android:id="@+id/dayForFood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />-->
+
+                <TextView
+                    android:id="@+id/textViewNameLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/nameLabel" />
+
+                <EditText
+                    android:id="@+id/editFoodname"
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/editFoodname"
+                    android:inputType="textPersonName"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/foodpriceLabel" />
+
+                <EditText
+                    android:id="@+id/editTextPrice"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/foodPrice"
+                    android:inputType="number"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textAvailableQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/AvailableQuantity" />
+
+                <EditText
+                    android:id="@+id/editAvailableQuantity"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/AvailableQuantityEdit"
+                    android:inputType="number"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textDescription" />
+
+                <EditText
+                    android:id="@+id/EditDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/EditDescription"
+                    android:inputType="textMultiLine"
+                    android:lines="5" />
+
+                <CheckBox
+                    android:id="@+id/checkFavoriteFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/save_as_favorite" />
+
+
+                <Button
+                    android:id="@+id/buttonSaveFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/btnCreat" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/buttonImageFood"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@id/foodImage"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/baseline_camera_alt_white_48dp" />
+
+</android.support.design.widget.CoordinatorLayout>
