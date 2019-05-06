@@ -63,17 +63,22 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         {
             Log.d("tttt", "onBindViewHolder: ");
             viewHolder.orderState.setText("PENDING");
-            viewHolder.orderState.setTextColor(0xFF9800);
+            //viewHolder.orderState.setTextColor(0xFF9800);
             viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.orange_oval));
         } else if (ordersInfos.get(i).getState() == OrderState.ACCEPTED)
         {
             viewHolder.orderState.setText("IN PREPARATION");
-            viewHolder.orderState.setTextColor(0x59ff00);
+            //viewHolder.orderState.setTextColor(0x59ff00);
             viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.green_oval));
-        }  else if (ordersInfos.get(i).getState() == OrderState.DELIVERED)
+        } else if (ordersInfos.get(i).getState() == OrderState.DELIVERED)
         {
             viewHolder.orderState.setText("DELIVERED");
-            viewHolder.orderState.setTextColor(0x000000);
+            //viewHolder.orderState.setTextColor(0x000000);
+            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
+        } else if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
+        {
+            viewHolder.orderState.setText("IN DELIVERY");
+            //viewHolder.orderState.setTextColor(0x000000);
             viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
         }
 

@@ -65,7 +65,8 @@
                     <TextView
                         android:id="@+id/tv_order_state"
                         android:layout_width="100dp"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:text="cdisbvkjdsbvkjb" />
 
                     <ImageView
                         android:id="@+id/iv_order_state"

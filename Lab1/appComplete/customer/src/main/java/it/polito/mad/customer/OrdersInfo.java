@@ -6,6 +6,7 @@ enum OrderState
 {
     PENDING,
     ACCEPTED,
+    DELIVERING,
     DELIVERED;
 }
 

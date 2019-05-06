@@ -116,6 +116,10 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
                         //Log.d("TAG", "onDataChange: ready");
+                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId));
+                    }else if (orderState.compareTo("In_Preparation") == 0)
+                    {
+                        //Log.d("TAG", "onDataChange: ready");
                         ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId));
                     }
                 }
