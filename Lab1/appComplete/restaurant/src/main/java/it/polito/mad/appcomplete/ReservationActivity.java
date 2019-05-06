@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -19,6 +20,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ActionMenuView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -58,6 +63,9 @@ public class ReservationActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
+
+    private DatabaseReference branchOrders;
+    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,18 +111,18 @@ public class ReservationActivity extends AppCompatActivity
             }
         };
 
-        mMenu = navigationView.getMenu();
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+        //mMenu = navigationView.getMenu();
+        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchProfile = database.child("restaurants/" +
                 preferences.getString("Uid", " ") + "/Profile");
 
         branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("firstTime").getValue().equals(true)){
+                if (dataSnapshot.child("firstTime").getValue().equals(true)) {
                     showDialogMenu();
                 }
             }
@@ -168,10 +176,22 @@ public class ReservationActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.logoutButton:
+                logout();
+                break;
 
-        if (id == R.id.logoutButton) {
-            logout();
+            case R.id.new_order_incoming:
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean("IncomingReservation", false);
+                editor.apply();
+
+                branchOrders = database.child("restaurants/" +
+                        preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
+                branchOrders.setValue(false);
+
+                invalidateOptionsMenu();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -179,8 +199,6 @@ public class ReservationActivity extends AppCompatActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        SharedPreferences preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
         // if login == false then hide logout button
         if (!preferences.getBoolean("login", true)) {
             menu.findItem(R.id.logoutButton).setVisible(false);
@@ -189,6 +207,16 @@ public class ReservationActivity extends AppCompatActivity
             menu.findItem(R.id.logoutButton).setVisible(true);
             menu.findItem(R.id.edit_action).setVisible(false);
         }
+
+        boolean newOrders = preferences.getBoolean("IncomingReservation", false);
+
+
+        if (newOrders == false) {
+            menu.findItem(R.id.new_order_incoming).setVisible(false);
+        } else {
+            menu.findItem(R.id.new_order_incoming).setVisible(true);
+        }
+
 
         return super.onPrepareOptionsMenu(menu);
     }

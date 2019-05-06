@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -44,6 +43,10 @@ public class PreparingReservationFragment extends Fragment
     private DatabaseReference branchOrdersInPreparation;
     private DatabaseReference branchOrdersReady;
 
+    private String deliveryManUid;
+    private String orderID;
+
+    private DatabaseReference deliveryMan;
     public PreparingReservationFragment() {
         // Required empty public constructor
     }
@@ -64,26 +67,6 @@ public class PreparingReservationFragment extends Fragment
         initializeReservation();
 
         return view;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        int id = item.getItemId();
-
-        if (id == R.id.menu_refresh) {
-
-            /*
-             * TODO: mySwipeRefreshLayout.setRefreshing(true);
-             * TODO: myUpdateOP.
-             */
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void initializeReservation() {
@@ -140,7 +123,7 @@ public class PreparingReservationFragment extends Fragment
             preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
             String name = reservationPreparingList.get(viewHolder.getAdapterPosition()).getNamePerson();
-            String Uid = preferences.getString("Uid", " ");
+            final String Uid = preferences.getString("Uid", " ");
 
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationPreparingList.get(viewHolder.getAdapterPosition());
@@ -154,8 +137,44 @@ public class PreparingReservationFragment extends Fragment
 
             branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
 
+            final DatabaseReference statusOrder = database.child("customers").child(deletedItem.getIdPerson())
+                    .child("previous_order").child(deletedReservationId).child("order_status");
+
+
+            deliveryMan = database.child("delivery");
+
             branchOrdersInPreparation.child(deletedReservationId).removeValue();
             branchOrdersReady.child(deletedReservationId).setValue(restoreItem(deletedItem));
+
+            statusOrder.setValue("Ready_for_Delivery");
+
+            deliveryMan.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot data : dataSnapshot.getChildren()){
+                        deliveryManUid = data.getKey();
+
+                        ReservationInfo res = new ReservationInfo(deletedItem.getNamePerson(),
+                                deletedItem.getAddressOrder(), Uid,
+                                preferences.getString("address", ""));
+
+                        orderID = deletedReservationId;
+                        deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID)
+                                .setValue(res);
+
+                         deliveryMan.child(deliveryManUid + "/Orders/Incoming").child("IncomingReservationFlag")
+                                .setValue(true);
+
+                        break;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                }
+            });
+
 
             Snackbar snackbar = Snackbar
                     .make(recyclerView, name + "\'s reservation ready to go", Snackbar.LENGTH_LONG);
@@ -165,6 +184,9 @@ public class PreparingReservationFragment extends Fragment
 
                     branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
                     branchOrdersReady.child(deletedReservationId).removeValue();
+                    deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID).removeValue();
+                    
+                    statusOrder.setValue("In_Preparation");
                 }
             });
 
@@ -180,6 +202,7 @@ public class PreparingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setAddressOrder(reservationInfo.getAddressOrder());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {
