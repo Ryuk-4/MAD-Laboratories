@@ -13,31 +13,6 @@ public class ReservationInfo {
     private String restaurantAddress;
     private String note;
 
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation,
-                           String personOrder, String personAddress) {
-        this.orderID = orderID;
-        this.idPerson = idPerson;
-        this.namePerson = namePerson;
-        this.timeReservation = timeReservation;
-        this.addressOrder = personAddress;
-        this.personOrder = personOrder;
-    }
-
-    public String getRestaurantId() {
-        return restaurantId;
-    }
-
-    public void setRestaurantId(String restaurantId) {
-        this.restaurantId = restaurantId;
-    }
-
-    public String getRestaurantAddress() {
-        return restaurantAddress;
-    }
-
-    public void setRestaurantAddress(String restaurantAddress) {
-        this.restaurantAddress = restaurantAddress;
-    }
 
     public ReservationInfo(String namePerson, String personAddress, String restaurantId, String restaurantAddress){
         this.namePerson = namePerson;
@@ -54,6 +29,22 @@ public class ReservationInfo {
         this.personOrder = "";
         this.addressOrder = "";
         this.note = "";
+    }
+
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+
+    public void setRestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
     }
 
     public void setNamePerson(String namePerson) {

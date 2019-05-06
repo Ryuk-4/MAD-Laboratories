@@ -158,14 +158,12 @@ public class PreparingReservationFragment extends Fragment
                                 deletedItem.getAddressOrder(), Uid,
                                 preferences.getString("address", ""));
 
-                        orderID = deliveryMan.child(deliveryManUid + "/Orders/Incoming").push().getKey();
-                        //deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID)
-                        //        .setValue(res);
-
-
-                        Log.d(TAG, "onDataChange: id: " +res.getRestaurantId()+ " address: " + res.getRestaurantAddress());
-                        deliveryMan.child("pCpWKzkjBPcKNnGaiyMN7K1Mw1J3/Orders/Incoming").child(orderID)
+                        orderID = deletedReservationId;
+                        deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID)
                                 .setValue(res);
+
+                         deliveryMan.child(deliveryManUid + "/Orders/Incoming").child("IncomingReservationFlag")
+                                .setValue(true);
 
                         break;
                     }
@@ -186,9 +184,8 @@ public class PreparingReservationFragment extends Fragment
 
                     branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
                     branchOrdersReady.child(deletedReservationId).removeValue();
-                    //deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID).removeValue();
-                    deliveryMan.child("pCpWKzkjBPcKNnGaiyMN7K1Mw1J3/Orders/Incoming").child(orderID).removeValue();
-
+                    deliveryMan.child(deliveryManUid + "/Orders/Incoming").child(orderID).removeValue();
+                    
                     statusOrder.setValue("In_Preparation");
                 }
             });

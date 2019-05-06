@@ -75,7 +75,7 @@ public class DailyOfferActivity
         Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
         setSupportActionBar(toolbar);
 
-        //Show the UP button in the action bar
+//      Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
@@ -130,8 +130,8 @@ public class DailyOfferActivity
             }
         };
 
-        mMenu = navigationView.getMenu();
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+        //mMenu = navigationView.getMenu();
+        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         database = FirebaseDatabase.getInstance().getReference();
@@ -360,8 +360,3 @@ public class DailyOfferActivity
                 });
     }
 }
-
-
-
-
-

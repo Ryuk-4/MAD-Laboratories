@@ -111,8 +111,8 @@ public class ReservationActivity extends AppCompatActivity
             }
         };
 
-        mMenu = navigationView.getMenu();
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+        //mMenu = navigationView.getMenu();
+        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         database = FirebaseDatabase.getInstance().getReference();
