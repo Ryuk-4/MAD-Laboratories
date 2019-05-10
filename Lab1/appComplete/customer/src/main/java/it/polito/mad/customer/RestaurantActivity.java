@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
@@ -49,11 +50,12 @@ public class RestaurantActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("TAG", "onCreate: RestaurantActivity");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_restaurant);
         toolbar = findViewById(R.id.toolbar_restaurant);
         setSupportActionBar(toolbar);
+
 
         dailyFoodInfoList = new ArrayList<>();
 
@@ -63,6 +65,7 @@ public class RestaurantActivity
         this.getSharedPreferences("orders_info", Context.MODE_PRIVATE).edit().clear().commit();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         StatusBarUtil.setTransparent(this);
 
         if (savedInstanceState == null)
