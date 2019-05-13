@@ -49,8 +49,7 @@ public class IncomingReservationFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: called");
 
         View view = inflater.inflate(R.layout.fragment_incoming_reservation, container, false);
@@ -90,15 +89,24 @@ public class IncomingReservationFragment extends Fragment
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchOrdersIncoming = database.child("delivery/" +
-                preferences.getString("Uid", "") + "/Orders/Incoming");
+        DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/Incoming");
+
+        //Seed db
+        //Row1
+            String orderID="-Le15r_browa374g4qzn";
+            branchOrdersIncoming.child(orderID).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
+            branchOrdersIncoming.child(orderID).child("orderID").setValue(orderID);
+            branchOrdersIncoming.child(orderID).child("timeReservation").setValue("12:89");
+            branchOrdersIncoming.child(orderID).child("addressOrder").setValue("custAdd");
+            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 reservationInfoList = new ArrayList<>();
 
-                for (DataSnapshot data :  dataSnapshot.getChildren()){
+                for (DataSnapshot data : dataSnapshot.getChildren())
+                {
                     ReservationInfo value = data.getValue(ReservationInfo.class);
                     value.setOrderID(data.getKey());
 
@@ -109,7 +117,7 @@ public class IncomingReservationFragment extends Fragment
                 DatabaseReference branchOrders = database.child("delivery/" +
                         preferences.getString("Uid", "") + "/Orders/");
 
-                if (reservationInfoList.size() == 0){
+                if (reservationInfoList.size() == 0) {
                     branchOrders.child("IncomingReservationFlag").setValue(false);
 
                     editor = preferences.edit();
@@ -125,7 +133,7 @@ public class IncomingReservationFragment extends Fragment
 
                 try {
                     getActivity().invalidateOptionsMenu();
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     Log.w(TAG, "onDataChange: ", e);
                 }
                 ///////////////////
@@ -140,11 +148,12 @@ public class IncomingReservationFragment extends Fragment
 
     }
 
-    private void initializeRecyclerViewReservation() {
+    private void initializeRecyclerViewReservation()
+    {
         myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
         Log.d(TAG, "initializeRecyclerViewReservation: called");
 
-        Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
+        //Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -167,144 +176,68 @@ public class IncomingReservationFragment extends Fragment
             final String deletedReservationId = deletedItem.getOrderID();
             preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
+            //final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+            //final DatabaseReference IncomingBranch = mDatabase.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
+
+            /*final DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming");
+            branchOrdersIncoming.child(deletedReservationId).removeValue();*/
+
             if (direction == ItemTouchHelper.RIGHT)
             {
-                final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                ValueEventListener postListener = new ValueEventListener()
-                {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot)
-                    {
-                        // Add to finished branch:
-                            final DatabaseReference branchOrdersInPreparation = mDatabase.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("finished");
-                            branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
-
-                        // Add delivered flag to restaurant:
-                            //String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
-                            String restaurantID = dataSnapshot.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming").child(deletedReservationId).child("restaurantId").getValue(String.class);
-                            final DatabaseReference branchOrdersInRestaurant = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
-                            branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");
-
-                        //Removing order from incoming branch:
-                            final DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming");
-                            branchOrdersIncoming.child(deletedReservationId).removeValue();
-
-                        // Show undo message
-                            Snackbar snackbar = Snackbar.make(recyclerView,   " delivery finished", Snackbar.LENGTH_LONG);
-                            snackbar.setAction("UNDO", new View.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(View view)
-                                {
-                                    //branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
-                                    branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
-                                    branchOrdersInPreparation.child(deletedReservationId).removeValue();
-
-                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                    ValueEventListener postListener = new ValueEventListener()
-                                    {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot)
-                                        {
-                                            String restaurantID = dataSnapshot.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming").child(deletedReservationId).child("restaurantId").getValue(String.class);
-                                            // return delivery flag to in_delivery for restaurant branch:
-                                            final DatabaseReference branchOrdersInRestaurant = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
-                                            branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("in_delivery");
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {  }
-                                    };
-                                    mDatabase.addValueEventListener(postListener);
-
-                                }
-                            });
-                            snackbar.setActionTextColor(Color.YELLOW);
-                            snackbar.show();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {  }
-                };
-                mDatabase.addValueEventListener(postListener);
-
-
-
-                //====================================================
-                //Snackbar.make(recyclerView,  "resID"+restaurantID, Snackbar.LENGTH_LONG).show();
-
                 // Add to finished branch:
-                /*final DatabaseReference branchOrdersInPreparation = database.child("delivery")
-                        .child(preferences.getString("Uid", " ")).child("Orders").child("finished");
-                branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));*/
+                database.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("finished").child(deletedReservationId).setValue(restoreItem(deletedItem));
 
                 // Add delivered flag to restaurant:
-                //String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
-             /*   final DatabaseReference branchOrdersInRestaurant = database.child("restaurants")
-                        .child(restaurantID).child("Orders").child("Ready_To_Go");
-                branchOrdersInRestaurant.child(deletedReservationId).child("status_order").setValue("delivered");*/
+                database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("delivered");
 
                 //Removing order from incoming branch:
-                //branchOrdersIncoming.child(deletedReservationId).removeValue();
+                database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).removeValue();
 
                 // Show undo message
-               // Snackbar snackbar = Snackbar.make(recyclerView, name + "\'s delivery finished", Snackbar.LENGTH_LONG);
-               /* snackbar.setAction("UNDO", new View.OnClickListener() {
+                Snackbar snackbar = Snackbar.make(recyclerView,   " delivery finished", Snackbar.LENGTH_LONG);
+                snackbar.setAction("UNDO", new View.OnClickListener()
+                {
                     @Override
-                    public void onClick(View view) {
-                        // undo is selected, restore the deleted item
-                        //branchOrdersInRestaurant.child(deletedReservationId).setValue(restoreItem(deletedItem));
-                        branchOrdersIncoming.child(deletedReservationId).setValue(restoreItem(deletedItem));
-                        branchOrdersInPreparation.child(deletedReservationId).removeValue();
+                    public void onClick(View view)
+                    {
+                        // Add to incoming branch:
+                        database.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("finished").child(deletedReservationId).removeValue();
+
+                        // Add return back flag to it's default:
+                        database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
+
+                        //Removing order from finished branch:
+                        database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).setValue(restoreItem(deletedItem));
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();*/
-
-
-
-            } else if (direction == ItemTouchHelper.LEFT)
+                snackbar.show();
+            }
+            else if (direction == ItemTouchHelper.LEFT)
             {
-                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
-                final DatabaseReference branchOrdersInRestaurant1 = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
-                branchOrdersInRestaurant1.child(deletedReservationId).child("status_order").setValue("in_delivery");
+                // Add delivered flag to restaurant:
+                //database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
 
-                // Show undo message
+             /*   // Show undo message
                 Snackbar snackbar = Snackbar.make(recyclerView,   " in delivery", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View view)
                     {
-
-                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                        ValueEventListener postListener = new ValueEventListener()
-                        {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot)
-                            {
-                                String restaurantID= "EeEfwV4KAPRYrUk4NJXj052LqXh1";
-                                final DatabaseReference branchOrdersInRestaurant1 = database.child("restaurants").child(restaurantID).child("Orders").child("Ready_To_Go");
-                                branchOrdersInRestaurant1.child(deletedReservationId).child("status_order").setValue(".....");
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {  }
-                        };
-                        mDatabase.addValueEventListener(postListener);
-
+                        // Add delivered flag to restaurant:
+                        database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("Ready_To_Go");
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();
+                snackbar.show();*/
             }
-
 
 
         }
     }
 
-    public ReservationInfo restoreItem(ReservationInfo reservationInfo){
+    public ReservationInfo restoreItem(ReservationInfo reservationInfo) {
         ReservationInfo res = new ReservationInfo();
 
         res.setOrderID(reservationInfo.getOrderID());
