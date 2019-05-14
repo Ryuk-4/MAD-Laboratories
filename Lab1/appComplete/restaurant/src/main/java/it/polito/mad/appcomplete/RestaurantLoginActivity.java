@@ -237,6 +237,7 @@ public class RestaurantLoginActivity extends AppCompatActivity
 
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: task.isSuccessful() called");
+                            updateUI(task.getResult().getUser());
                             startActivity(new Intent(RestaurantLoginActivity.this, ReservationActivity.class));
                             finish();
                         } else {

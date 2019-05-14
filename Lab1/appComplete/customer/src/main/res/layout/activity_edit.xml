@@ -8,59 +8,59 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/app_bar_layout"
+        android:layout_height="@dimen/tall_toolbar_height"
+        android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.CollapsingToolbarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="#ff751A"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:toolbarId="@id/toolbar">
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/userPic"
+                android:fitsSystemWindows="true"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/default_user_image" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="56dp"
         android:layout_marginRight="16dp"
-        android:background="#F6F6F5">
+        android:background="#F6F6F5"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="80dp">
-
-                <ImageView
-                    android:id="@+id/imageView1"
-                    android:layout_width="199dp"
-                    android:layout_height="198dp"
-                    android:contentDescription="@string/userPic"
-                    android:src="@drawable/default_user_image" />
-
-                <ImageButton
-                    android:id="@+id/imageButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignRight="@id/imageView1"
-                    android:layout_alignBottom="@+id/imageView1"
-                    android:contentDescription="@string/choosePic"
-                    android:src="@drawable/baseline_photo_camera_black_24dp" />
-            </RelativeLayout>
-
             <TextView
                 android:id="@+id/textViewNameLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="64dp"
                 android:text="@string/nameLabel" />
 
             <EditText
@@ -176,20 +176,6 @@
                 android:inputType="text"
                 android:textSize="20sp"></EditText>
 
-            <TextView
-                android:id="@+id/textViewEmailLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/emailLabel" />
-
-            <EditText
-                android:id="@+id/editTextEmail"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:inputType="textEmailAddress"
-                android:textSize="20sp"></EditText>
-
             <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
@@ -199,5 +185,16 @@
                 android:text="@string/saveButton" />
         </LinearLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/imageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_anchor="@id/app_bar_layout"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@android:drawable/ic_menu_camera" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -10,11 +10,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -34,6 +36,21 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.jaeger.library.StatusBarUtil;
+import com.squareup.picasso.Picasso;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,11 +66,10 @@ public class EditActivity extends AppCompatActivity{
     private EditText surname_edit;
     private EditText phone_edit;
     private EditText address_edit;
-    private EditText email_edit;
     private TextView dateOfBirth;
     private RadioGroup radioSex;
     private Button b;
-    private ImageButton ib;
+    private FloatingActionButton ib;
     private byte[] photoByteArray;
     private SharedPreferences sharedpref;
     private ImageButton calendarButton;
@@ -99,7 +115,6 @@ public class EditActivity extends AppCompatActivity{
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
         address_edit = findViewById(R.id.editTextAddress);
-        email_edit = findViewById(R.id.editTextEmail);
         dateOfBirth = findViewById(R.id.dateOfBirthString);
         surname_edit = findViewById(R.id.editTextSurname);
         radioSex = findViewById(R.id.radioSex);
@@ -149,6 +164,9 @@ public class EditActivity extends AppCompatActivity{
         });
 
         displayData();
+
+        StatusBarUtil.setTransparent(this);
+
     }
 
 
@@ -178,7 +196,6 @@ public class EditActivity extends AppCompatActivity{
         outState.putString("surname", surname_edit.getText().toString());
         outState.putString("phone", phone_edit.getText().toString());
         outState.putString("address", address_edit.getText().toString());
-        outState.putString("email", email_edit.getText().toString());
         outState.putString("dateOfBirth", dateOfBirth.getText().toString());
 
         int sexId = radioSex.getCheckedRadioButtonId();
@@ -204,7 +221,6 @@ public class EditActivity extends AppCompatActivity{
         surname_edit.setText(savedInstanceState.getString("surname"));
         phone_edit.setText(savedInstanceState.getString("phone"));
         address_edit.setText(savedInstanceState.getString("address"));
-        email_edit.setText(savedInstanceState.getString("email"));
         dateOfBirth.setText(savedInstanceState.getString("dateOfBirth"));
 
         String s = savedInstanceState.getString("sex");
@@ -362,7 +378,7 @@ public class EditActivity extends AppCompatActivity{
         SharedPreferences.Editor editor = sharedpref.edit();
 
         if(TextUtils.isEmpty(dateOfBirth.getText().toString()) || TextUtils.isEmpty(surname_edit.getText().toString()) || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(phone_edit.getText().toString()) ||
-                TextUtils.isEmpty(address_edit.getText().toString()) || TextUtils.isEmpty(email_edit.getText().toString())){
+                TextUtils.isEmpty(address_edit.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -370,32 +386,105 @@ public class EditActivity extends AppCompatActivity{
             pictureDialog.setMessage("All the fields must be filled.");
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
-        }else{
-            im_edit.buildDrawingCache();
-
-            Bitmap picture = im_edit.getDrawingCache();
-
-            String imageEncoded = Base64.encodeToString(bitmapToByteArray(picture), Base64.DEFAULT);
-
-            editor.putString("imageEncoded", imageEncoded);
-
-            //TODO
-            //Use FIREBASE instead of SharedPreferences
-
-            //Store the couple <key, value> into the SharedPreferences
-            editor.putString("name", name_edit.getText().toString());
-            editor.putString("surname", surname_edit.getText().toString());
-            editor.putString("phone", phone_edit.getText().toString());
-            editor.putString("address", address_edit.getText().toString());
-            editor.putString("email", email_edit.getText().toString());
-            editor.putString("dateOfBirth", dateOfBirth.getText().toString());
-
+        } else{
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(user.getUid()).child("Profile");
             int sexId = radioSex.getCheckedRadioButtonId();
             View radioButton = radioSex.findViewById(sexId);
             int idx = radioSex.indexOfChild(radioButton);
 
             RadioButton r = (RadioButton) radioSex.getChildAt(idx);
-            editor.putString("sex", r.getText().toString());
+
+            if (sharedpref.getString("name", "").compareTo(name_edit.getText().toString()) != 0)
+            {
+                editor.putString("name", name_edit.getText().toString());
+                databaseReference.child("name").setValue(name_edit.getText().toString());
+            }
+            if (sharedpref.getString("surname", "").compareTo(surname_edit.getText().toString()) != 0)
+            {
+                editor.putString("surname", surname_edit.getText().toString());
+                databaseReference.child("surname").setValue(surname_edit.getText().toString());
+            }
+            if (sharedpref.getString("phone", "").compareTo(phone_edit.getText().toString()) != 0)
+            {
+                editor.putString("phone", phone_edit.getText().toString());
+                databaseReference.child("phone").setValue(phone_edit.getText().toString());
+            }
+            if (sharedpref.getString("address", "").compareTo(address_edit.getText().toString()) != 0)
+            {
+                editor.putString("address", address_edit.getText().toString());
+                databaseReference.child("address").setValue(address_edit.getText().toString());
+            }
+            if (sharedpref.getString("dateOfBirth", "").compareTo(dateOfBirth.getText().toString()) != 0)
+            {
+                editor.putString("dateOfBirth", dateOfBirth.getText().toString());
+                databaseReference.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
+            }
+            if (sharedpref.getString("sex", "").compareTo(r.getText().toString()) != 0)
+            {
+                editor.putString("sex", r.getText().toString());
+                databaseReference.child("sex").setValue(r.getText().toString());
+            }
+
+            im_edit.setDrawingCacheEnabled(true);
+            im_edit.buildDrawingCache();
+            Bitmap bitmap = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            final StorageReference ref = FirebaseStorage.getInstance().getReference().child("profile_images/profile"+user.getUid());
+            final UploadTask uploadTask = (UploadTask) ref.putBytes(data).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Uri downloadUrl = uri;
+
+                            databaseReference.child("photo").setValue(downloadUrl.toString());
+
+                            SharedPreferences.Editor editor = sharedpref.edit();
+                            editor.putString("imageEncoded", downloadUrl.toString());
+                            editor.apply();
+                        }
+
+
+                    });
+                }
+            });
+                    /*
+            final StorageReference ref = FirebaseStorage.getInstance().getReference().child("profile"+user.getUid()).child("images/mountains.jpg");
+            final UploadTask uploadTask = ref.putBytes(data);
+
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    databaseReference.child("photo").setValue(ref.getDownloadUrl().toString());
+
+                    SharedPreferences.Editor editor = sharedpref.edit();
+                    editor.putString("imageEncoded", ref.getDownloadUrl().toString());
+                    editor.apply();
+
+                    // Continue with the task to get the download URL
+                    return ref.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                    } else {
+                        // Handle failures
+                        // ...
+                    }
+                }
+            });
+            */
 
             editor.putBoolean("saved", true);
 
@@ -426,24 +515,20 @@ public class EditActivity extends AppCompatActivity{
 
     public void displayData() {
         String imageDecoded = sharedpref.getString("imageEncoded", "");
-        byte[] imageAsBytes = Base64.decode(imageDecoded, Base64.DEFAULT);
 
         String nameEdit = sharedpref.getString("name", "");
         String phoneEdit = sharedpref.getString("phone", "");
         String addressEdit = sharedpref.getString("address", "");
-        String emailEdit = sharedpref.getString("email", "");
         String surnameEdit = sharedpref.getString("surname", "");
         String dateEdit = sharedpref.getString("dateOfBirth", "");
         String sexEdit = sharedpref.getString("sex", "");
 
-        if(imageAsBytes != null) {
-            im_edit.setImageBitmap(BitmapFactory.decodeByteArray(imageAsBytes,
-                    0, imageAsBytes.length));
+        if(imageDecoded.compareTo("") != 0) {
+            Picasso.get().load(imageDecoded).into(im_edit);
         }
         name_edit.setText(nameEdit);
         phone_edit.setText(phoneEdit);
         address_edit.setText(addressEdit);
-        email_edit.setText(emailEdit);
         dateOfBirth.setText(dateEdit);
         surname_edit.setText(surnameEdit);
 

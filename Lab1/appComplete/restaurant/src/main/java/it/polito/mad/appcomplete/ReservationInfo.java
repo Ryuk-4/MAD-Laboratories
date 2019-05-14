@@ -1,64 +1,51 @@
 package it.polito.mad.appcomplete;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.util.Comparator;
 
-public class ReservationInfo implements Parcelable {
+public class ReservationInfo {
     private String orderID;
     private String namePerson;
     private String idPerson;
+    private String addressOrder;
     private String timeReservation;
     private String personOrder;
+    private String restaurantId;
+    private String restaurantAddress;
     private String note;
 
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note) {
-        this.orderID = orderID;
-        this.idPerson = idPerson;
-        this.namePerson = namePerson;
-        this.timeReservation = timeReservation;
-        this.personOrder = personOrder;
-        this.note = note;
-    }
 
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder) {
-        this.orderID = orderID;
-        this.idPerson = idPerson;
+    public ReservationInfo(String namePerson, String personAddress, String restaurantId, String restaurantAddress){
         this.namePerson = namePerson;
-        this.timeReservation = timeReservation;
-        this.personOrder = personOrder;
+        this.addressOrder = personAddress;
+        this.restaurantId = restaurantId;
+        this.restaurantAddress = restaurantAddress;
     }
 
     public ReservationInfo() {
-        this.idPerson = " ";
-        this.orderID = " ";
-        this.namePerson = " ";
-        this.timeReservation = " ";
-        this.personOrder = " ";
-        this.note = " ";
+        this.idPerson = "";
+        this.orderID = "";
+        this.namePerson = "";
+        this.timeReservation = "";
+        this.personOrder = "";
+        this.addressOrder = "";
+        this.note = "";
     }
 
-    protected ReservationInfo(Parcel in) {
-        orderID = in.readString();
-        idPerson = in.readString();
-        namePerson = in.readString();
-        timeReservation = in.readString();
-        personOrder = in.readString();
-        note = in.readString();
+    public String getRestaurantId() {
+        return restaurantId;
     }
 
-    public static final Creator<ReservationInfo> CREATOR = new Creator<ReservationInfo>() {
-        @Override
-        public ReservationInfo createFromParcel(Parcel in) {
-            return new ReservationInfo(in);
-        }
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
+    }
 
-        @Override
-        public ReservationInfo[] newArray(int size) {
-            return new ReservationInfo[size];
-        }
-    };
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+
+    public void setRestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
+    }
 
     public void setNamePerson(String namePerson) {
         this.namePerson = namePerson;
@@ -104,6 +91,14 @@ public class ReservationInfo implements Parcelable {
         return personOrder;
     }
 
+    public String getAddressOrder() {
+        return addressOrder;
+    }
+
+    public void setAddressOrder(String personAddress) {
+        this.addressOrder = personAddress;
+    }
+
     public String getNote() {
         return note;
     }
@@ -123,19 +118,5 @@ public class ReservationInfo implements Parcelable {
         }
     };
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(orderID);
-        dest.writeString(idPerson);
-        dest.writeString(namePerson);
-        dest.writeString(timeReservation);
-        dest.writeString(personOrder);
-        dest.writeString(note);
-    }
 }
 

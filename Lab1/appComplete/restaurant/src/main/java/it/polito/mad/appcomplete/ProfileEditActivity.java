@@ -44,8 +44,16 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class ProfileEditActivity extends AppCompatActivity {
+
+import it.polito.mad.appcomplete.MultiSelectionSpinner;
+
+public class ProfileEditActivity extends AppCompatActivity
+        implements MultiSelectionSpinner.OnMultipleItemsSelectedListener {
+
     private static final String TAG = "ProfileEditActivity";
 
     private static final int GALLERY_REQ = 2000;
@@ -67,6 +75,9 @@ public class ProfileEditActivity extends AppCompatActivity {
     private DatabaseReference database;
     private DatabaseReference branchProfile;
     private String Uid;
+
+    private MultiSelectionSpinner multiSelectionSpinner;
+    private List<String> array;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -113,6 +124,8 @@ public class ProfileEditActivity extends AppCompatActivity {
         email_edit = findViewById(R.id.editTextEmail);
         description_edit = findViewById((R.id.editTextDescription));
 
+        multiSelectionSpinner = findViewById(R.id.myMultipleChoiceSpinner);
+
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
         im_edit = findViewById(R.id.imageView1);
@@ -143,8 +156,22 @@ public class ProfileEditActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         Uid = preferences.getString("Uid", " ");
-        branchProfile = database.child("restaurants")
-                .child(Uid).child("Profile");
+        branchProfile = database.child("restaurants/" + Uid + "/Profile");
+
+
+        array = new ArrayList<>();
+
+        array.add("CHINESE");
+        array.add("JAPANESE");
+        array.add("ITALIAN");
+        array.add("INDIAN");
+        array.add("PIZZA");
+        array.add("HAMBURGER");
+        array.add("FISH");
+
+        multiSelectionSpinner.setItems(array);
+        //multiSelectionSpinner.setSelection(new int[]{2, 6});
+        multiSelectionSpinner.setListener(this);
 
         displayData();
     }
@@ -173,6 +200,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         outState.putString("phone", phone_edit.getText().toString());
         outState.putString("address", address_edit.getText().toString());
         outState.putString("email", email_edit.getText().toString());
+        outState.putString("openingHour", openingHours_edit.getText().toString());
         outState.putString("description", description_edit.getText().toString());
     }
 
@@ -191,6 +219,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         phone_edit.setText(savedInstanceState.getString("phone"));
         address_edit.setText(savedInstanceState.getString("address"));
         email_edit.setText(savedInstanceState.getString("email"));
+        openingHours_edit.setText(savedInstanceState.getString("openingHour"));
         description_edit.setText(savedInstanceState.getString("description"));
 
     }
@@ -360,6 +389,19 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
 
+            SharedPreferences.Editor editor1 = preferences.edit();
+            editor1.putString("address", address_edit.getText().toString());
+            editor1.apply();
+
+            String s = multiSelectionSpinner.getSelectedItemsAsString();
+
+            String[] item = s.split(",");
+
+            database.child("restaurants/" + Uid + "/type_food").removeValue();
+            for (String str : item) {
+                database.child("restaurants/" + Uid + "/type_food").push().setValue(str.trim());
+            }
+
             im_edit.setDrawingCacheEnabled(true);
             im_edit.buildDrawingCache();
             Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
@@ -428,6 +470,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     description_edit.setText(dataSnapshot.child("description").getValue().toString());
                     phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
                     openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+
                 }
 
             }
@@ -438,11 +481,39 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
+        database.child("restaurants/" + Uid + "/type_food").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<String> item = new ArrayList<>();
+
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    snapshot.getKey();
+                    item.add(snapshot.getValue().toString());
+
+                }
+                multiSelectionSpinner.setSelection(item);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
     }
 
     private static byte[] bitmapToByteArray(Bitmap photo) {
         ByteArrayOutputStream streambyte = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.JPEG, 80, streambyte);
         return streambyte.toByteArray();
+    }
+
+    @Override
+    public void selectedIndices(List<Integer> indices) {
+
+    }
+
+    @Override
+    public void selectedStrings(List<String> strings) {
+
     }
 }

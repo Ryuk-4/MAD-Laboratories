@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="it.polito.mad.customer.MainActivity">
+    tools:context="it.polito.mad.customer.ProfileActivity">
 
     <item
         android:id="@+id/edit_action"
