@@ -216,9 +216,10 @@ public class IncomingReservationFragment extends Fragment
             else if (direction == ItemTouchHelper.LEFT)
             {
                 // Add delivered flag to restaurant:
-                //database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
+                database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
 
-             /*   // Show undo message
+                initializeRecyclerViewReservation();
+                // Show undo message
                 Snackbar snackbar = Snackbar.make(recyclerView,   " in delivery", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener()
                 {
@@ -230,7 +231,7 @@ public class IncomingReservationFragment extends Fragment
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
-                snackbar.show();*/
+                snackbar.show();
             }
 
 
