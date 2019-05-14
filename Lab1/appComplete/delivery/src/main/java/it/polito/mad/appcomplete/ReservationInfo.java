@@ -98,14 +98,16 @@ public class ReservationInfo implements Parcelable {
         this.timeReservation = timeReservation;
     }
 
-    public void setRestaurantAddress(String aa) {
-        this.restaurantAddress = aa;
+    public void setRestaurantAddress(String restaurantAddress) {
+        this.restaurantAddress = restaurantAddress;
     }
-    public void setAddressOrder(String aa) {
-        this.addressOrder = aa;
+
+    public void setAddressOrder(String addressOrder) {
+        this.addressOrder = addressOrder;
     }
-    public void setRestaurantId(String aa) {
-        this.restaurantId = aa;
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public void setPhonePerson(String phonePerson) {

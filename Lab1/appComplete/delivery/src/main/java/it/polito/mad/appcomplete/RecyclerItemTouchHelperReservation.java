@@ -37,7 +37,7 @@ public class RecyclerItemTouchHelperReservation extends ItemTouchHelper.SimpleCa
         background_delete = new ColorDrawable(ContextCompat.getColor(myContext, R.color.bg_row_background));
         background_insert = new ColorDrawable(ContextCompat.getColor(myContext, R.color.green_row_background));
 
-        icon_delete = ContextCompat.getDrawable(myContext, R.drawable.baseline_delete_white_24dp);
+        icon_delete = ContextCompat.getDrawable(myContext, R.drawable.baseline_motorcycle_white_24dp);
         delete_text = myContext.getString(R.string.delete);
 
         icon_insert = ContextCompat.getDrawable(myContext, R.drawable.baseline_move_to_inbox_white_24dp);
