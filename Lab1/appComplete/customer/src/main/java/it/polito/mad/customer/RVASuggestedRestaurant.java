@@ -77,6 +77,11 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         return reservationInfoList.size();
     }
 
+    public void clearAll()
+    {
+        reservationInfoList = new ArrayList<>();
+    }
+
     public void removeItem(int position) {
         reservationInfoList.remove(position);
         // notify the item removed by position

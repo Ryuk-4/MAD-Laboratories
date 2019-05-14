@@ -7,6 +7,7 @@ enum OrderState
     PENDING,
     ACCEPTED,
     DELIVERING,
+    CANCELLED,
     DELIVERED;
 }
 

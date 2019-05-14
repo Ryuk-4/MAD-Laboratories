@@ -7,13 +7,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -21,31 +19,29 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link DailyFoodFragment.OnFragmentInteractionListener} interface
+ * {@link OrdersPendingFragment.OnFragmentInteractionListenerPending} interface
  * to handle interaction events.
- * Use the {@link DailyFoodFragment#newInstance} factory method to
+ * Use the {@link OrdersPendingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DailyFoodFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+public class OrdersPendingFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
     private RecyclerView recyclerView;
-    private RVADailyFood adapter;
+    private RVAOrders adapter;
     private View view;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private List<SuggestedFoodInfo> suggestedFoodInfos;
+    private List<OrdersInfo> ordersInfos;
     private Context context;
 
 
-    private OnFragmentInteractionListener mListener;
+    private OrdersPendingFragment.OnFragmentInteractionListenerPending mListener;
 
-    public DailyFoodFragment() {
+    public OrdersPendingFragment() {
         // Required empty public constructor
     }
 
@@ -53,12 +49,12 @@ public class DailyFoodFragment extends Fragment {
         initRecyclerView();
     }
 
-    public List<SuggestedFoodInfo> getSuggestedFoodInfos() {
-        return suggestedFoodInfos;
+    public List<OrdersInfo> getOrdersInfos() {
+        return ordersInfos;
     }
 
-    public DailyFoodFragment setSuggestedFoodInfos(List<SuggestedFoodInfo> suggestedFoodInfos) {
-        this.suggestedFoodInfos = suggestedFoodInfos;
+    public OrdersPendingFragment setOrderInfos(List<OrdersInfo> suggestedFoodInfos) {
+        this.ordersInfos = suggestedFoodInfos;
         //Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
         return this;
     }
@@ -69,7 +65,7 @@ public class DailyFoodFragment extends Fragment {
         return context;
     }
 
-    public DailyFoodFragment setContext(Context context) {
+    public OrdersPendingFragment setContext(Context context) {
         this.context = context;
         return this;
     }
@@ -83,8 +79,8 @@ public class DailyFoodFragment extends Fragment {
      * @return A new instance of fragment DailyFoodFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static DailyFoodFragment newInstance(String param1, String param2) {
-        DailyFoodFragment fragment = new DailyFoodFragment();
+    public static OrdersPendingFragment newInstance(String param1, String param2) {
+        OrdersPendingFragment fragment = new OrdersPendingFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -110,9 +106,8 @@ public class DailyFoodFragment extends Fragment {
         //Log.d("TAG", "onCreateView: DailyFoodFragment");
         //scaricare i dati nell'attivita principale e passare i dati come parametro di costruzione
 
-        view = inflater.inflate(R.layout.fragment_daily_food, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_daily_food);
-        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        view = inflater.inflate(R.layout.fragment_orders_pending, container, false);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_orders);
 
         initRecyclerView();
 
@@ -127,14 +122,14 @@ public class DailyFoodFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
 
-        adapter = new RVADailyFood(context, suggestedFoodInfos);
+        adapter = new RVAOrders(context, ordersInfos);
         recyclerView.setAdapter(adapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteractionPending(uri);
         }
     }
 
@@ -142,8 +137,8 @@ public class DailyFoodFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         //Log.d("TAG", "onAttach: DailyFoodFragment");
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OrdersPendingFragment.OnFragmentInteractionListenerPending) {
+            mListener = (OrdersPendingFragment.OnFragmentInteractionListenerPending) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -166,8 +161,8 @@ public class DailyFoodFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListenerPending {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteractionPending(Uri uri);
     }
 }

@@ -1,112 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+
+
+<com.github.florent37.materialviewpager.MaterialViewPager xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/htab_maincontent"
+    android:id="@+id/materialViewPager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@color/light_background_color">
-
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/htab_appbar"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:background="?attr/colorPrimary"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Light">
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/htab_collapse_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="false"
-            android:background="@color/light_background_color">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true">
-
-                <ImageView
-                android:layout_width="match_parent"
-                android:id="@+id/im"
-                android:layout_height="150dp"
-                android:src="@color/btn_login"
-                android:fitsSystemWindows="true"/>
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/htab_header"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
-                    android:src="@drawable/default_user_image"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="@color/colorPrimary"
-                    android:layout_alignRight="@+id/im"
-                    android:layout_alignLeft="@+id/im"
-                    android:layout_marginTop="40dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="210dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/restaurant_name"
-                        android:text="NOME DEL RISTORANTE"
-                        android:gravity="center"
-                        android:textSize="22dp"
-                        />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/restaurant_description"
-                        android:text="DESCRIZIONE DEL RISTORANTE"
-                        android:gravity="center_horizontal"
-                        android:textSize="16dp"
-                        android:layout_marginTop="6dp"/>
-                </LinearLayout>
-
-
-            </RelativeLayout>
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar_restaurant"
-                app:layout_scrollFlags="scroll|enterAlways"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/htab_tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:tabIndicatorColor="@color/colorPrimary"
-            app:tabSelectedTextColor="@android:color/black"
-            app:tabTextColor="@android:color/black"
-            android:background="@color/light_background_color"/>
-
-    </android.support.design.widget.AppBarLayout>
-
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/htab_viewpager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-</android.support.design.widget.CoordinatorLayout>
+    app:viewpager_logo="@layout/header_logo"
+    app:viewpager_logoMarginTop="20dp"
+    app:viewpager_color="@color/colorPrimary"
+    app:viewpager_header="@layout/my_header_restaurant"
+    app:viewpager_headerHeight="240dp"
+    app:viewpager_headerAlpha="1.0"
+    app:viewpager_hideLogoWithFade="false"
+    app:viewpager_hideToolbarAndTitle="false"
+    app:viewpager_enableToolbarElevation="true"
+    app:viewpager_parallaxHeaderFactor="1.5"
+    app:viewpager_headerAdditionalHeight="20dp"
+    app:viewpager_displayToolbarWhenSwipe="true"
+    app:viewpager_transparentToolbar="false"
+    app:viewpager_animatedHeaderImage="false"
+    app:viewpager_disableToolbar="false"
+    app:viewpager_pagerTitleStrip="@layout/restaurant_tabs"
+    />

@@ -1,19 +1,17 @@
 package it.polito.mad.customer;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -21,18 +19,26 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class OrdersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class OrdersActivity
+
+        extends AppCompatActivity
+
+        implements NavigationView.OnNavigationItemSelectedListener,
+                   OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
+                   OrdersPendingFragment.OnFragmentInteractionListenerPending{
 
     private Toolbar toolbar;
-    private List<OrdersInfo> ordersInfoList;
-    private RecyclerView rvOrders;
-    private RVAOrders myAdapterOrders;
+    private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
+    private myFragmentPageAdapterOrders adapter;
+    private ViewPager viewPager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,22 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
         initDrawer();
         getDataOrders();
 
+        StatusBarUtil.setTransparent(this);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        setContentView(R.layout.drawer_orders);
+
+        toolbar = findViewById(R.id.toolbar_orders);
+        setSupportActionBar(toolbar);
+
+        initDrawer();
+        getDataOrders();
+
+        StatusBarUtil.setTransparent(this);
     }
 
     @Override
@@ -81,7 +103,10 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
 
     private void getDataOrders()
     {
-        ordersInfoList = new ArrayList<>();
+        ordersInfoListPending = new ArrayList<>();
+        ordersInfoListCompleted = new ArrayList<>();
+        viewPager = (ViewPager) findViewById(R.id.containerTabsOrders);
+
         //Log.d("TAG", "onDataChange: ");
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -112,19 +137,26 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
                     if (orderState.compareTo("pending") == 0)
                     {
                         //Log.d("TAG", "onDataChange: pending");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
                         //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId));
-                    }else if (orderState.compareTo("In_Preparation") == 0)
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId));
+                    } else if (orderState.compareTo("In_Preparation") == 0)
                     {
                         //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId));
+                    } else if (orderState.compareTo("Completed") == 0)
+                    {
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId));
+                    } else if (orderState.compareTo("Rejected") == 0)
+                    {
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId));
                     }
                 }
 
-                initializeCardLayoutOrders();
+                adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
+                viewPager.setAdapter(adapter);
             }
 
             @Override
@@ -134,14 +166,13 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
         });
     }
 
-    private void initializeCardLayoutOrders() {
-        rvOrders = (RecyclerView) findViewById(R.id.rv_orders);
-        rvOrders.setHasFixedSize(false);
+    @Override
+    public void onFragmentInteractionComplete(Uri uri) {
 
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        rvOrders.setLayoutManager(llm);
+    }
 
-        myAdapterOrders = new RVAOrders(this, ordersInfoList);
-        rvOrders.setAdapter(myAdapterOrders);
+    @Override
+    public void onFragmentInteractionPending(Uri uri) {
+
     }
 }

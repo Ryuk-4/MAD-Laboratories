@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -61,25 +62,29 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
         {
-            Log.d("tttt", "onBindViewHolder: ");
             viewHolder.orderState.setText("PENDING");
             //viewHolder.orderState.setTextColor(0xFF9800);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.orange_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.colorPrimary));
         } else if (ordersInfos.get(i).getState() == OrderState.ACCEPTED)
         {
             viewHolder.orderState.setText("IN PREPARATION");
             //viewHolder.orderState.setTextColor(0x59ff00);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.green_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.green));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERED)
         {
             viewHolder.orderState.setText("DELIVERED");
             //viewHolder.orderState.setTextColor(0x000000);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.black));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
         {
             viewHolder.orderState.setText("IN DELIVERY");
             //viewHolder.orderState.setTextColor(0x000000);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.black));
+        } else if (ordersInfos.get(i).getState() == OrderState.CANCELLED)
+        {
+            viewHolder.orderState.setText("REJECTED");
+            //viewHolder.orderState.setTextColor(0x000000);
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.red));
         }
 
         Map<String, Integer> productQuantity = ordersInfos.get(i).getFoodAmount();
@@ -95,11 +100,11 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             name.setTextSize(18);
             name.setTypeface(null, Typeface.BOLD);
             name.setTag(ordersInfos.get(i).getFoodId().get(s));
-            name.setPadding(12, 6, 0, 0);
+            name.setPadding(20, 6, 0, 0);
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(40, 0, 0, 0);
+            ll.setPadding(50, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
             quantity.setHint(productQuantity.get(s).toString());
@@ -158,7 +163,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         TextView orderAddress;
         LinearLayout orderView;
         TextView orderState;
-        ImageView orderStateImage;
+        View orderStateView;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -169,7 +174,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             orderTime = itemView.findViewById(R.id.order_time);
             orderView = itemView.findViewById(R.id.ll_order);
             orderState = itemView.findViewById(R.id.tv_order_state);
-            orderStateImage = itemView.findViewById(R.id.iv_order_state);
+            orderStateView = itemView.findViewById(R.id.color_order_status);
 
             orderView.setOnClickListener(new View.OnClickListener() {
                 @Override

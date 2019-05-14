@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 
 import org.w3c.dom.Text;
 
@@ -47,6 +48,19 @@ public class CartActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        initSystem();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        setContentView(R.layout.activity_cart);
+
+        initSystem();
+    }
+
+    private void initSystem() {
         Toolbar toolbar = findViewById(R.id.toolbar_cart);
         setSupportActionBar(toolbar);
 
@@ -54,10 +68,19 @@ public class CartActivity extends AppCompatActivity{
 
         initLayoutReferences();
 
-        Bundle bundle = getIntent().getExtras();
-        list = bundle.getParcelableArrayList("data");
-        restId = bundle.getString("restId");
-        restName = bundle.getString("restName");
+        getInfoFromExtra();
+
+        int partial = createCart();
+
+        totalAmount.setText("Total amount: "+Integer.toString(partial)+"€");
+
+
+        addListenerToButtons();
+
+        StatusBarUtil.setTransparent(this);
+    }
+
+    private int createCart() {
         int partial = 0;
 
         for (OrderRecap orderRecap : list)
@@ -65,9 +88,17 @@ public class CartActivity extends AppCompatActivity{
             partial = addFoodOrder(partial, orderRecap);
         }
 
-        totalAmount.setText("Total amount: "+Integer.toString(partial)+"€");
+        return partial;
+    }
 
+    private void getInfoFromExtra() {
+        Bundle bundle = getIntent().getExtras();
+        list = bundle.getParcelableArrayList("data");
+        restId = bundle.getString("restId");
+        restName = bundle.getString("restName");
+    }
 
+    private void addListenerToButtons() {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -3,12 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    tools:context=".OrdersPendingFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="nemu fragment" />
+        android:layout_marginTop="16dp"
+        android:id="@+id/rv_orders">
+
+
+    </android.support.v7.widget.RecyclerView>
 
 </FrameLayout>
