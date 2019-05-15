@@ -1,6 +1,8 @@
 package it.polito.mad.appcomplete;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -52,9 +54,10 @@ import it.polito.mad.appcomplete.directionhelpers.TaskLoadedCallback;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
     private GoogleMap mMap;
-    private MarkerOptions place1, place2;
+    private MarkerOptions place1, place2,restaurant,customer;
     TextView tvDistanceDuration;
     private Polyline currentPolyline;
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,19 +67,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        preferences = this.getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-        /*//Get inputs
+        //Get inputs
         Bundle extras = getIntent().getExtras();
-        String res_Lat = extras.getString("res_Lat");
+
+        /*String res_Lat = extras.getString("res_Lat");
         String res_Lon = extras.getString("res_Lon");
         String cus_Lat = extras.getString("cus_Lat");
         String cus_Lon = extras.getString("cus_Lon");*/
+        String res_Lat ="45.0608524";
+        String res_Lon ="7.5810127";
+        String cus_Lat ="45.0576305";
+        String cus_Lon ="7.6896999";
 
         place1 = new MarkerOptions().position(new LatLng(27.658143, 85.3199503)).title("Location 1");
         place2 = new MarkerOptions().position(new LatLng(27.667491, 85.3208583)).title("Location 2");
+        customer = new MarkerOptions().position(new LatLng(Float.parseFloat(cus_Lat) , Float.parseFloat(cus_Lon) )).title("Customer");
+        restaurant = new MarkerOptions().position(new LatLng(Float.parseFloat(res_Lat) , Float.parseFloat(res_Lon) )).title("Restaurant");
 
         //Get Route
         new it.polito.mad.appcomplete.directionhelpers.FetchURL(MapsActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
+        new it.polito.mad.appcomplete.directionhelpers.FetchURL(MapsActivity.this).execute(getUrl(restaurant.getPosition(), customer.getPosition(), "driving"), "driving");
 
         //Get duration
         String url = getUrl(place1.getPosition(), place2.getPosition(), "driving");
@@ -84,8 +96,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Start downloading json data from Google Directions API
         downloadTask.execute(url);
 
+        //Get duration
+        String url2 = getUrl(customer.getPosition(), restaurant.getPosition(), "driving");
+        DownloadTask downloadTask2 = new DownloadTask();
+        // Start downloading json data from Google Directions API
+        downloadTask2.execute(url2);
+
         // Find current location:
         getLocationPermission();
+
+        new  TrackerService().requestLocationUpdates();
     }
 
 
@@ -392,31 +412,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /////////////////////////////////////////////////////////// For storing current lon lat in firebase
     public class TrackerService
     {
-       /* private void requestLocationUpdates() {
+        private void requestLocationUpdates()
+        {
             LocationRequest request = new LocationRequest();
             request.setInterval(10000);
             request.setFastestInterval(5000);
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(this);
-            final String path = getString(R.string.firebase_path) + "/" + getString(R.string.transport_id);
-            int permission = ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION);
+            FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
+
+            //final String path =
+
+            int permission = ContextCompat.checkSelfPermission(MapsActivity.this,Manifest.permission.ACCESS_FINE_LOCATION);
             if (permission == PackageManager.PERMISSION_GRANTED) {
                 // Request location updates and when an update is
                 // received, store the location in Firebase
                 client.requestLocationUpdates(request, new LocationCallback() {
                     @Override
                     public void onLocationResult(LocationResult locationResult) {
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(path);
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position/"+preferences.getString("Uid", " ")+"/l");
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
                             Log.d(TAG, "location update " + location);
-                            ref.setValue(location);
+
+                            ref.child("0").setValue(location.getLatitude());
+                            ref.child("1").setValue(location.getLongitude());
                         }
                     }
                 }, null);
             }
-        }*/
+        }
     }
     ///////////////////////////////////////////////////////////////
 }

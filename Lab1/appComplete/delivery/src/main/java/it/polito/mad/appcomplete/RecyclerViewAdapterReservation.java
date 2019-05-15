@@ -56,6 +56,9 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
                 database = FirebaseDatabase.getInstance().getReference();*/
 
                 Intent intent = new Intent (v.getContext(), MapsActivity.class);
+                //Bundle extras = new Bundle();
+                //extras.putString("userId",delete);
+                //intent.putExtras(extras);
                 myContext.startActivity(intent);
                //new c().CallActivity();
             }
