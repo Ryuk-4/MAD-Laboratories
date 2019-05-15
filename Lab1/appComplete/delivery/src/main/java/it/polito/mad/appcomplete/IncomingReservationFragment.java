@@ -75,10 +75,6 @@ public class IncomingReservationFragment extends Fragment
 
         if (id == R.id.menu_refresh) {
 
-            /*
-             * TODO: mySwipeRefreshLayout.setRefreshing(true);
-             * TODO: myUpdateOP.
-             */
             return true;
         }
 
@@ -113,9 +109,8 @@ public class IncomingReservationFragment extends Fragment
                     reservationInfoList.add(restoreItem(value));
                 }
 
-                /////for notification
-                DatabaseReference branchOrders = database.child("delivery/" +
-                        preferences.getString("Uid", "") + "/Orders/");
+                //for notification
+                DatabaseReference branchOrders = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/");
 
                 if (reservationInfoList.size() == 0) {
                     branchOrders.child("IncomingReservationFlag").setValue(false);

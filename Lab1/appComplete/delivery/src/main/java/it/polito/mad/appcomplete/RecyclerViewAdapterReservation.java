@@ -52,15 +52,18 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         viewHolder.cardContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*private DatabaseReference database;
-                database = FirebaseDatabase.getInstance().getReference();*/
-
+                Bundle extras = new Bundle();
+                String res_Lat ="45.0608524";
+                String res_Lon ="7.5810127";
+                String cus_Lat ="45.0576305";
+                String cus_Lon ="7.6896999";
+                extras.putString("res_Lat",res_Lat);
+                extras.putString("res_Lon",res_Lon);
+                extras.putString("cus_Lat",cus_Lat);
+                extras.putString("cus_Lon",cus_Lon);
                 Intent intent = new Intent (v.getContext(), MapsActivity.class);
-                //Bundle extras = new Bundle();
-                //extras.putString("userId",delete);
-                //intent.putExtras(extras);
+                intent.putExtras(extras);
                 myContext.startActivity(intent);
-               //new c().CallActivity();
             }
         });
     }
@@ -96,25 +99,5 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         }
     }
 
-    public class c extends Activity
-    {
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-        }
 
-        public void CallActivity()
-        {
-            //reservationInfoList.get(1).getPersonOrder();
-            Intent intent;
-            //intent = new Intent(c.getContext(), MapsActivity.class);
-            /*Bundle extras = new Bundle();
-            extras.putString("res_Lat","my_username");
-            extras.putString("res_Lon","my_password");
-            extras.putString("cus_Lat","my_username");
-            extras.putString("cus_Lon","my_password");
-            intent.putExtras(extras);*/
-           // startActivity(intent);
-        }
-    }
 }

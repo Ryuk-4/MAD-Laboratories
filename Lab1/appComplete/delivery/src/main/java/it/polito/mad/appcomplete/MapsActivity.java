@@ -54,7 +54,7 @@ import it.polito.mad.appcomplete.directionhelpers.TaskLoadedCallback;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, TaskLoadedCallback {
 
     private GoogleMap mMap;
-    private MarkerOptions place1, place2,restaurant,customer;
+    private MarkerOptions restaurant,customer;
     TextView tvDistanceDuration;
     private Polyline currentPolyline;
     SharedPreferences preferences;
@@ -71,30 +71,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //Get inputs
         Bundle extras = getIntent().getExtras();
-
-        /*String res_Lat = extras.getString("res_Lat");
+        String res_Lat = extras.getString("res_Lat");
         String res_Lon = extras.getString("res_Lon");
         String cus_Lat = extras.getString("cus_Lat");
-        String cus_Lon = extras.getString("cus_Lon");*/
-        String res_Lat ="45.0608524";
-        String res_Lon ="7.5810127";
-        String cus_Lat ="45.0576305";
-        String cus_Lon ="7.6896999";
-
-        place1 = new MarkerOptions().position(new LatLng(27.658143, 85.3199503)).title("Location 1");
-        place2 = new MarkerOptions().position(new LatLng(27.667491, 85.3208583)).title("Location 2");
+        String cus_Lon = extras.getString("cus_Lon");
         customer = new MarkerOptions().position(new LatLng(Float.parseFloat(cus_Lat) , Float.parseFloat(cus_Lon) )).title("Customer");
         restaurant = new MarkerOptions().position(new LatLng(Float.parseFloat(res_Lat) , Float.parseFloat(res_Lon) )).title("Restaurant");
 
         //Get Route
-        new it.polito.mad.appcomplete.directionhelpers.FetchURL(MapsActivity.this).execute(getUrl(place1.getPosition(), place2.getPosition(), "driving"), "driving");
         new it.polito.mad.appcomplete.directionhelpers.FetchURL(MapsActivity.this).execute(getUrl(restaurant.getPosition(), customer.getPosition(), "driving"), "driving");
-
-        //Get duration
-        String url = getUrl(place1.getPosition(), place2.getPosition(), "driving");
-        DownloadTask downloadTask = new DownloadTask();
-        // Start downloading json data from Google Directions API
-        downloadTask.execute(url);
 
         //Get duration
         String url2 = getUrl(customer.getPosition(), restaurant.getPosition(), "driving");
@@ -113,8 +98,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         Log.d("mylog", "Added Markers");
-        mMap.addMarker(place1);
-        mMap.addMarker(place2);
+       // mMap.addMarker(place1);
+        //mMap.addMarker(place2);
+        mMap.addMarker(customer);
+        mMap.addMarker(restaurant);
 
         //For current location
         if (mLocationPermissionsGranted)
@@ -402,7 +389,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
 
-            tvDistanceDuration.setText("Distance:"+distance + ", Duration:"+duration);
+            tvDistanceDuration.setText("Distance:"+distance + " Duration:"+duration);
 
 // Drawing polyline in the Google Map for the i-th route
             //map.addPolyline(lineOptions);
