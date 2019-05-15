@@ -55,8 +55,9 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
                 /*private DatabaseReference database;
                 database = FirebaseDatabase.getInstance().getReference();*/
 
-
-               new c().CallActivity();
+                Intent intent = new Intent (v.getContext(), MapsActivity.class);
+                myContext.startActivity(intent);
+               //new c().CallActivity();
             }
         });
     }
@@ -103,14 +104,14 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         {
             //reservationInfoList.get(1).getPersonOrder();
             Intent intent;
-            intent = new Intent(c.this, MapsActivity.class);
+            //intent = new Intent(c.getContext(), MapsActivity.class);
             /*Bundle extras = new Bundle();
             extras.putString("res_Lat","my_username");
             extras.putString("res_Lon","my_password");
             extras.putString("cus_Lat","my_username");
             extras.putString("cus_Lon","my_password");
             intent.putExtras(extras);*/
-            startActivity(intent);
+           // startActivity(intent);
         }
     }
 }
