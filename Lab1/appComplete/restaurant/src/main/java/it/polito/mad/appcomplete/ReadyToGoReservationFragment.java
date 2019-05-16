@@ -1,13 +1,12 @@
 package it.polito.mad.appcomplete;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.github.clans.fab.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +27,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 
-public class ReadyToGoReservationFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class ReadyToGoReservationFragment extends Fragment
+        implements SwipeRefreshLayout.OnRefreshListener{
 
     private static final String TAG = "ReservationReadyToGo";
 
@@ -38,7 +40,10 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     private SharedPreferences preferences;
     private DatabaseReference database;
     private DatabaseReference branchOrdersReady;
-    private Activity myActivity;
+
+    private FloatingActionButton fab1;
+
+    private FirebaseAuth auth;
 
     public ReadyToGoReservationFragment() {
         // Required empty public constructor
@@ -52,6 +57,17 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
         Log.d(TAG, "onCreateView: called");
 
         recyclerView = view.findViewById(R.id.recyclerViewReadyToGoReservation);
+
+        auth = FirebaseAuth.getInstance();
+
+        fab1 = view.findViewById(R.id.material_design_floating_call_rider);
+
+        fab1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), FindNearestRiderActivity.class));
+            }
+        });
 
         mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
         mySwipeRefreshLayout.setOnRefreshListener(this);
@@ -68,7 +84,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
             Log.d(TAG, "onActivityCreated: inside if");
         } else {
             Log.d(TAG, "onActivityCreated: inside else");
-            myActivity = getActivity();
+
             initializeReservation();
         }
     }
@@ -76,8 +92,6 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     @Override
     public void onDetach() {
         super.onDetach();
-
-        myActivity = null;
     }
 
     private void initializeReservation() {
@@ -96,7 +110,12 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
                     ReservationInfo value = data.getValue(ReservationInfo.class);
                     value.setOrderID(data.getKey());
 
-                    reservationReadyToGoList.add(restoreItem(value));
+                    if(value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")){
+                        database.child("restaurants").child(auth.getCurrentUser().getUid())
+                                .child("sold_orders").child(value.getOrderID()).setValue(value);
+                    }else {
+                        reservationReadyToGoList.add(restoreItem(value));
+                    }
                 }
 
                 initializeRecyclerViewReservation();
@@ -144,14 +163,16 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
 
         res.setOrderID(reservationInfo.getOrderID());
         res.setIdPerson(reservationInfo.getIdPerson());
-        res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setRestaurantId(auth.getCurrentUser().getUid());
         res.setNamePerson(reservationInfo.getNamePerson());
+        res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setcLatitude(reservationInfo.getcLatitude());
+        res.setcLongitude(reservationInfo.getcLongitude());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {
             res.setNote(reservationInfo.getNote());
         }
-
         return res;
     }
 

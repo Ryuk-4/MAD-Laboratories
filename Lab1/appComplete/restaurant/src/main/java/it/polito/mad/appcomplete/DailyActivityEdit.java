@@ -444,7 +444,7 @@ public class DailyActivityEdit extends AppCompatActivity {
     public void saveInfo(View v){
         SharedPreferences.Editor editor = sharedpref.edit();
 
-        if (TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
+        if (im_edit.getDrawable() == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
                 TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -543,6 +543,7 @@ public class DailyActivityEdit extends AppCompatActivity {
                 });
 
         Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+        finish();
     }
 
     @Override

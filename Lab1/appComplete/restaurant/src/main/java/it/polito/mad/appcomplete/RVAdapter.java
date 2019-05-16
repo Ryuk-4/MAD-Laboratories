@@ -109,9 +109,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         notifyItemInserted(position);
     }
 
-    RVAdapter(List<FoodInfo> persons){
-        this.persons = persons;
-    }
     public interface OnFoodListener{
         void OnFoodClickFood(int position);
     }

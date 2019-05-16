@@ -97,4 +97,7 @@
     <string name="flagText">Help people to find you quickly:</string>
 
     <string name="new_order">New Order</string>
+    <string name="title_activity_find_nearest_rider">FindNearestRiderActivity</string>
+
+    <string name="callRider">Deliver</string>
 </resources>

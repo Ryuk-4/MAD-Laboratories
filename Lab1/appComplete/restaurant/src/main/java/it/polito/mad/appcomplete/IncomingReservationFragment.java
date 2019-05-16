@@ -220,7 +220,8 @@ public class IncomingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
-        res.setAddressOrder(reservationInfo.getAddressOrder());
+        res.setcLatitude(reservationInfo.getcLatitude());
+        res.setcLongitude(reservationInfo.getcLongitude());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {
