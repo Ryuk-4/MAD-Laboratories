@@ -204,7 +204,7 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
                 editor.putString("surname", surnameEdit);
                 editor.putString("phone", phoneEdit);
                 editor.putString("address", addressEdit);
-                editor.putString("dateOfBirth", addressEdit);
+                editor.putString("dateOfBirth", dateEdit);
                 editor.putString("sex", sexString);
                 editor.putString("imageEncoded", imageURL);
 

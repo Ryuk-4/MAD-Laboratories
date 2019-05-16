@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         RVANormalRestaurant.updateRestaurantList {
 
     private static final int LOCATION_REQUEST = 111;
+    public static final int RADIUS = 300; //radius for geoFire query
     private FirebaseAuth.AuthStateListener authListener;
     private List<String> foodSelected;
     private FirebaseAuth auth;
@@ -64,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean updating = false;
     private FusedLocationProviderClient fusedLocationClient;
     private Location userLocation = null;
+    private ProgressBar progressBar1, progressBar2;
+    private Set<String> keyList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initSystem() {
 
+        keyList = new TreeSet<>();
+
         getLayoutReferences();
 
         initToolbar();
@@ -118,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeCardLayout();
 
         StatusBarUtil.setTransparent(this);
+
+
     }
 
     private void initToolbar() {
@@ -219,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         buttonSearch = findViewById(R.id.button_search);
         textSearch = findViewById(R.id.autoCompleteTextView);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        progressBar1 = findViewById(R.id.progress_bar_favorite);
+        progressBar2 = findViewById(R.id.progress_bar_normal);
+
+        progressBar1.setVisibility(View.VISIBLE);
+        progressBar2.setVisibility(View.VISIBLE);
     }
 
     private void initDrawer() {
@@ -235,9 +249,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeCardLayout() {
         initializeCardLayoutSuggestedRestaurant();
         initializeCardLayoutNormalRestaurant();
-
-        findViewById(R.id.progress_bar_favorite).setVisibility(View.GONE);
-        findViewById(R.id.progress_bar_normal).setVisibility(View.GONE);
     }
 
     //sign out method
@@ -311,14 +322,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else
         {
             Log.d("TAG", "initializeData: geoUpdate");
-            final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), 300);
+            final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), RADIUS);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
+                    keyList.add(key);
+                }
+
+                @Override
+                public void onKeyExited(String key) {
+
+                }
+
+                @Override
+                public void onKeyMoved(String key, GeoLocation location) {
+
+                }
+
+                @Override
+                public void onGeoQueryReady() {
                     ValueEventListener valueEventListener = new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                            progressBar2.setVisibility(View.GONE);
                             Object o = dataSnapshot.child("Profile").child("name").getValue();
                             String name = "";
                             if (o != null)
@@ -380,22 +407,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     };
 
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(key);
-                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
-                }
-
-                @Override
-                public void onKeyExited(String key) {
-
-                }
-
-                @Override
-                public void onKeyMoved(String key, GeoLocation location) {
-
-                }
-
-                @Override
-                public void onGeoQueryReady() {
+                    for (String key : keyList)
+                    {
+                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(key);
+                        databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                    }
 
                 }
 
@@ -424,6 +440,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                progressBar2.setVisibility(View.GONE);
+
                 long nRest = dataSnapshot.getChildrenCount();
                 int count = 0;
                 for (DataSnapshot ds : dataSnapshot.getChildren())
@@ -519,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             databaseReference.addListenerForSingleValueEvent(valueEventListener);
         } else
         {
-            final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), 300);
+            final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), RADIUS);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
@@ -645,6 +663,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Set<String> restaurantId = new TreeSet<>();
+                progressBar1.setVisibility(View.GONE);
 
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
@@ -742,14 +761,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
                                     @Override
                                     public void onComplete(String key, DatabaseError error) {
-                                        if (error != null) {
-                                            System.err.println("There was an error saving the location to GeoFire: " + error);
-                                        } else {
-                                            System.out.println("Location saved on server successfully!");
-                                        }
+
                                     }
                                 });
                             }
+
+                            SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("lat", Double.toString(location.getLatitude()));
+                            editor.putString("lon", Double.toString(location.getLongitude()));
+                            editor.commit();
 
                             initializeData();
                         }

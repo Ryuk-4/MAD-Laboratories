@@ -53,7 +53,7 @@ public class RestaurantActivity
 
         implements  MenuFragment.OnFragmentInteractionListener,
                     DailyFoodFragment.OnFragmentInteractionListener,
-                    ReviewFragment.OnFragmentInteractionListener {
+                    ReviewFragment.OnFragmentInteractionListenerReview{
 
     private static final int REQUEST_CART = 12;
     private ViewPager viewPager;
@@ -62,6 +62,7 @@ public class RestaurantActivity
     private Toolbar toolbar;
     private String restId, restName;
     private List<SuggestedFoodInfo> dailyFoodInfoList;
+    private List<ReviewInfo> reviewInfoList;
     private myFragmentPageAdapter adapter;
     private MaterialViewPager mViewPager;
     private TextView restaurantNameText;
@@ -73,6 +74,7 @@ public class RestaurantActivity
         setContentView(R.layout.activity_restaurant);
 
         dailyFoodInfoList = new ArrayList<>();
+        reviewInfoList = new ArrayList<>();
 
         getLayoutReferences();
 
@@ -109,12 +111,10 @@ public class RestaurantActivity
                     restaurantNameText.setText(name);
                 }
 
-
                 getDataDailyFood(dataSnapshot);
-                getDataMenu(dataSnapshot); //to be implemented
-                getDataReviews(dataSnapshot); //to be implemented
+                getDataReviews(dataSnapshot);
 
-                adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList);
+                adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList, reviewInfoList);
 
                 viewPager = mViewPager.getViewPager();
                 viewPager.setAdapter(adapter);
@@ -143,6 +143,8 @@ public class RestaurantActivity
         if (savedInstanceState == null) {
             restId = getIntent().getStringExtra("restaurant_selected");
             restName = getIntent().getStringExtra("restaurant_name");
+
+            this.getSharedPreferences("saved", Context.MODE_PRIVATE).edit().putString("id", restId).commit();
         }
     }
 
@@ -195,12 +197,16 @@ public class RestaurantActivity
         }
     }
 
-    private void getDataMenu(@NonNull DataSnapshot dataSnapshot) {
-
-    }
-
     private void getDataReviews(@NonNull DataSnapshot dataSnapshot) {
+        for (DataSnapshot ds : dataSnapshot.child("review_description").getChildren())
+        {
+            String title = ds.child("title").getValue().toString();
+            String description = ds.child("description").getValue().toString();
+            String date = ds.child("date").getValue().toString();
+            String rate = ds.child("stars").getValue().toString();
 
+            reviewInfoList.add(new ReviewInfo(rate, title, description, date));
+        }
     }
 
     @Override
@@ -325,9 +331,10 @@ public class RestaurantActivity
     protected void onRestart() {
         super.onRestart();
 
-        setContentView(R.layout.activity_restaurant);
+        restId = this.getSharedPreferences("saved", Context.MODE_PRIVATE).getString("restId", "");
 
         dailyFoodInfoList = new ArrayList<>();
+        reviewInfoList = new ArrayList<>();
 
         getLayoutReferences();
 
@@ -336,8 +343,6 @@ public class RestaurantActivity
         deleteStatusBarTitle();
 
         getRestaurantInformation();
-
-        setStatusBarTransparent();
     }
 
     @Override
@@ -361,6 +366,7 @@ public class RestaurantActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        getSharedPreferences("saved_restaurant", MODE_PRIVATE).edit().putString("restId", restId);
     }
 
     public static void setWindowFlag(Activity activity, final int bits, boolean on) {
@@ -372,6 +378,11 @@ public class RestaurantActivity
             winParams.flags &= ~bits;
         }
         win.setAttributes(winParams);
+    }
+
+    @Override
+    public void onFragmentInteractionReview(Uri uri) {
+
     }
 
 
@@ -403,5 +414,6 @@ public class RestaurantActivity
             return null;
         }
     }
+
 
 }

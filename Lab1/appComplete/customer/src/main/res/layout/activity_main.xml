@@ -102,14 +102,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rvSuggested"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginLeft="6dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="6dp"
-                android:nestedScrollingEnabled="false" />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvSuggested"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="6dp"
+                    android:nestedScrollingEnabled="false" />
 
                 <ProgressBar
                     android:id="@+id/progress_bar_favorite"
@@ -134,22 +134,24 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rvNormal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
-                android:clipToPadding="false"
-                android:orientation="vertical" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvNormal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
+                    android:clipToPadding="false"
+                    android:orientation="vertical" />
 
                 <ProgressBar
                     android:id="@+id/progress_bar_normal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginTop="10dp"
                     android:visibility="visible" />
 
-        </FrameLayout>
+            </FrameLayout>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

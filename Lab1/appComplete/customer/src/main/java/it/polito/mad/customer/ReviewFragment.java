@@ -3,16 +3,23 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
+
+import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ReviewFragment.OnFragmentInteractionListener} interface
+ * {@link ReviewFragment.OnFragmentInteractionListenerReview} interface
  * to handle interaction events.
  * Use the {@link ReviewFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -23,14 +30,42 @@ public class ReviewFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+    private RecyclerView recyclerView;
+    private RVAReview adapter;
+    private View view;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private List<ReviewInfo> reviewInfos;
+    private Context context;
+
+    private OnFragmentInteractionListenerReview mListener;
 
     public ReviewFragment() {
         // Required empty public constructor
+    }
+
+    public void refreshLayout() {
+        initRecyclerView();
+    }
+
+    public ReviewFragment setReviewInfos(List<ReviewInfo> reviewInfos) {
+        this.reviewInfos = reviewInfos;
+        //Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
+        return this;
+    }
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        return context;
+    }
+
+    public ReviewFragment setContext(Context context) {
+        this.context = context;
+        return this;
     }
 
     /**
@@ -64,21 +99,38 @@ public class ReviewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_review, container, false);
+
+        view = inflater.inflate(R.layout.fragment_review, container, false);
+        recyclerView = (RecyclerView) view.findViewById(R.id.rv_review);
+        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+
+        initRecyclerView();
+        return view;
+    }
+
+    private void initRecyclerView() {
+
+        recyclerView.setHasFixedSize(false);
+
+        LinearLayoutManager llm = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(llm);
+
+        adapter = new RVAReview(context, reviewInfos);
+        recyclerView.setAdapter(adapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteractionReview(uri);
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListenerReview) {
+            mListener = (OnFragmentInteractionListenerReview) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -101,8 +153,8 @@ public class ReviewFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnFragmentInteractionListenerReview {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteractionReview(Uri uri);
     }
 }

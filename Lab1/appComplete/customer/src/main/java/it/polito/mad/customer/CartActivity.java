@@ -1,10 +1,15 @@
 package it.polito.mad.customer;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +25,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -41,7 +50,7 @@ public class CartActivity extends AppCompatActivity{
     private Button buttonSend, buttonDiscard;
     private List<OrderRecap> list;
     private Spinner spinnerTime;
-    private EditText orderAddress;
+    //private EditText orderAddress;
     private String restName;
 
     @Override
@@ -49,13 +58,15 @@ public class CartActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
+        getInfoFromExtra();
+
         initSystem();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        setContentView(R.layout.activity_cart);
+        //setContentView(R.layout.activity_cart);
 
         initSystem();
     }
@@ -68,8 +79,6 @@ public class CartActivity extends AppCompatActivity{
 
         initLayoutReferences();
 
-        getInfoFromExtra();
-
         int partial = createCart();
 
         totalAmount.setText("Total amount: "+Integer.toString(partial)+"€");
@@ -77,7 +86,8 @@ public class CartActivity extends AppCompatActivity{
 
         addListenerToButtons();
 
-        StatusBarUtil.setTransparent(this);
+        //StatusBarUtil.setTransparent(this);
+        StatusBarUtil.setColor(this, this.getColor(R.color.colorPrimaryDark));
     }
 
     private int createCart() {
@@ -96,13 +106,14 @@ public class CartActivity extends AppCompatActivity{
         list = bundle.getParcelableArrayList("data");
         restId = bundle.getString("restId");
         restName = bundle.getString("restName");
+
+        Log.d("TAG", "getInfoFromExtra: "+restName);
     }
 
     private void addListenerToButtons() {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String orderId = saveOrderToRestaurant();
                 saveOrderToCustomer(orderId);
 
@@ -129,7 +140,7 @@ public class CartActivity extends AppCompatActivity{
         buttonSend = findViewById(R.id.button_send);
         spinnerTime = findViewById(R.id.spinner_time);
         buttonDiscard = findViewById(R.id.button_discard);
-        orderAddress = findViewById(R.id.order_address);
+        //orderAddress = findViewById(R.id.order_address);
     }
 
     private int addFoodOrder(int partial, OrderRecap orderRecap) {
@@ -152,7 +163,7 @@ public class CartActivity extends AppCompatActivity{
         tvQuantity.setTextSize(18);
         tvQuantity.setPadding(20, 0, 0, 0);
         TextView tvPrice = new TextView(this);
-        tvPrice.setText(price+"€");
+        tvPrice.setText(quantity+"x"+price+"€");
         tvPrice.setTextSize(18);
         tvPrice.setGravity(Gravity.RIGHT);
         tvPrice.setPadding(0, 0, 10, 0);
@@ -189,7 +200,14 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("personOrder").setValue(totalOrder.toString());
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
-        databaseReference.child("addressOrder").setValue(orderAddress.getText().toString());
+        //databaseReference.child("addressOrder").setValue(orderAddress.getText().toString());
+
+        SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+        String lat = sharedPreferences.getString("lat", "");
+        String lon = sharedPreferences.getString("lon", "");
+
+        databaseReference.child("cLatitude").setValue(lat);
+        databaseReference.child("cLongitude").setValue(lon);
 
         return databaseReference.getKey();
     }
@@ -208,7 +226,7 @@ public class CartActivity extends AppCompatActivity{
         }
 
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
-        databaseReference.child("addressReservation").setValue(orderAddress.getText().toString());
+        //databaseReference.child("addressReservation").setValue(orderAddress.getText().toString());
         databaseReference.child("restaurant").setValue(restId);
         databaseReference.child("restaurant_name").setValue(restName);
         databaseReference.child("order_status").setValue("pending");

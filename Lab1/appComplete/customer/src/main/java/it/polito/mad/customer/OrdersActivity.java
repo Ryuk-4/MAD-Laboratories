@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -58,8 +59,6 @@ public class OrdersActivity
     protected void onRestart() {
         super.onRestart();
 
-        setContentView(R.layout.drawer_orders);
-
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
 
@@ -107,19 +106,22 @@ public class OrdersActivity
         ordersInfoListCompleted = new ArrayList<>();
         viewPager = (ViewPager) findViewById(R.id.containerTabsOrders);
 
+
         //Log.d("TAG", "onDataChange: ");
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ordersInfoListPending.clear();
+                ordersInfoListCompleted.clear();
+
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    //Log.d("TAGtt", "onDataChange: ");
                     String orderId = ds.getKey();
                     String restName = ds.child("restaurant_name").getValue().toString();
                     String restId = ds.child("restaurant").getValue().toString();
                     String time = ds.child("timeReservation").getValue().toString();
-                    String address = ds.child("addressReservation").getValue().toString();
+                    //String address = ds.child("addressReservation").getValue().toString();
                     String orderState = ds.child("order_status").getValue().toString();
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
@@ -134,29 +136,40 @@ public class OrdersActivity
                         foodId.put(foodName, ds1.getKey().toString());
                     }
 
+                    Object o = ds.child("riderId").getValue();
+                    String riderId = "";
+
+                    if (o != null)
+                        riderId = o.toString();
+
+                    o = ds.child("reviewed").getValue();
+                    String review = "false";
+
+                    if (o != null)
+                        review = o.toString();
+
                     if (orderState.compareTo("pending") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: pending");
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
                     } else if (orderState.compareTo("In_Preparation") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
                     } else if (orderState.compareTo("Completed") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
                     } else if (orderState.compareTo("Rejected") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }
                 }
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
+                ((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
+                //viewPager.invalidate();
             }
 
             @Override

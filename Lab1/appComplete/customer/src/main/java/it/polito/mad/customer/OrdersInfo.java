@@ -21,9 +21,11 @@ class OrdersInfo {
     private Map<String, Float> foodPrice;
     private Map<String, String> foodId;
     private OrderState state;
+    private String deliverymanId;
+    private boolean review;
 
 
-    public OrdersInfo(String restaurantName, String restaurantId, String time, String address, Map<String, Integer> foodAmount, Map<String, Float> foodPrice, Map<String, String> foodId, OrderState state, String orderId) {
+    public OrdersInfo(String restaurantName, String restaurantId, String time, String address, Map<String, Integer> foodAmount, Map<String, Float> foodPrice, Map<String, String> foodId, OrderState state, String orderId, String deliverymanId, boolean review) {
         this.restaurantName = restaurantName;
         this.restaurantId = restaurantId;
         this.time = time;
@@ -33,6 +35,8 @@ class OrdersInfo {
         this.state = state;
         this.orderId = orderId;
         this.foodId = foodId;
+        this.deliverymanId = deliverymanId;
+        this.review = review;
     }
 
     public Map<String, String> getFoodId() {
@@ -105,5 +109,21 @@ class OrdersInfo {
 
     public void setState(OrderState state) {
         this.state = state;
+    }
+
+    public String getDeliverymanId() {
+        return deliverymanId;
+    }
+
+    public void setDeliverymanId(String deliverymanId) {
+        this.deliverymanId = deliverymanId;
+    }
+
+    public boolean isReview() {
+        return review;
+    }
+
+    public void setReview(boolean review) {
+        this.review = review;
     }
 }
