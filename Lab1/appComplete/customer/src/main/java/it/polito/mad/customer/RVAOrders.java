@@ -2,8 +2,12 @@ package it.polito.mad.customer;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -17,8 +21,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,6 +41,7 @@ import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,32 +67,30 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull final RVAOrders.ViewHolder viewHolder, final int i) {
-
         viewHolder.orderTime.setText(ordersInfos.get(i).getTime());
         viewHolder.orderAddress.setText(ordersInfos.get(i).getAddress());
         viewHolder.restaurantName.setText(ordersInfos.get(i).getRestaurantName());
 
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
         {
-            Log.d("tttt", "onBindViewHolder: ");
             viewHolder.orderState.setText("PENDING");
-            //viewHolder.orderState.setTextColor(0xFF9800);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.orange_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.colorPrimary));
         } else if (ordersInfos.get(i).getState() == OrderState.ACCEPTED)
         {
             viewHolder.orderState.setText("IN PREPARATION");
-            //viewHolder.orderState.setTextColor(0x59ff00);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.green_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.holo_blue_light));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERED)
         {
             viewHolder.orderState.setText("DELIVERED");
-            //viewHolder.orderState.setTextColor(0x000000);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.black));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
         {
             viewHolder.orderState.setText("IN DELIVERY");
-            //viewHolder.orderState.setTextColor(0x000000);
-            viewHolder.orderStateImage.setBackground(myContext.getDrawable(R.drawable.black_oval));
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.green));
+        } else if (ordersInfos.get(i).getState() == OrderState.CANCELLED)
+        {
+            viewHolder.orderState.setText("REJECTED");
+            viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.red));
         }
 
         Map<String, Integer> productQuantity = ordersInfos.get(i).getFoodAmount();
@@ -95,11 +106,11 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             name.setTextSize(18);
             name.setTypeface(null, Typeface.BOLD);
             name.setTag(ordersInfos.get(i).getFoodId().get(s));
-            name.setPadding(12, 6, 0, 0);
+            name.setPadding(20, 6, 0, 0);
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(40, 0, 0, 0);
+            ll.setPadding(50, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
             quantity.setHint(productQuantity.get(s).toString());
@@ -120,14 +131,52 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             viewHolder.foodOrderList.addView(linearLayout);
         }
 
-        Button button = new Button(myContext);
-        button.setTag(ordersInfos.get(i).getRestaurantId() + " " + ordersInfos.get(i).getOrderId());
-        button.setText("SUBMIT");
 
-        button.setOnClickListener(new customOnClickListener(viewHolder) );
 
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
+        {
+            Button button = new Button(myContext);
+            button.setTag(ordersInfos.get(i).getRestaurantId() + " " + ordersInfos.get(i).getOrderId());
+            button.setText("SUBMIT");
+
+            button.setOnClickListener(new customOnClickListener(viewHolder) );
+
             viewHolder.foodOrderList.addView(button);
+        }
+
+        if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
+        {
+            Button button = new Button(myContext);
+            button.setTag(ordersInfos.get(i).getRestaurantId()+" "+ordersInfos.get(i).getOrderId());
+            button.setText("REVIEW YOUR ORDER");
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String restId = v.getTag().toString().split(" ")[0];
+                    String orderId = v.getTag().toString().split(" ")[1];
+
+                    Intent intent = new Intent(myContext, ReviewActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("restId", restId);
+                    bundle.putString("orderId", orderId);
+                    intent.putExtras(bundle);
+                    myContext.startActivity(intent);
+                }
+            });
+
+            viewHolder.foodOrderList.addView(button);
+        }
+
+        if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
+        {
+            FirebaseDatabase.getInstance().getReference("riders_position").child(ordersInfos.get(i).getDeliverymanId()).addListenerForSingleValueEvent(new myValueEventListener(viewHolder));
+            viewHolder.mapView.setVisibility(View.VISIBLE);
+        } else
+        {
+            viewHolder.mapView.setVisibility(View.GONE);
+        }
+
 
     }
 
@@ -151,14 +200,17 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
 
     // inner class to manage the view
-    public class ViewHolder extends RecyclerView.ViewHolder{ //implements View.OnClickListener {
+    public class ViewHolder     extends RecyclerView.ViewHolder
+                                implements OnMapReadyCallback { //implements View.OnClickListener {
         LinearLayout foodOrderList;
         TextView restaurantName;
         TextView orderTime;
         TextView orderAddress;
         LinearLayout orderView;
         TextView orderState;
-        ImageView orderStateImage;
+        View orderStateView;
+        DraggableMapView mapView;
+        GoogleMap map;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
@@ -169,7 +221,14 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             orderTime = itemView.findViewById(R.id.order_time);
             orderView = itemView.findViewById(R.id.ll_order);
             orderState = itemView.findViewById(R.id.tv_order_state);
-            orderStateImage = itemView.findViewById(R.id.iv_order_state);
+            orderStateView = itemView.findViewById(R.id.color_order_status);
+            mapView = itemView.findViewById(R.id.map);
+
+            if (mapView != null) {
+                mapView.onCreate(null);
+                mapView.onResume();
+                mapView.getMapAsync(this);
+            }
 
             orderView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -184,15 +243,38 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             if (foodOrderList.getVisibility() == View.GONE) {
                 // it's collapsed - expand it
                 foodOrderList.setVisibility(View.VISIBLE);
-                //expandCollapse.setImageResource(R.drawable.round_expand_less_black_48);
             } else {
                 // it's expanded - collapse it
                 foodOrderList.setVisibility(View.GONE);
-                //expandCollapse.setImageResource(R.drawable.round_expand_more_black_48);
             }
+        }
 
-            //ObjectAnimator animation = ObjectAnimator.ofInt(foodOrderList, "maxLines", foodOrderList.getMaxLines());
-            //animation.setDuration(400).start();
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            MapsInitializer.initialize(myContext);
+            map = googleMap;
+            setMapLocation();
+        }
+
+        private void setMapLocation() {
+            if (map == null) return;
+
+            LatLng location = (LatLng) mapView.getTag();
+            if (location == null) return;
+
+            // Add a marker for this item and set the camera
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 13f));
+            map.addMarker(new MarkerOptions().position(location));
+
+            // Set the map type back to normal.
+            map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
+
+        private void bindView(LatLng latLng) {
+            // Store a reference to the item in the mapView's tag. We use it to get the
+            // coordinate of a location, when setting the map location.
+            mapView.setTag(latLng);
+            setMapLocation();
         }
     }
 
@@ -250,6 +332,31 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             }
 
             databaseReference.child("personOrder").setValue(stringBuffer.toString());
+        }
+    }
+
+    class myValueEventListener implements ValueEventListener {
+
+        private ViewHolder viewHolder;
+
+        public myValueEventListener(ViewHolder viewHolder)
+        {
+            this.viewHolder = viewHolder;
+        }
+
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            String lat, lon;
+
+            lat = dataSnapshot.child("l").child("0").getValue().toString();
+            lon = dataSnapshot.child("l").child("1").getValue().toString();
+
+            viewHolder.bindView(new LatLng(Double.parseDouble(lat), Double.parseDouble(lon)));
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
         }
     }
 }
