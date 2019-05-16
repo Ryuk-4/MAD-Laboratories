@@ -41,7 +41,7 @@
     <string name="save_as_favorite">Save as favorite</string>
     <string name="current_money">\u20ac</string>
 
-    <string name="delete">DELETE</string>
+    <string name="delete">START</string>
     <string name="cookProcess">Finish</string>
     <string name="endProcess">READY</string>
 

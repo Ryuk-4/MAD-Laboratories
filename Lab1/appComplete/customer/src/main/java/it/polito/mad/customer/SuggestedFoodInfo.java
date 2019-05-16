@@ -28,6 +28,18 @@ public class SuggestedFoodInfo implements Parcelable {
     public SuggestedFoodInfo() {
     }
 
+    public static final Creator<SuggestedFoodInfo> CREATOR = new Creator<SuggestedFoodInfo>() {
+        @Override
+        public SuggestedFoodInfo createFromParcel(Parcel in) {
+            return new SuggestedFoodInfo(in);
+        }
+
+        @Override
+        public SuggestedFoodInfo[] newArray(int size) {
+            return new SuggestedFoodInfo[size];
+        }
+    };
+
     public String getName() {
         return name;
     }

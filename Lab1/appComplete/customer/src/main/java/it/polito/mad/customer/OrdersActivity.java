@@ -1,19 +1,18 @@
 package it.polito.mad.customer;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -21,18 +20,26 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class OrdersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class OrdersActivity
+
+        extends AppCompatActivity
+
+        implements NavigationView.OnNavigationItemSelectedListener,
+                   OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
+                   OrdersPendingFragment.OnFragmentInteractionListenerPending{
 
     private Toolbar toolbar;
-    private List<OrdersInfo> ordersInfoList;
-    private RecyclerView rvOrders;
-    private RVAOrders myAdapterOrders;
+    private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
+    private myFragmentPageAdapterOrders adapter;
+    private ViewPager viewPager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +52,20 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
         initDrawer();
         getDataOrders();
 
+        StatusBarUtil.setTransparent(this);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        toolbar = findViewById(R.id.toolbar_orders);
+        setSupportActionBar(toolbar);
+
+        initDrawer();
+        getDataOrders();
+
+        StatusBarUtil.setTransparent(this);
     }
 
     @Override
@@ -81,20 +102,26 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
 
     private void getDataOrders()
     {
-        ordersInfoList = new ArrayList<>();
+        ordersInfoListPending = new ArrayList<>();
+        ordersInfoListCompleted = new ArrayList<>();
+        viewPager = (ViewPager) findViewById(R.id.containerTabsOrders);
+
+
         //Log.d("TAG", "onDataChange: ");
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ordersInfoListPending.clear();
+                ordersInfoListCompleted.clear();
+
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    //Log.d("TAGtt", "onDataChange: ");
                     String orderId = ds.getKey();
                     String restName = ds.child("restaurant_name").getValue().toString();
                     String restId = ds.child("restaurant").getValue().toString();
                     String time = ds.child("timeReservation").getValue().toString();
-                    String address = ds.child("addressReservation").getValue().toString();
+                    //String address = ds.child("addressReservation").getValue().toString();
                     String orderState = ds.child("order_status").getValue().toString();
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
@@ -109,22 +136,40 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
                         foodId.put(foodName, ds1.getKey().toString());
                     }
 
+                    Object o = ds.child("riderId").getValue();
+                    String riderId = "";
+
+                    if (o != null)
+                        riderId = o.toString();
+
+                    o = ds.child("reviewed").getValue();
+                    String review = "false";
+
+                    if (o != null)
+                        review = o.toString();
+
                     if (orderState.compareTo("pending") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: pending");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId));
-                    }else if (orderState.compareTo("In_Preparation") == 0)
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
+                    } else if (orderState.compareTo("In_Preparation") == 0)
                     {
-                        //Log.d("TAG", "onDataChange: ready");
-                        ordersInfoList.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
+                    } else if (orderState.compareTo("Completed") == 0)
+                    {
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
+                    } else if (orderState.compareTo("Rejected") == 0)
+                    {
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }
                 }
 
-                initializeCardLayoutOrders();
+                adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
+                viewPager.setAdapter(adapter);
+                ((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
+                //viewPager.invalidate();
             }
 
             @Override
@@ -134,14 +179,13 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
         });
     }
 
-    private void initializeCardLayoutOrders() {
-        rvOrders = (RecyclerView) findViewById(R.id.rv_orders);
-        rvOrders.setHasFixedSize(false);
+    @Override
+    public void onFragmentInteractionComplete(Uri uri) {
 
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        rvOrders.setLayoutManager(llm);
+    }
 
-        myAdapterOrders = new RVAOrders(this, ordersInfoList);
-        rvOrders.setAdapter(myAdapterOrders);
+    @Override
+    public void onFragmentInteractionPending(Uri uri) {
+
     }
 }

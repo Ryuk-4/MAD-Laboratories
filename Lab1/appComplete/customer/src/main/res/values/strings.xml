@@ -85,6 +85,10 @@
     <string name="your_cart">Your Cart</string>
     <string name="amount">amount</string>
     <string name="your_orders">Your Orders</string>
+    <string name="text_search_hint">\'Hamburger\' or \'restaurant name\'</string>
+
+    <string name="category_pending_order">PENDING</string>
+    <string name="category_completed_order">COMPLETED</string>
 
 
     <string-array name="time_orders">

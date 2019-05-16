@@ -17,7 +17,6 @@
             android:id="@+id/toolbar_cart"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
@@ -77,7 +76,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
+                android:layout_marginLeft="20dp"
                 android:layout_marginTop="16dp"
                 android:text="Delivery time:"
                 android:textColor="@android:color/black"
@@ -91,16 +90,6 @@
                 android:layout_marginTop="16dp"
                 android:entries="@array/time_orders" />
         </LinearLayout>
-
-        <EditText
-            android:id="@+id/order_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight="1"
-            android:hint="@string/delivery_address"
-            android:textSize="18sp" />
 
         <LinearLayout
             android:layout_width="match_parent"

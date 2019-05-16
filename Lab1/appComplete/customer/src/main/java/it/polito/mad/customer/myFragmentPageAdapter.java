@@ -11,12 +11,15 @@ public class myFragmentPageAdapter extends FragmentPagerAdapter {
 
     private Context mContext;
     private List<SuggestedFoodInfo> suggestedFoodInfos;
+    private List<ReviewInfo> reviewInfos;
     private DailyFoodFragment dailyFoodFragment;
+    private ReviewFragment reviewFragment;
 
-    public myFragmentPageAdapter(Context mContext, FragmentManager fm, List<SuggestedFoodInfo> suggestedFoodInfos) {
+    public myFragmentPageAdapter(Context mContext, FragmentManager fm, List<SuggestedFoodInfo> suggestedFoodInfos, List<ReviewInfo> reviewInfos) {
         super(fm);
         this.mContext = mContext;
         this.suggestedFoodInfos = suggestedFoodInfos;
+        this.reviewInfos = reviewInfos;
     }
 
     @Override
@@ -25,16 +28,16 @@ public class myFragmentPageAdapter extends FragmentPagerAdapter {
             dailyFoodFragment = new DailyFoodFragment();
             dailyFoodFragment.setSuggestedFoodInfos(suggestedFoodInfos).setContext(mContext);
             return dailyFoodFragment;
-        } else if (i == 1){
-            return new MenuFragment();
         } else {
-            return new ReviewFragment();
+            reviewFragment = new ReviewFragment();
+            reviewFragment.setReviewInfos(reviewInfos).setContext(mContext);
+            return reviewFragment;
         }
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return 2;
     }
 
     @Override
@@ -44,22 +47,17 @@ public class myFragmentPageAdapter extends FragmentPagerAdapter {
             case 0:
                 return mContext.getString(R.string.category_daily_menu);
             case 1:
-                return mContext.getString(R.string.category_menu);
-            case 2:
                 return mContext.getString(R.string.category_review);
             default:
                 return null;
         }
     }
 
-    public void refreshLayout(int fragId)
-    {
+    public void refreshLayout(int fragId) {
         if (fragId == 0) {
             dailyFoodFragment.refreshLayout();
-        } else if (fragId == 1){
-
         } else {
-
+            reviewFragment.refreshLayout();
         }
     }
 }
