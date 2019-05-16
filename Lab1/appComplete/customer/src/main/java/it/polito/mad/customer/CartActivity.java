@@ -87,11 +87,12 @@ public class CartActivity extends AppCompatActivity{
         addListenerToButtons();
 
         //StatusBarUtil.setTransparent(this);
-        StatusBarUtil.setColor(this, this.getColor(R.color.colorPrimaryDark));
+        StatusBarUtil.setColor(this, this.getColor(R.color.colorPrimary));
     }
 
     private int createCart() {
         int partial = 0;
+        cart.removeAllViews();
 
         for (OrderRecap orderRecap : list)
         {

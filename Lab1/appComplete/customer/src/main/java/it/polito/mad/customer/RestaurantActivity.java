@@ -331,7 +331,7 @@ public class RestaurantActivity
     protected void onRestart() {
         super.onRestart();
 
-        restId = this.getSharedPreferences("saved", Context.MODE_PRIVATE).getString("restId", "");
+        restId = this.getSharedPreferences("saved", Context.MODE_PRIVATE).getString("id", "");
 
         dailyFoodInfoList = new ArrayList<>();
         reviewInfoList = new ArrayList<>();
