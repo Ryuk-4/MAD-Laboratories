@@ -6,29 +6,29 @@ public class ReservationInfo {
     private String orderID;
     private String namePerson;
     private String idPerson;
-    private String addressOrder;
+    private String cLatitude;
+    private String cLongitude;
     private String timeReservation;
     private String personOrder;
     private String restaurantId;
-    private String restaurantAddress;
+    private String rLatitude;
+    private String rLongitude;
+    private String status_order;
     private String note;
 
 
-    public ReservationInfo(String namePerson, String personAddress, String restaurantId, String restaurantAddress){
+    public ReservationInfo(String namePerson, String cLatitude, String cLongitude, String restaurantId,
+                           String rLatitude, String rLongitude){
         this.namePerson = namePerson;
-        this.addressOrder = personAddress;
+        this.cLatitude = cLatitude;
+        this.cLongitude = cLongitude;
         this.restaurantId = restaurantId;
-        this.restaurantAddress = restaurantAddress;
+        this.rLatitude = rLatitude;
+        this.rLongitude = rLongitude;
     }
 
     public ReservationInfo() {
-        this.idPerson = "";
-        this.orderID = "";
-        this.namePerson = "";
-        this.timeReservation = "";
-        this.personOrder = "";
-        this.addressOrder = "";
-        this.note = "";
+
     }
 
     public String getRestaurantId() {
@@ -39,13 +39,7 @@ public class ReservationInfo {
         this.restaurantId = restaurantId;
     }
 
-    public String getRestaurantAddress() {
-        return restaurantAddress;
-    }
 
-    public void setRestaurantAddress(String restaurantAddress) {
-        this.restaurantAddress = restaurantAddress;
-    }
 
     public void setNamePerson(String namePerson) {
         this.namePerson = namePerson;
@@ -91,12 +85,36 @@ public class ReservationInfo {
         return personOrder;
     }
 
-    public String getAddressOrder() {
-        return addressOrder;
+    public String getcLatitude() {
+        return cLatitude;
     }
 
-    public void setAddressOrder(String personAddress) {
-        this.addressOrder = personAddress;
+    public void setcLatitude(String cLatitude) {
+        this.cLatitude = cLatitude;
+    }
+
+    public String getcLongitude() {
+        return cLongitude;
+    }
+
+    public void setcLongitude(String cLongitude) {
+        this.cLongitude = cLongitude;
+    }
+
+    public String getrLatitude() {
+        return rLatitude;
+    }
+
+    public void setrLatitude(String rLatitude) {
+        this.rLatitude = rLatitude;
+    }
+
+    public String getrLongitude() {
+        return rLongitude;
+    }
+
+    public void setrLongitude(String rLongitude) {
+        this.rLongitude = rLongitude;
     }
 
     public String getNote() {
@@ -109,6 +127,14 @@ public class ReservationInfo {
 
     public String getIdPerson() {
         return idPerson;
+    }
+
+    public String getStatus_order() {
+        return status_order;
+    }
+
+    public void setStatus_order(String status_order) {
+        this.status_order = status_order;
     }
 
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {

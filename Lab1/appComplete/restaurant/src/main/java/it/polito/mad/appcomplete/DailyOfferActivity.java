@@ -56,8 +56,8 @@ public class DailyOfferActivity
     private RVAdapter myAdapter;
 
     private DatabaseReference database;
-    FloatingActionMenu materialDesignFAM;
-    FloatingActionButton floatingActionButton1, floatingActionButton2;
+    private FloatingActionMenu materialDesignFAM;
+    private FloatingActionButton floatingActionButton1, floatingActionButton2;
 
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -155,6 +155,7 @@ public class DailyOfferActivity
                 Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         });
+
         initializeData();
     }
 

@@ -46,7 +46,7 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         return reservationInfoList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{ //implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView name;
         TextView time;

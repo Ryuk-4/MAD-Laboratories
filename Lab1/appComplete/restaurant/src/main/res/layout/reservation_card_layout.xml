@@ -47,7 +47,7 @@
                 android:layout_below="@+id/person_name"
                 android:textColor="#262626"
                 android:textSize="24sp"
-                android:inputType="textMultiLine"/>
+                android:ellipsize="end"/>
 
             <TextView
                 android:id="@+id/reservation_note"
