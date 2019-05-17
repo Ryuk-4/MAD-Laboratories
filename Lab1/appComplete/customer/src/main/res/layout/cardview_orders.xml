@@ -109,8 +109,8 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/orders_list"
-                android:layout_width="match_parent"
+                android:id="@+id/ll_orders"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:visibility="gone">
@@ -121,7 +121,19 @@
                     android:layout_height="250dp"
                     android:layout_margin="8dp" />
 
+
+                <LinearLayout
+                    android:id="@+id/orders_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
 
     </android.support.design.card.MaterialCardView>

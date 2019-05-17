@@ -202,7 +202,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
     // inner class to manage the view
     public class ViewHolder     extends RecyclerView.ViewHolder
                                 implements OnMapReadyCallback { //implements View.OnClickListener {
-        LinearLayout foodOrderList;
+        LinearLayout foodOrderList, ll_orders;
         TextView restaurantName;
         TextView orderTime;
         TextView orderAddress;
@@ -223,6 +223,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             orderState = itemView.findViewById(R.id.tv_order_state);
             orderStateView = itemView.findViewById(R.id.color_order_status);
             mapView = itemView.findViewById(R.id.map);
+            ll_orders = itemView.findViewById(R.id.ll_orders);
 
             if (mapView != null) {
                 mapView.onCreate(null);
@@ -240,12 +241,12 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
         void collapseExpandListView() {
-            if (foodOrderList.getVisibility() == View.GONE) {
+            if (ll_orders.getVisibility() == View.GONE) {
                 // it's collapsed - expand it
-                foodOrderList.setVisibility(View.VISIBLE);
+                ll_orders.setVisibility(View.VISIBLE);
             } else {
                 // it's expanded - collapse it
-                foodOrderList.setVisibility(View.GONE);
+                ll_orders.setVisibility(View.GONE);
             }
         }
 
@@ -316,15 +317,16 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         private void saveDataToRestaurant(String restaurantId, String orderId) {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId);
 
+            Log.d(TAG, "saveDataToRestaurant: " +restaurantId);
             int count = viewHolder.foodOrderList.getChildCount();
             StringBuffer stringBuffer = new StringBuffer("");
 
-            for (int i = 0 ; i < count-1 ; i++)
+            for (int i = 0 ; i < count -1 ; i++)
             {
                 LinearLayout view = (LinearLayout) viewHolder.foodOrderList.getChildAt(i);
 
                 String name = ((TextView) view.getChildAt(0)).getText().toString();
-                String quantity = ((EditText) view.getChildAt(1)).getText().toString();
+                String quantity = ((EditText)((LinearLayout) view.getChildAt(1)).getChildAt(0)).getText().toString();
 
                 for (int j = 0 ; j < Integer.parseInt(quantity) ; j++)
                     stringBuffer.append(name+", ");
