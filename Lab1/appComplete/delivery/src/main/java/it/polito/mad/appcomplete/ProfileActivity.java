@@ -141,6 +141,8 @@ public class ProfileActivity extends AppCompatActivity
                 Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         });
+
+        displayData();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

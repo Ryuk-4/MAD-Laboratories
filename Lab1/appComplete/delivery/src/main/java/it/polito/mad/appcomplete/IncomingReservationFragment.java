@@ -75,10 +75,6 @@ public class IncomingReservationFragment extends Fragment
 
         if (id == R.id.menu_refresh) {
 
-            /*
-             * TODO: mySwipeRefreshLayout.setRefreshing(true);
-             * TODO: myUpdateOP.
-             */
             return true;
         }
 
@@ -93,12 +89,12 @@ public class IncomingReservationFragment extends Fragment
 
         //Seed db
         //Row1
-            String orderID="-Le15r_browa374g4qzn";
+            /*String orderID="-Le15r_browa374g4qzn";
             branchOrdersIncoming.child(orderID).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
             branchOrdersIncoming.child(orderID).child("orderID").setValue(orderID);
             branchOrdersIncoming.child(orderID).child("timeReservation").setValue("12:89");
             branchOrdersIncoming.child(orderID).child("addressOrder").setValue("custAdd");
-            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");
+            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");*/
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -113,9 +109,8 @@ public class IncomingReservationFragment extends Fragment
                     reservationInfoList.add(restoreItem(value));
                 }
 
-                /////for notification
-                DatabaseReference branchOrders = database.child("delivery/" +
-                        preferences.getString("Uid", "") + "/Orders/");
+                //for notification
+                DatabaseReference branchOrders = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/");
 
                 if (reservationInfoList.size() == 0) {
                     branchOrders.child("IncomingReservationFlag").setValue(false);
@@ -153,7 +148,7 @@ public class IncomingReservationFragment extends Fragment
         myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
         Log.d(TAG, "initializeRecyclerViewReservation: called");
 
-        //Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
+        Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -247,9 +242,14 @@ public class IncomingReservationFragment extends Fragment
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
-        res.setRestaurantAddress(reservationInfo.getRestaurantAddress());
-        res.setAddressOrder(reservationInfo.getAddressOrder());
+       // res.setRestaurantAddress(reservationInfo.getRestaurantAddress());
+        //res.setAddressOrder(reservationInfo.getAddressOrder());
         res.setRestaurantId(reservationInfo.getRestaurantId());
+        res.setcLatitude(reservationInfo.getcLatitude());
+        res.setcLongitude(reservationInfo.getcLongitude());
+        res.setrLatitude(reservationInfo.getrLatitude());
+        res.setrLongitude(reservationInfo.getrLongitude());
+
 
         if (reservationInfo.getNote() != null) {
             res.setNote(reservationInfo.getNote());

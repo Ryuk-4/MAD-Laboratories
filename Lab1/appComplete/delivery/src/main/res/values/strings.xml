@@ -105,5 +105,6 @@
 
     //for new notification
     <string name="new_order">New Order</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

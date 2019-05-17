@@ -1,12 +1,17 @@
 package it.polito.mad.appcomplete;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,10 +24,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,12 +51,7 @@ public class ReservationActivity extends AppCompatActivity
 
     private static final String TAG = "ReservationActivity";
 
-    /*
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory.
-     */
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //The {@link ViewPager} that will host the section contents.
@@ -65,7 +73,8 @@ public class ReservationActivity extends AppCompatActivity
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         Log.d(TAG, "onCreate: called");
@@ -143,6 +152,59 @@ public class ReservationActivity extends AppCompatActivity
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 
         tabLayout.setupWithViewPager(mViewPager);
+
+        ////////////////////////////////////////////////////////////////
+/*        //For current location blue point on map
+        if (mLocationPermissionsGranted)
+        {
+            getDeviceLocation();
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        }*/
+        Toast.makeText(this, "lkksjdflsjf;lk", Toast.LENGTH_SHORT).show();
+        getLocationPermission();
+
+        LocationRequest request = new LocationRequest();
+        request.setInterval(10000);
+        request.setFastestInterval(5000);
+        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(ReservationActivity.this);
+
+        int permission = ContextCompat.checkSelfPermission(ReservationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            // Request location updates and when an update is
+            // received, store the location in Firebase
+            client.requestLocationUpdates(request, new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position/"+preferences.getString("Uid", " ")+"/l");
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
+                    Location location = locationResult.getLastLocation();
+                    if (location != null) {
+
+                        GeoFire geoFire = new GeoFire(ref);
+                        geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
+                            @Override
+                            public void onComplete(String key, DatabaseError error) {
+
+                            }
+                        });
+
+                        Log.d(TAG, "location update " + location);
+
+                        //ref.child("0").setValue(location.getLatitude());
+                        //ref.child("1").setValue(location.getLongitude());
+                    }
+                }
+            }, null);
+        }
     }
 
     private void showDialogMenu() {
@@ -301,4 +363,37 @@ public class ReservationActivity extends AppCompatActivity
                     }
                 });
     }
+
+    ///////////////////////////////////////////////////For location permission
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final float DEFAULT_ZOOM = 15f;
+    private Boolean mLocationPermissionsGranted = false;
+
+    private void getLocationPermission(){
+        Log.d(TAG, "getLocationPermission: getting location permissions");
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                mLocationPermissionsGranted = true;
+                //initMap();
+            }else{
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }else{
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    ///////////////////////////////////////////////////
+
 }
