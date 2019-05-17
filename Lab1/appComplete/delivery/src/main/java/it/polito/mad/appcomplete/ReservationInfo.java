@@ -16,6 +16,56 @@ public class ReservationInfo implements Parcelable {
     private String addressOrder;
     private String restaurantId;
 
+    private String cLatitude;
+
+    public String getcLatitude() {
+        return cLatitude;
+    }
+
+    public String getcLongitude() {
+        return cLongitude;
+    }
+
+    public String getrLongitude() {
+        return rLongitude;
+    }
+
+    private String cLongitude;
+    private String rLatitude;
+    private String rLongitude;
+
+    public void setcLatitude(String cLatitude) {
+        this.cLatitude = cLatitude;
+    }
+
+    public void setcLongitude(String cLongitude) {
+        this.cLongitude = cLongitude;
+    }
+
+    public void setrLongitude(String rLongitude) {
+        this.rLongitude = rLongitude;
+    }
+
+
+
+    public ReservationInfo(String orderID, String namePerson, String idPerson, String timeReservation, String personOrder, String note, String restaurantAddress, String addressOrder, String restaurantId, String cLatitude, String cLongitude, String rLatitude, String rLongitude) {
+        this.orderID = orderID;
+        this.namePerson = namePerson;
+        this.idPerson = idPerson;
+        this.timeReservation = timeReservation;
+        this.personOrder = personOrder;
+        this.note = note;
+        this.restaurantAddress = restaurantAddress;
+        this.addressOrder = addressOrder;
+        this.restaurantId = restaurantId;
+        this.cLatitude = cLatitude;
+        this.cLongitude = cLongitude;
+        this.rLatitude = rLatitude;
+        this.rLongitude = rLongitude;
+    }
+
+
+
     public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note
                             ,String restaurantAddress,String addressOrder, String restaurantId )
     {
@@ -48,6 +98,10 @@ public class ReservationInfo implements Parcelable {
         this.restaurantAddress = " ";
         this.addressOrder = " ";
         this.restaurantId = " ";
+        this.rLongitude= " ";
+        this.rLatitude= " ";
+        this.cLongitude= " ";
+        this.cLatitude= " ";
     }
 
     protected ReservationInfo(Parcel in) {
@@ -60,6 +114,10 @@ public class ReservationInfo implements Parcelable {
         restaurantAddress = in.readString();
         addressOrder =  in.readString();
         restaurantId =  in.readString();
+        cLatitude =  in.readString();
+        cLongitude =  in.readString();
+        rLatitude =  in.readString();
+        rLongitude =  in.readString();
     }
 
     public static final Creator<ReservationInfo> CREATOR = new Creator<ReservationInfo>() {
@@ -172,6 +230,19 @@ public class ReservationInfo implements Parcelable {
         dest.writeString(timeReservation);
         dest.writeString(personOrder);
         dest.writeString(note);
+        dest.writeString(cLatitude);
+        dest.writeString(cLongitude);
+        dest.writeString(rLongitude);
+        dest.writeString(rLatitude);
+
+    }
+
+    public String getrLatitude() {
+        return rLatitude;
+    }
+
+    public void setrLatitude(String rLatitude) {
+        this.rLatitude = rLatitude;
     }
 }
 

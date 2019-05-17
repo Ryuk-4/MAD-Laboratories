@@ -16,6 +16,8 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -45,6 +47,8 @@ import java.util.List;
 
 // for current location:
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -75,6 +79,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String res_Lon = extras.getString("res_Lon");
         String cus_Lat = extras.getString("cus_Lat");
         String cus_Lon = extras.getString("cus_Lon");
+
+        Log.d(TAG, "onCreate: "+cus_Lat+" "+cus_Lon);
         customer = new MarkerOptions().position(new LatLng(Float.parseFloat(cus_Lat) , Float.parseFloat(cus_Lon) )).title("Customer");
         restaurant = new MarkerOptions().position(new LatLng(Float.parseFloat(res_Lat) , Float.parseFloat(res_Lon) )).title("Restaurant");
 
@@ -103,7 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(customer);
         mMap.addMarker(restaurant);
 
-        //For current location
+        //For current location blue point on map
         if (mLocationPermissionsGranted)
         {
             getDeviceLocation();
@@ -407,8 +413,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
 
-            //final String path =
-
             int permission = ContextCompat.checkSelfPermission(MapsActivity.this,Manifest.permission.ACCESS_FINE_LOCATION);
             if (permission == PackageManager.PERMISSION_GRANTED) {
                 // Request location updates and when an update is
@@ -416,13 +420,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 client.requestLocationUpdates(request, new LocationCallback() {
                     @Override
                     public void onLocationResult(LocationResult locationResult) {
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position/"+preferences.getString("Uid", " ")+"/l");
+                        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position/"+preferences.getString("Uid", " ")+"/l");
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
                         Location location = locationResult.getLastLocation();
                         if (location != null) {
+
+                            GeoFire geoFire = new GeoFire(ref);
+                            geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
+                                @Override
+                                public void onComplete(String key, DatabaseError error) {
+
+                                }
+                            });
+
                             Log.d(TAG, "location update " + location);
 
-                            ref.child("0").setValue(location.getLatitude());
-                            ref.child("1").setValue(location.getLongitude());
+                            //ref.child("0").setValue(location.getLatitude());
+                            //ref.child("1").setValue(location.getLongitude());
                         }
                     }
                 }, null);
