@@ -99,7 +99,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         new  TrackerService().requestLocationUpdates();
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -350,9 +349,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Executes in UI thread, after the parsing process
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            ArrayList points = null;
-            PolylineOptions lineOptions = null;
-            MarkerOptions markerOptions = new MarkerOptions();
+            //ArrayList points = null;
+            //PolylineOptions lineOptions = null;
+            //MarkerOptions markerOptions = new MarkerOptions();
             String distance = " ";
             String duration = " ";
 
@@ -361,18 +360,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
 
-// Traversing through all the routes
-            for(int i=0;i<result.size();i++){
-                points = new ArrayList();
-                lineOptions = new PolylineOptions();
+            // Traversing through all the routes
+            for(int i=0;i<result.size();i++)
+            {
+                //points = new ArrayList();
+                //lineOptions = new PolylineOptions();
 
-// Fetching i-th route
+                // Fetching i-th route
                 List<HashMap<String, String>> path = result.get(i);
 
-// Fetching all the points in i-th route
-                for(int j=0;j <path.size();j++){
+                // Fetching all the points in i-th route
+                for(int j=0;j <path.size();j++)
+                {
                     HashMap<String,String> point = path.get(j);
-
                     if(j==0){ // Get distance from the list
                         distance = (String)point.get("distance");
                         continue;
@@ -381,17 +381,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         continue;
                     }
 
-                    double lat = Double.parseDouble(point.get("lat"));
+                    /*double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
                     LatLng position = new LatLng(lat, lng);
 
-                    points.add(position);
+                    points.add(position);*/
                 }
 
-// Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(2);
-                lineOptions.color(Color.RED);
+                // Adding all the points in the route to LineOptions
+                //lineOptions.addAll(points);
+                //lineOptions.width(2);
+                //lineOptions.color(Color.RED);
 
             }
 

@@ -418,55 +418,54 @@ public class ProfileEditActivity extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         } else {
+            try {
+                Log.d(TAG, "saveInfo: called");
+                branchProfile.child("name").setValue(name_edit.getText().toString());
+                branchProfile.child("phone").setValue(phone_edit.getText().toString());
+                //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+                //branchProfile.child("address").setValue(address_edit.getText().toString());
+                branchProfile.child("email").setValue(email_edit.getText().toString());
+                //branchProfile.child("description").setValue(description_edit.getText().toString());
+                branchProfile.child("firstTime").setValue(false);
+                branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
+                branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
-            Log.d(TAG, "saveInfo: called");
-            branchProfile.child("name").setValue(name_edit.getText().toString());
-            branchProfile.child("phone").setValue(phone_edit.getText().toString());
-            //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
-            //branchProfile.child("address").setValue(address_edit.getText().toString());
-            branchProfile.child("email").setValue(email_edit.getText().toString());
-            //branchProfile.child("description").setValue(description_edit.getText().toString());
-            branchProfile.child("firstTime").setValue(false);
-            branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
-            branchProfile.child("surname").setValue(surname_edit.getText().toString());
-
-            int sexId = radioSex.getCheckedRadioButtonId();
-            View radioButton = radioSex.findViewById(sexId);
-            int idx = radioSex.indexOfChild(radioButton);
-            RadioButton r = (RadioButton) radioSex.getChildAt(idx);
-            branchProfile.child("sex").setValue(r.getText().toString());
-
-
+                int sexId = radioSex.getCheckedRadioButtonId();
+                View radioButton = radioSex.findViewById(sexId);
+                int idx = radioSex.indexOfChild(radioButton);
+                RadioButton r = (RadioButton) radioSex.getChildAt(idx);
+                branchProfile.child("sex").setValue(r.getText().toString());
 
 
-            im_edit.setDrawingCacheEnabled(true);
-            im_edit.buildDrawingCache();
-            Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
+                im_edit.setDrawingCacheEnabled(true);
+                im_edit.buildDrawingCache();
+                Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-            final StorageReference ref = FirebaseStorage.getInstance().getReference()
-                    .child("delivery/profile_images/profile" + Uid);
-            final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                        .child("delivery/profile_images/profile" + Uid);
+                final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.d(TAG, "onSuccess: called");
-                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "onSuccess: called");
+                                ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    Uri downloadUrl = uri;
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
 
-                                    branchProfile.child("imgUrl").setValue(downloadUrl.toString());
-                                }
-                            });
-                        }
-                    });
+                                        branchProfile.child("imgUrl").setValue(downloadUrl.toString());
+                                    }
+                                });
+                            }
+                        });
 
-            editor.putBoolean("saved", true);
-            editor.apply();
+                editor.putBoolean("saved", true);
+                editor.apply();
 
-            Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+            }catch (Exception e){}
         }
     }
 

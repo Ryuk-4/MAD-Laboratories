@@ -3,6 +3,7 @@ package it.polito.mad.appcomplete;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -18,14 +19,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
+import it.polito.mad.appcomplete.DurationHelpers.DirectionsJSONParser;
 
 public class IncomingReservationFragment extends Fragment
         implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener,
@@ -50,18 +65,11 @@ public class IncomingReservationFragment extends Fragment
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: called");
-
         View view = inflater.inflate(R.layout.fragment_incoming_reservation, container, false);
-
         mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
-
         mySwipeRefreshLayout.setOnRefreshListener(this);
-
         recyclerView = view.findViewById(R.id.recyclerViewIncomingReservation);
-
         initializeReservation();
-
         return view;
     }
 
@@ -72,11 +80,8 @@ public class IncomingReservationFragment extends Fragment
         // as you specify a parent activity in AndroidManifest.xml.
 
         int id = item.getItemId();
-
-        if (id == R.id.menu_refresh) {
-
+        if (id == R.id.menu_refresh)
             return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -89,12 +94,16 @@ public class IncomingReservationFragment extends Fragment
 
         //Seed db
         //Row1
-            /*String orderID="-Le15r_browa374g4qzn";
+            String orderID="-Le15r_browa374g4qzn";
             branchOrdersIncoming.child(orderID).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
             branchOrdersIncoming.child(orderID).child("orderID").setValue(orderID);
             branchOrdersIncoming.child(orderID).child("timeReservation").setValue("12:89");
             branchOrdersIncoming.child(orderID).child("addressOrder").setValue("custAdd");
-            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");*/
+            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");
+            branchOrdersIncoming.child(orderID).child("cLatitude").setValue("7.6591849");
+            branchOrdersIncoming.child(orderID).child("cLongitude").setValue("7.6591849");
+            branchOrdersIncoming.child(orderID).child("rLatitude").setValue("45.0643713");
+            branchOrdersIncoming.child(orderID).child("rLongitude").setValue("7.6591705");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -161,6 +170,7 @@ public class IncomingReservationFragment extends Fragment
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
     }
 
+    String distance = " ";
     @Override
     public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction, int position)
     {
@@ -187,6 +197,21 @@ public class IncomingReservationFragment extends Fragment
 
                 //Removing order from incoming branch:
                 database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).removeValue();
+
+                //1. Saving passed distance
+                    MarkerOptions customer = new MarkerOptions().position(new LatLng(Float.parseFloat(deletedItem.getcLatitude()) , Float.parseFloat(deletedItem.getcLongitude()) )).title("Customer");
+                    MarkerOptions restaurant = new MarkerOptions().position(new LatLng(Float.parseFloat(deletedItem.getrLatitude()) , Float.parseFloat(deletedItem.getrLongitude()) )).title("Restaurant");
+                    //1.1 calculate distance
+                        //1.1.1 Get duration
+                        String url2 = getUrl(customer.getPosition(), restaurant.getPosition(), "driving");
+                        DownloadTask downloadTask2 = new DownloadTask();
+                        //1.1.2 Start downloading json data from Google Directions API
+                        downloadTask2.execute(url2);
+
+                    //1.2 get all distances
+
+                    //1.3 add new distance to all distances
+                    //database.child("delivery").child(preferences.getString("Uid", " ")).child("totaldistance").setValue(distance);
 
                 // Show undo message
                 Snackbar snackbar = Snackbar.make(recyclerView,   " delivery finished", Snackbar.LENGTH_LONG);
@@ -264,4 +289,163 @@ public class IncomingReservationFragment extends Fragment
         mySwipeRefreshLayout.setRefreshing(false);
     }
 
+    //////////////////////////////////////////////////////////////
+    /** A method to download json data from url */
+    private String downloadUrl(String strUrl) throws IOException {
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try{
+            URL url = new URL(strUrl);
+
+// Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+// Connecting to url
+            urlConnection.connect();
+
+// Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while( ( line = br.readLine()) != null){
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        }catch(Exception e){
+            //Log.d("Exception while downloading url", e.toString());
+        }finally{
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
+    }
+
+    // Fetches data from url passed
+    private class DownloadTask extends AsyncTask<String, Void, String>
+    {
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+// For storing data from web service
+            String data = "";
+
+            try{
+// Fetching the data from web service
+                data = downloadUrl(url[0]);
+            }catch(Exception e){
+                Log.d("Background Task",e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+// doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+// Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+
+        }
+    }
+
+    /** A class to parse the Google Places in JSON format */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try{
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+// Starts parsing data
+                routes = parser.parse(jObject);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            if(result.size()<1){
+                //Toast.makeText(getBaseContext(), "No Points", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Traversing through all the routes
+            for(int i=0;i<result.size();i++)
+            {
+                // Fetching i-th route
+                List<HashMap<String, String>> path = result.get(i);
+
+                // Fetching all the points in i-th route
+                for(int j=0;j <path.size();j++)
+                {
+                    HashMap<String,String> point = path.get(j);
+                    if(j==0){ // Get distance from the list
+                        distance = (String)point.get("distance");
+                        continue;
+                    }
+                }
+            }
+
+            ////////////////////////////////////////////////////////
+          /*  {
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("Users").child("0");String c;
+                ValueEventListener UserFromID = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                         c="    ";
+                        Float.parseFloat(dataSnapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                };
+                myRef.addValueEventListener(UserFromID);
+            }*/
+            ////////////////////////////////////////////////////////
+            distance= distance.split(" ")[0]; //removes string "km" from the result.
+            database.child("delivery").child(preferences.getString("Uid", " ")).child("totaldistance").setValue(distance);
+        }
+
+    }
+
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
+        return url;
+    }
 }
