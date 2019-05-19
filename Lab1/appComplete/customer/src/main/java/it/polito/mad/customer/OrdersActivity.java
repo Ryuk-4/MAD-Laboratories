@@ -32,8 +32,8 @@ public class OrdersActivity
         extends AppCompatActivity
 
         implements NavigationView.OnNavigationItemSelectedListener,
-                   OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
-                   OrdersPendingFragment.OnFragmentInteractionListenerPending{
+        OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
+        OrdersPendingFragment.OnFragmentInteractionListenerPending{
 
     private Toolbar toolbar;
     private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
@@ -118,11 +118,39 @@ public class OrdersActivity
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     String orderId = ds.getKey();
-                    String restName = ds.child("restaurant_name").getValue().toString();
-                    String restId = ds.child("restaurant").getValue().toString();
-                    String time = ds.child("timeReservation").getValue().toString();
+
+                    Object o = ds.child("restaurant_name").getValue();
+                    String restName = "";
+
+                    if (o != null)
+                    {
+                        restName = o.toString();
+                    }
+
+                    o = ds.child("restaurant").getValue();
+                    String restId = "";
+
+                    if (o != null)
+                    {
+                        restId = o.toString();
+                    }
+
+                    o = ds.child("timeReservation").getValue();
+                    String time = "";
+
+                    if (o != null)
+                    {
+                        time = o.toString();
+                    }
+
+                    o = ds.child("order_status").getValue();
+                    String orderState = "";
+
+                    if (o != null)
+                    {
+                        orderState = o.toString();
+                    }
                     //String address = ds.child("addressReservation").getValue().toString();
-                    String orderState = ds.child("order_status").getValue().toString();
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
@@ -130,13 +158,38 @@ public class OrdersActivity
 
                     for (DataSnapshot ds1 : ds.child("food").getChildren())
                     {
-                        String foodName = ds1.child("foodName").getValue().toString();
-                        foodAmount.put(foodName, new Integer(ds1.child("foodQuantity").getValue().toString()));
-                        foodPrice.put(foodName, new Float(ds1.child("foodPrice").getValue().toString()));
-                        foodId.put(foodName, ds1.getKey().toString());
+                        String foodName = "";
+                        o = ds1.child("foodName").getValue();
+
+                        if (o != null)
+                        {
+                            foodName = o.toString();
+                        }
+
+                        foodId.put(foodName, ds1.getKey());
+
+                        String quantity = "0";
+                        o = ds1.child("foodQuantity").getValue();
+
+                        if (o != null)
+                        {
+                            quantity = o.toString();
+                        }
+
+                        foodAmount.put(foodName, new Integer(quantity));
+
+                        String price = "0";
+                        o = ds1.child("foodPrice").getValue();
+
+                        if (o != null)
+                        {
+                            price = o.toString();
+                        }
+                        foodPrice.put(foodName, new Float(price));
+
                     }
 
-                    Object o = ds.child("riderId").getValue();
+                    o = ds.child("riderId").getValue();
                     String riderId = "";
 
                     if (o != null)

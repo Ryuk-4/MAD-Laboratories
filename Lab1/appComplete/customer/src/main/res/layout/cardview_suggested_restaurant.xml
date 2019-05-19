@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="246dp"
-    android:layout_height="200dp">
+    android:layout_width="286dp"
+    android:layout_height="240dp">
 
     <android.support.design.card.MaterialCardView
         android:id="@+id/cv_suggested_card"
-        android:layout_width="230dp"
-        android:layout_height="190dp"
-        android:layout_gravity="center_horizontal"
-        app:cardCornerRadius="5dp"
-        app:cardElevation="10dp">
+        android:layout_width="260dp"
+        android:layout_height="230dp"
+        android:layout_gravity="left"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="3dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             <ImageView
                 android:id="@+id/restaurant_image_suggested"
                 android:layout_width="match_parent"
-                android:layout_height="110dp"
+                android:layout_height="140dp"
                 android:gravity="center"
                 android:scaleType="centerCrop"
                 android:src="@drawable/default_user_image" />
@@ -29,16 +29,18 @@
                 android:id="@+id/restaurant_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="2dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
                 android:text="Cafe Badilico"
+                android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="15dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginLeft="8dp"
                 android:orientation="horizontal">
 
                 <RatingBar
@@ -46,7 +48,7 @@
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="-5dp"
+                    android:layout_marginLeft="-9dp"
                     android:numStars="5"
                     android:scaleX="0.8"
                     android:scaleY="0.8"

@@ -395,6 +395,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                             //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
                             myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+
+
+
+
+
 
                             //Log.d("TAG", "onDataChange: finish");
                             myAdapterNormal.notifyDataSetChanged();
@@ -446,9 +465,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 int count = 0;
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    Object o;
+                    Object o = ds.child("Profile").child("name").getValue();
+                    String name = "";
 
-                    String name = ds.child("Profile").child("name").getValue().toString();
+                    if (o != null)
+                    {
+                        name = new String(o.toString());
+                    }
 
                     o = ds.child("Profile").child("imgUrl").getValue();
                     String photo = new String("");
@@ -682,9 +705,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        String name = dataSnapshot.child("Profile").child("name").getValue().toString();
-                        String photo = dataSnapshot.child("Profile").child("imgUrl").getValue().toString();
-                        String description = dataSnapshot.child("Profile").child("description").getValue().toString();
+                        Object o = dataSnapshot.child("Profile").child("name").getValue();
+                        String name = "";
+
+                        if (o != null)
+                        {
+                            name = o.toString();
+                        }
+
+                        o = dataSnapshot.child("Profile").child("imgUrl").getValue();
+                        String photo = "";
+
+                        if (o != null)
+                        {
+                            photo = o.toString();
+                        }
+
+                        o = dataSnapshot.child("Profile").child("description").getValue();
+                        String description = "";
+
+                        if (o != null)
+                        {
+                            description = o.toString();
+                        }
+
                         String id = dataSnapshot.getKey();
 
                         int[] votes;
@@ -693,7 +737,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         for (int i = 0 ; i < 5 ; i++)
                         {
-                            Object o = dataSnapshot.child("review").child((i+1)+"star").getValue();
+                            o = dataSnapshot.child("review").child((i+1)+"star").getValue();
 
                             if (o != null)
                             {
@@ -706,11 +750,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         List<String> typeFood = new ArrayList<>();
                         for (DataSnapshot ds : dataSnapshot.child("type_food").getChildren())
                         {
-                            Object o = ds.getValue();
+                            o = ds.getValue();
                             if (o != null)
                                 typeFood.add(o.toString());
                         }
                         //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
                         myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
 
                         //Log.d("TAG", "onDataChange: finish");

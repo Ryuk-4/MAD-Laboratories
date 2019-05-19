@@ -11,6 +11,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -113,7 +114,8 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             ll.setPadding(50, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
-            quantity.setHint(productQuantity.get(s).toString());
+            quantity.setText(productQuantity.get(s).toString());
+            quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
 
             if (ordersInfos.get(i).getState() != OrderState.PENDING)
                 quantity.setKeyListener(null);
@@ -201,7 +203,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
     // inner class to manage the view
     public class ViewHolder     extends RecyclerView.ViewHolder
-                                implements OnMapReadyCallback { //implements View.OnClickListener {
+            implements OnMapReadyCallback { //implements View.OnClickListener {
         LinearLayout foodOrderList, ll_orders;
         TextView restaurantName;
         TextView orderTime;

@@ -52,8 +52,8 @@ public class RestaurantActivity
         extends AppCompatActivity
 
         implements  MenuFragment.OnFragmentInteractionListener,
-                    DailyFoodFragment.OnFragmentInteractionListener,
-                    ReviewFragment.OnFragmentInteractionListenerReview{
+        DailyFoodFragment.OnFragmentInteractionListener,
+        ReviewFragment.OnFragmentInteractionListenerReview{
 
     private static final int REQUEST_CART = 12;
     private ViewPager viewPager;
@@ -184,11 +184,34 @@ public class RestaurantActivity
 
     private void getDataDailyFood(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("Daily_Food").getChildren()) {
-            String name = ds.child("name").getValue().toString();
-            String description = ds.child("description").getValue().toString();
-            String price = ds.child("price").getValue().toString();
-            Object o = ds.child("image").getValue();
-            String photoURLfood = new String("");
+            Object o;
+
+            o = ds.child("name").getValue();
+            String name = "";
+
+            if (o != null)
+            {
+                name = o.toString();
+            }
+
+            o = ds.child("description").getValue();
+            String description = "";
+
+            if (o != null)
+            {
+                description = o.toString();
+            }
+
+            o = ds.child("price").getValue();
+            String price = "0";
+
+            if (o != null)
+            {
+                price = o.toString();
+            }
+
+            o = ds.child("image").getValue();
+            String photoURLfood = "0";
 
             if (o != null)
                 photoURLfood = o.toString();
@@ -200,10 +223,39 @@ public class RestaurantActivity
     private void getDataReviews(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("review_description").getChildren())
         {
-            String title = ds.child("title").getValue().toString();
-            String description = ds.child("description").getValue().toString();
-            String date = ds.child("date").getValue().toString();
-            String rate = ds.child("stars").getValue().toString();
+            Object o;
+
+            o = ds.child("title").getValue();
+            String title = "";
+
+            if (o != null)
+            {
+                title = o.toString();
+            }
+
+            o = ds.child("description").getValue();
+            String description = "";
+
+            if (o != null)
+            {
+                description = o.toString();
+            }
+
+            o = ds.child("date").getValue();
+            String date = "";
+
+            if (o != null)
+            {
+                date = o.toString();
+            }
+
+            o = ds.child("stars").getValue();
+            String rate = "0";
+
+            if (o != null)
+            {
+                rate = o.toString();
+            }
 
             reviewInfoList.add(new ReviewInfo(rate, title, description, date));
         }
