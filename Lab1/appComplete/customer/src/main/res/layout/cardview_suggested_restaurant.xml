@@ -2,12 +2,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="286dp"
-    android:layout_height="240dp">
+    android:layout_height="245dp">
 
     <android.support.design.card.MaterialCardView
         android:id="@+id/cv_suggested_card"
         android:layout_width="260dp"
-        android:layout_height="230dp"
+        android:layout_height="235dp"
         android:layout_gravity="left"
         app:cardCornerRadius="10dp"
         app:cardElevation="3dp">
@@ -34,32 +34,34 @@
                 android:text="Cafe Badilico"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                android:textSize="20sp" />
+                android:textSize="22sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginLeft="8dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp">
 
                 <RatingBar
                     android:id="@+id/ratingBar"
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="-9dp"
+                    android:layout_marginLeft="-5dp"
                     android:numStars="5"
-                    android:scaleX="0.8"
-                    android:scaleY="0.8"
+                    android:scaleX="0.9"
+                    android:scaleY="0.9"
                     android:theme="@style/RatingBar" />
 
                 <TextView
                     android:id="@+id/restaurant_review"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
                     android:text="4.2(129)"
-                    android:textSize="11sp" />
+                    android:textSize="13sp" />
 
             </LinearLayout>
 
