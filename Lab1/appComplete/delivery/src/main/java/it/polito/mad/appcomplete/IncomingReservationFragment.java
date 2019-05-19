@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -104,6 +105,18 @@ public class IncomingReservationFragment extends Fragment
             branchOrdersIncoming.child(orderID).child("cLongitude").setValue("7.6591849");
             branchOrdersIncoming.child(orderID).child("rLatitude").setValue("45.0643713");
             branchOrdersIncoming.child(orderID).child("rLongitude").setValue("7.6591705");
+
+        //Row2
+        String orderID2="-Le15r_browa374g4qz2";
+        branchOrdersIncoming.child(orderID2).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
+        branchOrdersIncoming.child(orderID2).child("orderID").setValue(orderID2);
+        branchOrdersIncoming.child(orderID2).child("timeReservation").setValue("12:89");
+        branchOrdersIncoming.child(orderID2).child("addressOrder").setValue("custAdd");
+        branchOrdersIncoming.child(orderID2).child("restaurantAddress").setValue("restAdd");
+        branchOrdersIncoming.child(orderID2).child("cLatitude").setValue("7.6591849");
+        branchOrdersIncoming.child(orderID2).child("cLongitude").setValue("7.6591849");
+        branchOrdersIncoming.child(orderID2).child("rLatitude").setValue("45.0653713");
+        branchOrdersIncoming.child(orderID2).child("rLongitude").setValue("7.6591705");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -410,10 +423,11 @@ public class IncomingReservationFragment extends Fragment
             }
 
             ////////////////////////////////////////////////////////
-          /*  {
+            {
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("Users").child("0");String c;
-                ValueEventListener UserFromID = new ValueEventListener() {
+                DatabaseReference myRef = database.getReference("delivery").child(preferences.getString("Uid", " ")).child("totaldistance");
+
+                /*ValueEventListener UserFromID = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                          c="    ";
@@ -423,12 +437,23 @@ public class IncomingReservationFragment extends Fragment
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                     }
-                };
+                };*/
+                ValueEventListener UserFromID = new x();
                 myRef.addValueEventListener(UserFromID);
-            }*/
+            }
             ////////////////////////////////////////////////////////
-            distance= distance.split(" ")[0]; //removes string "km" from the result.
-            database.child("delivery").child(preferences.getString("Uid", " ")).child("totaldistance").setValue(distance);
+
+
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float_total_distance += float_distance;
+                    database.child("delivery").child(preferences.getString("Uid", " ")).child("totaldistance").setValue(Float.toString(float_total_distance));
+                }
+            }, 1000);
+
         }
 
     }
@@ -447,5 +472,29 @@ public class IncomingReservationFragment extends Fragment
         // Building the url to the web service
         String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_maps_key);
         return url;
+    }
+
+    //Handler handler;
+
+    float float_distance;
+    float float_total_distance;
+    boolean isFinished=false;
+   public class x  implements   ValueEventListener{
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+
+            float_total_distance =Float.parseFloat(dataSnapshot.getValue().toString());
+            distance= distance.split(" ")[0]; //removes string "km" from the result.
+            distance="10.172";
+            float_distance= Float.parseFloat(distance);
+           //
+        }
+
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+
+
     }
 }
