@@ -156,6 +156,7 @@ public class CartActivity extends AppCompatActivity{
 
         TextView tvName = new TextView(this);
         tvName.setText(name);
+        tvName.setTag(orderRecap.getKey());
         tvName.setPadding(10, 0, 0, 0);
         tvName.setTextSize(22);
         tvName.setTypeface(null, Typeface.BOLD);
@@ -190,7 +191,7 @@ public class CartActivity extends AppCompatActivity{
         //StringBuffer totalOrder = new StringBuffer("");
         for (OrderRecap o : list)
         {
-            DatabaseReference dr = databaseReference.child("OrderList").push();
+            DatabaseReference dr = databaseReference.child("OrderList").child(o.getKey());
             dr.child("Name").setValue(o.getName());
             dr.child("Quantity").setValue(o.getQuantity());
         }
@@ -218,7 +219,7 @@ public class CartActivity extends AppCompatActivity{
 
         for (OrderRecap o : list)
         {
-            String key = databaseReference.child("food").push().getKey();
+            String key = databaseReference.child("food").child(o.getKey()).getKey();
 
             databaseReference.child("food").child(key).child("foodName").setValue(o.getName());
             databaseReference.child("food").child(key).child("foodPrice").setValue(o.getPrice());

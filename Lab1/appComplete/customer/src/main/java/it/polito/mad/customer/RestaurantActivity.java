@@ -185,6 +185,7 @@ public class RestaurantActivity
     private void getDataDailyFood(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("Daily_Food").getChildren()) {
             Object o;
+            String key = ds.getKey();
 
             o = ds.child("name").getValue();
             String name = "";
@@ -216,7 +217,7 @@ public class RestaurantActivity
             if (o != null)
                 photoURLfood = o.toString();
 
-            dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price));
+            dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price, key));
         }
     }
 
@@ -286,8 +287,8 @@ public class RestaurantActivity
                 if ((amount != "") && (Integer.parseInt(amount) != 0)) {
                     String price = sharedPreferences.getString("price" + i, "");
                     String name = sharedPreferences.getString("food" + i, "");
-
-                    orders.add(new OrderRecap(price, amount, name));
+                    String key = sharedPreferences.getString("key" + i, "");
+                    orders.add(new OrderRecap(price, amount, name, key));
                 }
             }
 

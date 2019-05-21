@@ -9,6 +9,7 @@ public class SuggestedFoodInfo implements Parcelable {
     private String description;
     private String imageUrl;
     private String price;
+    private String key;
 
     public SuggestedFoodInfo(Parcel in)
     {
@@ -16,13 +17,15 @@ public class SuggestedFoodInfo implements Parcelable {
         this.description = in.readString();
         this.imageUrl = in.readString();
         this.price = in.readString();
+        this.key = in.readString();
     }
 
-    public SuggestedFoodInfo(String name, String description, String imageUrl, String price) {
+    public SuggestedFoodInfo(String name, String description, String imageUrl, String price, String key) {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.price = price;
+        this.key = key;
     }
 
     public SuggestedFoodInfo() {
@@ -72,6 +75,14 @@ public class SuggestedFoodInfo implements Parcelable {
         this.price = price;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -83,5 +94,6 @@ public class SuggestedFoodInfo implements Parcelable {
         dest.writeString(description);
         dest.writeString(imageUrl);
         dest.writeString(price);
+        dest.writeString(key);
     }
 }

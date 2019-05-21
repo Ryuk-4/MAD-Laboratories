@@ -8,7 +8,7 @@ enum OrderState
     ACCEPTED,
     DELIVERING,
     CANCELLED,
-    DELIVERED;
+    DELIVERED
 }
 
 class OrdersInfo {
@@ -126,4 +126,6 @@ class OrdersInfo {
     public void setReview(boolean review) {
         this.review = review;
     }
+
+
 }

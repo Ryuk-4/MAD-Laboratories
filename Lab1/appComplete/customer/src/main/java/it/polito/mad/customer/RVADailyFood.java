@@ -42,6 +42,7 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull RVADailyFood.ViewHolder viewHolder, final int i) {
         viewHolder.name.setText(foodInfoList.get(i).getName());
+        viewHolder.name.setTag(foodInfoList.get(i).getKey());
         viewHolder.price.setText(foodInfoList.get(i).getPrice());
         viewHolder.mItemDescription.setText("''"+foodInfoList.get(i).getDescription()+"''");
 
@@ -136,6 +137,7 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
                     editor.putString("food"+iter, name.getText().toString());
                     editor.putString("amount"+iter, amount.getText().toString());
                     editor.putString("price"+iter, price.getText().toString());
+                    editor.putString("key"+iter, name.getTag().toString());
 
                     if (iter == n_food)
                     {

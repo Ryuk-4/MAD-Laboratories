@@ -155,6 +155,7 @@ public class OrdersActivity
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
                     Map<String, String> foodId = new TreeMap<>();
+                    Map<String, String> foodKey = new TreeMap<>();
 
                     for (DataSnapshot ds1 : ds.child("food").getChildren())
                     {
