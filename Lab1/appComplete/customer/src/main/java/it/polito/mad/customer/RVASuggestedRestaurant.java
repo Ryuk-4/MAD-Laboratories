@@ -2,6 +2,7 @@ package it.polito.mad.customer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.card.MaterialCardView;
 import android.support.v7.widget.RecyclerView;
@@ -54,8 +55,8 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
             TextView t = new TextView(this.myContext);
             t.setText(s);
             //t.setBackgroundColor(this.myContext.getResources().getColor(R.color.colorPrimary));
-            t.setTextColor(this.myContext.getResources().getColor(R.color.white));
-            t.setBackground(this.myContext.getResources().getDrawable(R.drawable.rounded_corner));
+            t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
+            t.setTypeface(null, Typeface.BOLD);
             t.setPadding(10, 10, 10, 10);
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);

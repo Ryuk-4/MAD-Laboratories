@@ -711,6 +711,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (o != null)
                         {
                             name = o.toString();
+
+                        } else
+                        {
+                            return;
                         }
 
                         o = dataSnapshot.child("Profile").child("imgUrl").getValue();
@@ -719,6 +723,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (o != null)
                         {
                             photo = o.toString();
+                        } else
+                        {
+                            return;
                         }
 
                         o = dataSnapshot.child("Profile").child("description").getValue();
@@ -727,6 +734,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (o != null)
                         {
                             description = o.toString();
+                        } else
+                        {
+                            return;
                         }
 
                         String id = dataSnapshot.getKey();
@@ -743,16 +753,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             {
                                 votes[i] = Integer.parseInt(o.toString());
                                 nVotes+=votes[i];
+                            } else
+                            {
+                                return;
                             }
                         }
 
-                        int i = 1;
                         List<String> typeFood = new ArrayList<>();
                         for (DataSnapshot ds : dataSnapshot.child("type_food").getChildren())
                         {
                             o = ds.getValue();
                             if (o != null)
+                            {
                                 typeFood.add(o.toString());
+                            } else
+                            {
+                                return;
+                            }
                         }
                         //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
                         myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());

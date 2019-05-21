@@ -187,18 +187,17 @@ public class CartActivity extends AppCompatActivity{
     private String saveOrderToRestaurant() {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Orders").child("Incoming").push();
 
-        StringBuffer totalOrder = new StringBuffer("");
+        //StringBuffer totalOrder = new StringBuffer("");
         for (OrderRecap o : list)
         {
-            for (int i = 0 ; i < Integer.parseInt(o.getQuantity()) ; i++)
-            {
-                totalOrder.append(o.getName()).append(", ");
-            }
+            DatabaseReference dr = databaseReference.child("OrderList").push();
+            dr.child("Name").setValue(o.getName());
+            dr.child("Quantity").setValue(o.getQuantity());
         }
 
         databaseReference.child("idPerson").setValue(FirebaseAuth.getInstance().getUid());
         databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        databaseReference.child("personOrder").setValue(totalOrder.toString());
+        //databaseReference.child("personOrder").setValue(totalOrder.toString());
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
         //databaseReference.child("addressOrder").setValue(orderAddress.getText().toString());

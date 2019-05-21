@@ -317,11 +317,11 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
         private void saveDataToRestaurant(String restaurantId, String orderId) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId).child("OrderList");
 
-            Log.d(TAG, "saveDataToRestaurant: " +restaurantId);
+            databaseReference.removeValue();
+
             int count = viewHolder.foodOrderList.getChildCount();
-            StringBuffer stringBuffer = new StringBuffer("");
 
             for (int i = 0 ; i < count -1 ; i++)
             {
@@ -330,12 +330,12 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                 String name = ((TextView) view.getChildAt(0)).getText().toString();
                 String quantity = ((EditText)((LinearLayout) view.getChildAt(1)).getChildAt(0)).getText().toString();
 
-                for (int j = 0 ; j < Integer.parseInt(quantity) ; j++)
-                    stringBuffer.append(name+", ");
-
+                DatabaseReference dr = databaseReference.push();
+                dr.child("Name").setValue(name);
+                dr.child("Quantity").setValue(quantity);
             }
 
-            databaseReference.child("personOrder").setValue(stringBuffer.toString());
+            //databaseReference.child("personOrder").setValue(stringBuffer.toString());
         }
     }
 

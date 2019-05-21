@@ -2,14 +2,14 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="286dp"
-    android:layout_height="245dp">
+    android:layout_height="235dp">
 
     <android.support.design.card.MaterialCardView
         android:id="@+id/cv_suggested_card"
-        android:layout_width="260dp"
-        android:layout_height="235dp"
+        android:layout_width="270dp"
+        android:layout_height="225dp"
         android:layout_gravity="left"
-        app:cardCornerRadius="10dp"
+        app:cardCornerRadius="5dp"
         app:cardElevation="3dp">
 
         <LinearLayout
@@ -17,49 +17,62 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/restaurant_image_suggested"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_user_image" />
+                android:layout_height="160dp"
+                android:id="@+id/frame_suggested">
 
-            <TextView
-                android:id="@+id/restaurant_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="8dp"
-                android:text="Cafe Badilico"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:textSize="22sp" />
+                <ImageView
+                    android:id="@+id/restaurant_image_suggested"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/default_user_image" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:background="@drawable/color_gradient"/>
+
+                <TextView
+                    android:id="@+id/restaurant_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cafe Badilico"
+                    android:layout_gravity="bottom"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp" />
+            </FrameLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="15dp"
-                android:layout_marginTop="5dp"
                 android:layout_marginLeft="8dp"
-                android:orientation="horizontal"
-                android:layout_marginBottom="5dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:orientation="horizontal">
 
                 <RatingBar
                     android:id="@+id/ratingBar"
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="-5dp"
+                    android:layout_marginLeft="2dp"
                     android:numStars="5"
-                    android:scaleX="0.9"
-                    android:scaleY="0.9"
+                    android:scaleX="1.1"
+                    android:scaleY="1.1"
                     android:theme="@style/RatingBar" />
 
                 <TextView
                     android:id="@+id/restaurant_review"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
+                    android:layout_marginLeft="10dp"
                     android:text="4.2(129)"
                     android:textSize="13sp" />
 
@@ -76,6 +89,8 @@
 
             </LinearLayout>
         </LinearLayout>
+
+
     </android.support.design.card.MaterialCardView>
 
 
