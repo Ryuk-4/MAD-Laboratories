@@ -22,7 +22,7 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:toolbarId="@id/toolbar_restaurant"
-            android:elevation="3dp">
+            android:elevation="10dp">
 
             <ImageView
                 android:layout_width="match_parent"
