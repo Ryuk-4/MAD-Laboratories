@@ -330,7 +330,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
 
                 databaseReference.child(id).child("Name").setValue(name);
-                databaseReference.child(id).child("Quantity").setValue(quantity);
+                databaseReference.child(id).child("quantity").setValue(quantity);
             }
         }
     }

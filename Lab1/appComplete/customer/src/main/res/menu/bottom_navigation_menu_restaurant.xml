@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/daily_food"
+        android:enabled="true"
+        android:title="DAILY FOOD"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/baseline_fastfood_24"/>
+
+    <item
+        android:id="@+id/reviews"
+        android:enabled="true"
+        android:title="REVIEWS"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/baseline_rate_review_24"/>
+</menu>

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -81,7 +82,7 @@ public class CartActivity extends AppCompatActivity{
 
         int partial = createCart();
 
-        totalAmount.setText("Total amount: "+Integer.toString(partial)+"€");
+        totalAmount.setText(Integer.toString(partial)+"€");
 
 
         addListenerToButtons();
@@ -170,15 +171,20 @@ public class CartActivity extends AppCompatActivity{
         tvPrice.setGravity(Gravity.RIGHT);
         tvPrice.setPadding(0, 0, 10, 0);
 
+        View v = new View(this);
+        v.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        v.setBackgroundColor(this.getColor(android.R.color.black));
+
         linearLayout.addView(tvName);
         linearLayout.addView(tvQuantity);
         linearLayout.addView(tvPrice);
+        linearLayout.addView(v);
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         layoutParams.setMargins(0, 10, 0, 10);
-        linearLayout.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_white));
+        //linearLayout.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_white));
 
         cart.addView(linearLayout, layoutParams);
 
@@ -193,7 +199,7 @@ public class CartActivity extends AppCompatActivity{
         {
             DatabaseReference dr = databaseReference.child("OrderList").child(o.getKey());
             dr.child("Name").setValue(o.getName());
-            dr.child("Quantity").setValue(o.getQuantity());
+            dr.child("quantity").setValue(o.getQuantity());
         }
 
         databaseReference.child("idPerson").setValue(FirebaseAuth.getInstance().getUid());

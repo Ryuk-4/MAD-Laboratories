@@ -40,18 +40,6 @@ public class myFragmentPageAdapter extends FragmentPagerAdapter {
         return 2;
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
-        switch (position) {
-            case 0:
-                return mContext.getString(R.string.category_daily_menu);
-            case 1:
-                return mContext.getString(R.string.category_review);
-            default:
-                return null;
-        }
-    }
 
     public void refreshLayout(int fragId) {
         if (fragId == 0) {

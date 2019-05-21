@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         coordinator = findViewById(R.id.coordinator);
         buttonSearch = findViewById(R.id.button_search);
         textSearch = findViewById(R.id.autoCompleteTextView);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar_restaurant);
         progressBar1 = findViewById(R.id.progress_bar_favorite);
         progressBar2 = findViewById(R.id.progress_bar_normal);
 
@@ -395,25 +395,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                             //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
                             myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-
-
-
-
-
 
                             //Log.d("TAG", "onDataChange: finish");
                             myAdapterNormal.notifyDataSetChanged();
@@ -680,132 +661,95 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void onUpdateListSuggested()
     {
-        Log.d("TAG", "onUpdateListSuggested: "+FirebaseAuth.getInstance().getUid());
-        DatabaseReference dr = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
-        dr.addValueEventListener(new ValueEventListener() {
+        progressBar1.setVisibility(View.GONE);
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Set<String> restaurantId = new TreeSet<>();
-                progressBar1.setVisibility(View.GONE);
-
-                for (DataSnapshot ds : dataSnapshot.getChildren())
+                for (DataSnapshot data : dataSnapshot.getChildren())
                 {
-                    Object o = ds.child("restaurant").getValue();
+                    Log.d("TAG", "onDataChange: ");
+                    Object o = data.child("Profile").child("name").getValue();
+                    String name = "";
+
                     if (o != null)
                     {
-                        restaurantId.add(o.toString());
+                        name = o.toString();
+
                     } else
                     {
-                        break;
+                        return;
                     }
+
+                    o = data.child("Profile").child("imgUrl").getValue();
+                    String photo = "";
+
+                    if (o != null)
+                    {
+                        photo = o.toString();
+                    } else
+                    {
+                        return;
+                    }
+
+                    o = data.child("Profile").child("description").getValue();
+                    String description = "";
+
+                    if (o != null)
+                    {
+                        description = o.toString();
+                    } else
+                    {
+                        return;
+                    }
+
+                    String id = data.getKey();
+
+                    int[] votes;
+                    int nVotes = 0;
+                    votes = new int[5];
+
+                    for (int i = 0 ; i < 5 ; i++)
+                    {
+                        o = data.child("review").child((i+1)+"star").getValue();
+
+                        if (o != null)
+                        {
+                            votes[i] = Integer.parseInt(o.toString());
+                            nVotes+=votes[i];
+                        } else
+                        {
+                            return;
+                        }
+                    }
+
+                    List<String> typeFood = new ArrayList<>();
+                    for (DataSnapshot ds : data.child("type_food").getChildren())
+                    {
+                        o = ds.getValue();
+                        if (o != null)
+                        {
+                            typeFood.add(o.toString());
+                        } else
+                        {
+                            return;
+                        }
+                    }
+                    //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
+                    myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
+
+                    //Log.d("TAG", "onDataChange: finish");
+                    myAdapterSuggested.notifyDataSetChanged();
 
                 }
-
-                ValueEventListener valueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        Object o = dataSnapshot.child("Profile").child("name").getValue();
-                        String name = "";
-
-                        if (o != null)
-                        {
-                            name = o.toString();
-
-                        } else
-                        {
-                            return;
-                        }
-
-                        o = dataSnapshot.child("Profile").child("imgUrl").getValue();
-                        String photo = "";
-
-                        if (o != null)
-                        {
-                            photo = o.toString();
-                        } else
-                        {
-                            return;
-                        }
-
-                        o = dataSnapshot.child("Profile").child("description").getValue();
-                        String description = "";
-
-                        if (o != null)
-                        {
-                            description = o.toString();
-                        } else
-                        {
-                            return;
-                        }
-
-                        String id = dataSnapshot.getKey();
-
-                        int[] votes;
-                        int nVotes = 0;
-                        votes = new int[5];
-
-                        for (int i = 0 ; i < 5 ; i++)
-                        {
-                            o = dataSnapshot.child("review").child((i+1)+"star").getValue();
-
-                            if (o != null)
-                            {
-                                votes[i] = Integer.parseInt(o.toString());
-                                nVotes+=votes[i];
-                            } else
-                            {
-                                return;
-                            }
-                        }
-
-                        List<String> typeFood = new ArrayList<>();
-                        for (DataSnapshot ds : dataSnapshot.child("type_food").getChildren())
-                        {
-                            o = ds.getValue();
-                            if (o != null)
-                            {
-                                typeFood.add(o.toString());
-                            } else
-                            {
-                                return;
-                            }
-                        }
-                        //Log.d("TAG", "onDataChange: inserted "+myAdapterNormal.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterSuggested.getItemCount());
-
-                        //Log.d("TAG", "onDataChange: finish");
-                        myAdapterSuggested.notifyDataSetChanged();
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                };
-
-                for (String s : restaurantId)
-                {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(s);
-                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
-                }
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        FirebaseDatabase.getInstance().getReference("restaurants").orderByChild("total").limitToLast(10).addListenerForSingleValueEvent(valueEventListener);
     }
 
     void manageUserLocation()

@@ -2,16 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="120dp">
+    android:layout_height="105dp">
 
     <android.support.design.card.MaterialCardView
         android:id="@+id/cv_normal_card"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
+        android:layout_height="100dp"
         android:layout_gravity="top"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp"
-        app:cardCornerRadius="10dp"
+        app:cardCornerRadius="5dp"
         app:cardElevation="3dp">
 
         <LinearLayout
@@ -21,7 +21,7 @@
 
             <ImageView
                 android:id="@+id/restaurant_image_normal"
-                android:layout_width="110dp"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/default_user_image" />
 
@@ -34,8 +34,8 @@
                     android:id="@+id/restaurant_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
                     android:text="Cafe Badilico"
                     android:textColor="@android:color/black"
                     android:textSize="22sp"
@@ -44,8 +44,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="15dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginLeft="12dp"
                     android:orientation="horizontal"
                     android:layout_marginBottom="5dp">
 
@@ -55,9 +55,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:numStars="5"
-                        android:scaleX="0.9"
-                        android:scaleY="0.9"
-                        android:layout_marginLeft="-5dp"
+                        android:scaleX="1.1"
+                        android:scaleY="1.1"
+                        android:layout_marginLeft="2dp"
                         android:theme="@style/RatingBar"/>
 
                     <TextView
@@ -65,7 +65,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="4.2(129)"
-                        android:textSize="13sp" />
+                        android:textSize="13sp"
+                        android:layout_marginLeft="10dp"/>
 
                 </LinearLayout>
 

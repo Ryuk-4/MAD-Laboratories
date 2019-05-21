@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -36,6 +37,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -56,17 +58,16 @@ public class RestaurantActivity
         ReviewFragment.OnFragmentInteractionListenerReview{
 
     private static final int REQUEST_CART = 12;
-    private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
     private TabLayout tabLayout;
-    private ImageView imageView, imageViewBlur;
+    private ImageView imageView;
     private Toolbar toolbar;
     private String restId, restName;
     private List<SuggestedFoodInfo> dailyFoodInfoList;
     private List<ReviewInfo> reviewInfoList;
     private myFragmentPageAdapter adapter;
-    private MaterialViewPager mViewPager;
-    private TextView restaurantNameText;
-    private Bitmap result;
+    private ViewPager mViewPager;
+    private TextView restaurantNameText, restaurantDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +79,12 @@ public class RestaurantActivity
 
         getLayoutReferences();
 
-        toolbar = mViewPager.getToolbar();
+        toolbar = findViewById(R.id.toolbar_restaurant);
+        setSupportActionBar(toolbar);
 
         deleteStatusBarTitle();
+
+        initBottomNavigation();
 
         deletePreviousCart(this.getSharedPreferences("orders_info", Context.MODE_PRIVATE));
 
@@ -88,7 +92,29 @@ public class RestaurantActivity
 
         getRestaurantInformation();
 
-        setStatusBarTransparent();
+        //setStatusBarTransparent();
+        StatusBarUtil.setTransparent(this);
+
+
+    }
+
+    private void initBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId())
+                {
+                    case R.id.daily_food:
+                        mViewPager.setCurrentItem(0);
+                        break;
+                    case R.id.reviews:
+                        mViewPager.setCurrentItem(1);
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 
 
@@ -111,15 +137,25 @@ public class RestaurantActivity
                     restaurantNameText.setText(name);
                 }
 
+                object = dataSnapshot.child("Profile").child("description").getValue();
+                StringBuffer description = new StringBuffer("'");
+
+                if (object != null)
+                {
+                    description.append(object.toString());
+                    description.append("'");
+                    restaurantDescription.setText(description.toString());
+                }
+
                 getDataDailyFood(dataSnapshot);
                 getDataReviews(dataSnapshot);
 
                 adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList, reviewInfoList);
 
-                viewPager = mViewPager.getViewPager();
-                viewPager.setAdapter(adapter);
+                //viewPager = mViewPager.getViewPager();
+                mViewPager.setAdapter(adapter);
 
-                mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
+                //mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
 
                 if (photoURLrestaurant != "") {
                     GetBitmapFromURLAsync getBitmapFromURLAsync = new GetBitmapFromURLAsync();
@@ -162,9 +198,11 @@ public class RestaurantActivity
 
     private void getLayoutReferences() {
         imageView = findViewById(R.id.htab_header);
-        imageViewBlur = findViewById(R.id.htab_header_blur);
+        //imageViewBlur = findViewById(R.id.htab_header_blur);
         restaurantNameText = findViewById(R.id.restaurant_name_header);
-        mViewPager = (MaterialViewPager) findViewById(R.id.materialViewPager);
+        restaurantDescription = findViewById(R.id.restaurant_description_header);
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        bottomNavigationView = findViewById(R.id.bottom_view);
     }
 
     private void setStatusBarTransparent() {
@@ -391,7 +429,10 @@ public class RestaurantActivity
 
         getLayoutReferences();
 
-        toolbar = mViewPager.getToolbar();
+        initBottomNavigation();
+
+        toolbar = findViewById(R.id.toolbar_restaurant);
+        setSupportActionBar(toolbar);
 
         deleteStatusBarTitle();
 
@@ -448,7 +489,7 @@ public class RestaurantActivity
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             //  return the bitmap by doInBackground and store in result
-            Blurry.with(RestaurantActivity.this).radius(10).from(bitmap).into(imageViewBlur);
+            //Blurry.with(RestaurantActivity.this).radius(10).from(bitmap).into(imageViewBlur);
             imageView.setImageBitmap(bitmap);
         }
     }
