@@ -31,8 +31,6 @@ import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
-import com.github.florent37.materialviewpager.MaterialViewPager;
-import com.github.florent37.materialviewpager.header.HeaderDesign;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;

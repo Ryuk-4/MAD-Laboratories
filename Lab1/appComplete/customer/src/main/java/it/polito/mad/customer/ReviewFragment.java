@@ -11,8 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
-
 import java.util.List;
 
 
@@ -102,7 +100,7 @@ public class ReviewFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_review, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.rv_review);
-        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        //recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
 
         initRecyclerView();
         return view;

@@ -3,11 +3,15 @@
     <color name="colorPrimary">#ff8533</color>
     <color name="colorPrimaryDark">#ff8533</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="accent_color">#D81B60</color>
+    <color name="drawerArrowColor">#ff8533</color>
 
     <color name="bg_login">#26ae90</color>
     <color name="bg_register">#2e3237</color>
     <color name="bg_main">#428bca</color>
     <color name="white">#ffffff</color>
+    <color name="green">#8BC34A</color>
+    <color name="red">#F44336</color>
     <color name="input_login">#222222</color>
     <color name="input_login_hint">#999999</color>
     <color name="input_register">#888888</color>

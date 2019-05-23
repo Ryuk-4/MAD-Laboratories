@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
@@ -22,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,7 +44,10 @@ import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -158,12 +163,18 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                     String restId = v.getTag().toString().split(" ")[0];
                     String orderId = v.getTag().toString().split(" ")[1];
 
-                    Intent intent = new Intent(myContext, ReviewActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("restId", restId);
-                    bundle.putString("orderId", orderId);
-                    intent.putExtras(bundle);
-                    myContext.startActivity(intent);
+                    LayoutInflater li = LayoutInflater.from(myContext);
+                    View view = li.inflate(R.layout.activity_review, null);
+
+                    Button b = view.findViewById(R.id.button);
+                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId));
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
+                    alertDialogBuilder.setView(view);
+
+                    AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
+                    //alertDialogCongratulations.setCanceledOnTouchOutside(false);
+                    alertDialogCongratulations.show();
                 }
             });
 
@@ -357,6 +368,75 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
 
+        }
+    }
+
+    class CustomReviewClickListener implements View.OnClickListener
+    {
+        private View view;
+        private String orderId;
+        private String restId;
+
+        CustomReviewClickListener(View view, String orderId, String restId)
+        {
+           this.view = view;
+           this.restId = restId;
+           this.orderId = orderId;
+        }
+        @Override
+        public void onClick(View v) {
+            RatingBar ratingBar = view.findViewById(R.id.ratingBar);
+            EditText textTitle = view.findViewById(R.id.textTitle);
+            EditText textDescription = view.findViewById(R.id.textDescription);
+
+            String title = textTitle.getText().toString();
+            String description = textDescription.getText().toString();
+            final int rating = (int) ratingBar.getRating();
+
+            //Log.d("TAG", "onClick: "+rating);
+
+            addNewReview(title, description, rating);
+            incrementStarReview(rating);
+            setOrderReviewed();
+        }
+
+        private void setOrderReviewed() {
+            Log.d("TAG", "setOrderReviewed: ");
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order").child(orderId);
+            databaseReference.child("reviewed").setValue("true");
+        }
+
+        private void incrementStarReview(final int rating) {
+            DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star");
+            databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d("TAG", "onDataChange: ");
+                    int value = Integer.parseInt(dataSnapshot.getValue().toString());
+                    value++;
+                    FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star").setValue(value);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+        private void addNewReview(String title, String description, float rating) {
+            Date c = Calendar.getInstance().getTime();
+
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+            String formattedDate = df.format(c);
+
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review_description").push();
+            databaseReference.child("title").setValue(title);
+            databaseReference.child("description").setValue(description);
+            databaseReference.child("stars").setValue(rating);
+            databaseReference.child("date").setValue(formattedDate);
+
+            //TODO add user to be displayed
         }
     }
 }

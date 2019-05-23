@@ -2,12 +2,14 @@ package it.polito.mad.customer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +38,11 @@ import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +52,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -53,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         RVANormalRestaurant.updateRestaurantList {
 
     private static final int LOCATION_REQUEST = 111;
-    public static final int RADIUS = 300; //radius for geoFire query
+    private static final int RADIUS = 50; //radius for geoFire query
+    private static  final int AUTOCOMPLETE_REQUEST = 222;
     private FirebaseAuth.AuthStateListener authListener;
     private List<String> foodSelected;
     private FirebaseAuth auth;
@@ -61,19 +71,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private RecyclerView rvSuggested, rvNormal;
     private RVASuggestedRestaurant myAdapterSuggested;
     private RVANormalRestaurant myAdapterNormal;
-    private CoordinatorLayout coordinator;
     private AutoCompleteTextView textSearch;
     private Toolbar toolbar;
     public boolean updating = false;
     private FusedLocationProviderClient fusedLocationClient;
-    private Location userLocation = null;
+    private MyCustomLocation userLocation = null;
     private ProgressBar progressBar1, progressBar2;
     private Set<String> keyList;
+    private View coordinator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_main);
+
+        getSharedPreferences("user_location", MODE_PRIVATE).edit().clear().commit();
 
         initSystem();
     }
@@ -179,6 +191,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST)
+        {
+            if (resultCode == RESULT_OK) //the user selected a place
+            {
+
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                userLocation = new MyCustomLocation(place.getLatLng().latitude, place.getLatLng().longitude);
+
+                SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("lat", Double.toString(userLocation.getLatitude()));
+                editor.putString("lon", Double.toString(userLocation.getLongitude()));
+                editor.commit();
+
+                initializeData();
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) //some internal error
+            {
+                //TODO implement this case
+            } else if (resultCode == RESULT_CANCELED) //the use pressed back
+            {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setTitle("Missing address");
+                alertDialogBuilder.setMessage("Please insert a valid address");
+                alertDialogBuilder.setCancelable(false);
+                alertDialogBuilder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        if (!Places.isInitialized()) {
+                            Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                        }
+
+                        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                        startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        }
+    }
+
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -208,14 +270,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         });
                                     }
 
-                                    userLocation = location;
-                                    initializeData();
+                                    userLocation = new MyCustomLocation(location.getLatitude(), location.getLongitude());
 
+                                    SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("lat", Double.toString(location.getLatitude()));
+                                    editor.putString("lon", Double.toString(location.getLongitude()));
+                                    editor.commit();
+
+                                    initializeData();
                                 }
                             });
                 } else {
-                    Toast.makeText(this, "location permission denied", Toast.LENGTH_LONG).show();
-                    initializeData();
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                    alertDialogBuilder.setTitle("Missing address");
+                    alertDialogBuilder.setMessage("Your privacy is very important for us but we need a delivery address in order to show all the available restaurants");
+                    alertDialogBuilder.setCancelable(false);
+                    alertDialogBuilder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            if (!Places.isInitialized()) {
+                                Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                            }
+
+                            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+                        }
+                    });
+
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
                 }
                 break;
             default:
@@ -756,7 +844,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-
         int hasPermissionGallery = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -765,7 +852,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-                            userLocation = location;
+                            userLocation = new MyCustomLocation(location.getLatitude(), location.getLongitude());
 
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
