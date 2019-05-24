@@ -30,13 +30,11 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
     private Context myContext;
     private List<RestaurantInfo> reservationInfoList;
     private OnRestaurantListener onRestaurantListener;
-    private updateRestaurantList updateRestaurantList;
 
-    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener, updateRestaurantList updateRestaurantList){
+    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener){
         this.myContext = myContext;
         this.reservationInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
-        this.updateRestaurantList = updateRestaurantList;
     }
 
     @Override

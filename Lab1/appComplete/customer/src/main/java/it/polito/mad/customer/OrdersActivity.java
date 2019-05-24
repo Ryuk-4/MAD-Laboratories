@@ -150,7 +150,15 @@ public class OrdersActivity
                     {
                         orderState = o.toString();
                     }
-                    //String address = ds.child("addressReservation").getValue().toString();
+
+                    o = ds.child("addressReservation").getValue();
+                    String address = "";
+
+                    if (o != null)
+                    {
+                        address = o.toString();
+                    }
+
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
@@ -204,19 +212,19 @@ public class OrdersActivity
 
                     if (orderState.compareTo("pending") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
                     } else if (orderState.compareTo("In_Preparation") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
                     } else if (orderState.compareTo("Completed") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
                     } else if (orderState.compareTo("Rejected") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }
                 }
 

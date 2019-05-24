@@ -450,7 +450,7 @@ public class RestaurantActivity
             if (resultCode == RESULT_OK) {
                 finish();
             } else if (resultCode == RESULT_CANCELED) {
-                adapter.refreshLayout(0);
+                //adapter.refreshLayout(0);
             }
         }
     }

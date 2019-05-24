@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ff8533</color>
-    <color name="colorPrimaryDark">#ff8533</color>
+    <color name="colorPrimary">#0066FF</color>
+    <color name="colorPrimaryDark">#005DEE</color>
     <color name="colorAccent">#D81B60</color>
     <color name="accent_color">#D81B60</color>
-    <color name="drawerArrowColor">#ff8533</color>
+    <color name="drawerArrowColor">#FFFFFF</color>
 
     <color name="bg_login">#26ae90</color>
     <color name="bg_register">#2e3237</color>
