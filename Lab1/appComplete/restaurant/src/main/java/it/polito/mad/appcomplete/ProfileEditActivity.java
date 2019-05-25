@@ -28,9 +28,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -45,11 +57,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
-
-import it.polito.mad.appcomplete.MultiSelectionSpinner;
 
 public class ProfileEditActivity extends AppCompatActivity
         implements MultiSelectionSpinner.OnMultipleItemsSelectedListener {
@@ -59,16 +69,18 @@ public class ProfileEditActivity extends AppCompatActivity
     private static final int GALLERY_REQ = 2000;
     private static final int CAMERA_REQ = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 1000;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 2001;
 
     private ImageView im_edit;
     private EditText name_edit;
     private EditText phone_edit;
     private EditText openingHours_edit;
-    private EditText address_edit;
+    private TextView address_edit;
     private EditText email_edit;
     private EditText description_edit;
     private Button b;
     private ImageButton ib;
+    private ImageButton editLocation;
     private byte[] photoByteArray;
     private SharedPreferences sharedpref, preferences;
 
@@ -128,6 +140,9 @@ public class ProfileEditActivity extends AppCompatActivity
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
+        Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+        PlacesClient placesClient = Places.createClient(this);
+
         im_edit = findViewById(R.id.imageView1);
         ib = findViewById(R.id.imageButton);
 
@@ -153,6 +168,32 @@ public class ProfileEditActivity extends AppCompatActivity
                 }
         );
 
+        editLocation = findViewById(R.id.edit_location_button);
+        editLocation.setOnClickListener(new ImageButton.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Set the fields to specify which types of place data to
+                // return after the user has made a selection.
+                List<Place.Field> fields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
+
+                // Start the autocomplete intent.
+                try {
+                    Log.d(TAG, "onClick: inside try");
+                    Intent intent = new Autocomplete.IntentBuilder(
+                            AutocompleteActivityMode.OVERLAY, fields)
+                            .setLocationRestriction(RectangularBounds.newInstance(
+                                    new LatLng(45.010426, 7.608653),
+                                    new LatLng(45.136694, 7.724848)))
+                            .build(ProfileEditActivity.this);
+
+                    startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+                }catch (Exception e){
+                    Log.w(TAG, "onClick: ", e);
+                }
+
+            }
+        });
+
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         Uid = preferences.getString("Uid", " ");
@@ -170,7 +211,6 @@ public class ProfileEditActivity extends AppCompatActivity
         array.add("FISH");
 
         multiSelectionSpinner.setItems(array);
-        //multiSelectionSpinner.setSelection(new int[]{2, 6});
         multiSelectionSpinner.setListener(this);
 
         displayData();
@@ -294,7 +334,7 @@ public class ProfileEditActivity extends AppCompatActivity
             return;
         }
 
-        if (requestCode == GALLERY_REQ && resultCode == this.RESULT_OK) {
+        if (requestCode == GALLERY_REQ && resultCode == RESULT_OK) {
             if (data != null) {
                 try {
                     final Uri contentURI = data.getData();
@@ -313,13 +353,43 @@ public class ProfileEditActivity extends AppCompatActivity
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else if (requestCode == CAMERA_REQ && resultCode == this.RESULT_OK) {
+        } else if (requestCode == CAMERA_REQ && resultCode == RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             im_edit.setImageBitmap(photo);
 
             photoByteArray = bitmapToByteArray(photo);
             Toast.makeText(this, "Image Saved!", Toast.LENGTH_SHORT).show();
+        } else if (requestCode == AUTOCOMPLETE_REQUEST_CODE ){
+
+            if (resultCode == RESULT_OK) {
+
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                address_edit.setText(place.getName());
+                Log.d(TAG, "Place: " + place.getId() + ", " + place.getLatLng());
+
+                updateMyPosition(place.getLatLng().latitude, place.getLatLng().longitude);
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+
         }
+    }
+
+    private void updateMyPosition(double latitude, double longitude) {
+        GeoLocation myLocation = new GeoLocation(latitude, longitude);
+
+        GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
+        geoFire1.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                Log.d(TAG, "Location set: myPosition(" +
+                        myLocation.latitude + ", " + myLocation.longitude + ")");
+            }
+        });
     }
 
     private static Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {

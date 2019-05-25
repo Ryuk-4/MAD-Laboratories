@@ -38,13 +38,13 @@
                 android:layout_width="199dp"
                 android:layout_height="198dp"
                 android:layout_gravity="center"
-                android:gravity="center"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="96dp"
+                android:layout_marginTop="76dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:contentDescription="@string/userPic"
+                android:gravity="center"
                 android:src="@drawable/default_user_image" />
 
             <TextView
@@ -52,85 +52,106 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
-                android:text="@string/nameLabel"/>
+                android:text="@string/nameLabel" />
+
             <TextView
                 android:id="@+id/textViewName"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/namePerson">
-            </TextView>
+                android:hint="@string/namePerson"
+                android:textSize="15sp"/>
 
             <TextView
                 android:id="@+id/textViewTelephoneLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/telephoneLabel"/>
+                android:text="@string/telephoneLabel" />
+
             <TextView
                 android:id="@+id/textViewTelephone"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/firstPhone">
-            </TextView>
+                android:hint="@string/firstPhone"
+                android:textSize="15sp"/>
 
             <TextView
                 android:id="@+id/textViewHoursLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/openingHoursLabel"/>
+                android:text="@string/openingHoursLabel" />
+
             <TextView
                 android:id="@+id/textViewHours"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/firstHours"/>
+                android:hint="@string/firstHours"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/textViewAddressLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/addressLabel"/>
+                android:text="@string/addressLabel" />
+
             <TextView
                 android:id="@+id/textViewAddress"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/addressText">
-            </TextView>
+                android:hint="@string/addressText"
+                android:textSize="15sp"/>
 
             <TextView
                 android:id="@+id/textViewEmailLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/emailLabel"/>
+                android:text="@string/emailLabel" />
+
             <TextView
                 android:id="@+id/textViewEmail"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
-                android:textSize="15sp"
-                android:hint="@string/emailExample">
-            </TextView>
+                android:hint="@string/emailExample"
+                android:textSize="15sp"/>
 
             <TextView
                 android:id="@+id/textViewDescriptionLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@string/descriptionLabel"/>
+                android:text="@string/descriptionLabel" />
+
             <TextView
                 android:id="@+id/textViewDescription"
                 android:layout_width="fill_parent"
                 android:layout_height="50dp"
+                android:hint="@string/descriptionText"
                 android:lines="5"
-                android:textSize="15sp"
-                android:hint="@string/descriptionText">
-            </TextView>
+                android:textSize="15sp"/>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp">
+                <Button
+                    android:id="@+id/statisticsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:text="Stats"/>
+
+                <Button
+                    android:id="@+id/commentButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentRight="true"
+                    android:text="Comments"/>
+            </RelativeLayout>
         </LinearLayout>
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>

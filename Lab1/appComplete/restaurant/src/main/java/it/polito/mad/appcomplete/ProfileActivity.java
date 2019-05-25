@@ -14,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,6 +84,22 @@ public class ProfileActivity extends AppCompatActivity
         address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
         description = findViewById(R.id.textViewDescription);
+
+        Button buttonStats = findViewById(R.id.statisticsButton);
+        buttonStats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, StatisticsActivity.class));
+            }
+        });
+
+        Button buttonComm = findViewById(R.id.commentButton);
+        buttonComm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ProfileActivity.this, RestaurantReviewActivity.class));
+            }
+        });
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
@@ -267,7 +285,7 @@ public class ProfileActivity extends AppCompatActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
+//        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

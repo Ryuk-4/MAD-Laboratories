@@ -100,4 +100,7 @@
     <string name="title_activity_find_nearest_rider">FindNearestRiderActivity</string>
 
     <string name="callRider">Deliver</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="title_activity_review">ReviewActivity</string>
+    <string name="title_activity_restaurant_review">RestaurantReviewActivity</string>
 </resources>

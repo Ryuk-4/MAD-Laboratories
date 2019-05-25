@@ -18,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -92,6 +93,14 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void setupAdapter() {
         recyclerView = findViewById(R.id.recyclerViewRiders);
 
@@ -128,7 +137,10 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                 r.setId(dataSnapshot.getKey());
 
-                r.setPic(dataSnapshot.child("Profile/imgUrl").getValue().toString());
+                if (dataSnapshot.child("Profile/imgUrl").getValue() != null) {
+
+                    r.setPic(dataSnapshot.child("Profile/imgUrl").getValue().toString());
+                }
                 r.setName(dataSnapshot.child("Profile/name").getValue().toString());
 
                 Location location = ridersLocation.get(dataSnapshot.getKey());
@@ -293,7 +305,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
         }
     }
 
-    // Checks wether or not the device is able to use google services
+    // Checks whether or not the device is able to use google services
     public boolean isServicesOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
 
@@ -420,8 +432,6 @@ public class FindNearestRiderActivity extends AppCompatActivity
                 }
 
                 private void addRiderListener(String riderId) {
-//                    database.child("riders_position").child(riderId)
-//                            .addValueEventListener(RiderValueListener);
                     branchDeliveryMan.child(riderId).addValueEventListener(RiderValueListener);
                     ridersWithListener.add(riderId);
                 }
@@ -447,7 +457,11 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
     private void getLastKnownLocation() {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
             return;
         }
 
@@ -499,47 +513,56 @@ public class FindNearestRiderActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnRiderClickListener(int position) {
+    public void riderClickListener(int position) {
         Log.d(TAG, "OnRiderClickListener: called");
         requestRider(position);
     }
 
     private void requestRider(int position) {
-        branchOrdersReady.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onDataChange: called");
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    ReservationInfo value = data.getValue(ReservationInfo.class);
+        if (getIntent().hasExtra("reservationId")) {
 
-                    ReservationInfo res = new ReservationInfo(value.getNamePerson(), value.getcLatitude(),
-                            value.getcLongitude(), value.getRestaurantId(), Double.toString(me.getLatitude()),
-                            Double.toString(me.getLongitude()));
+            final String orderId = getIntent().getStringExtra("reservationId");
 
-                    res.setTimeReservation(value.getTimeReservation());
+            branchOrdersReady.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "onDataChange: called");
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        ReservationInfo value = data.getValue(ReservationInfo.class);
 
-                    String riderId = riders.get(position).getId();
+                        if (value.getOrderID().equals(orderId)) {
+                            ReservationInfo res = new ReservationInfo(value.getNamePerson(), value.getcLatitude(),
+                                    value.getcLongitude(), value.getRestaurantId(), Double.toString(me.getLatitude()),
+                                    Double.toString(me.getLongitude()));
 
-                    branchDeliveryMan.child(riderId).child("/Orders/Incoming")
-                            .child(value.getOrderID()).setValue(res);
+                            res.setTimeReservation(value.getTimeReservation());
 
-                    branchDeliveryMan.child(riderId).child("/Orders")
-                            .child("IncomingReservationFlag").setValue(true);
+                            String riderId = riders.get(position).getId();
 
-                    branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
-                            .child("order_status").setValue("Ready_for_Delivery");
-                    branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
-                            .child("riderId").setValue(riderId);
+                            branchDeliveryMan.child(riderId).child("/Orders/Incoming")
+                                    .child(value.getOrderID()).setValue(res);
+
+                            branchDeliveryMan.child(riderId).child("/Orders")
+                                    .child("IncomingReservationFlag").setValue(true);
+
+                            branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
+                                    .child("order_status").setValue("Ready_for_Delivery");
+                            branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
+                                    .child("riderId").setValue(riderId);
+
+                            break;
+                        }
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                }
+            });
 
-        Toast.makeText(this, "Called the Rider", Toast.LENGTH_LONG).show();
-        finish();
+            Toast.makeText(this, "Called the Rider", Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 }

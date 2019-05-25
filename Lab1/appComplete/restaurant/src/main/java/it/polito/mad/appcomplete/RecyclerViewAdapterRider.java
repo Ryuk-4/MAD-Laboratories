@@ -79,11 +79,11 @@ public class RecyclerViewAdapterRider extends
 
         @Override
         public void onClick(View v) {
-            onRiderListener.OnRiderClickListener(getAdapterPosition());
+            onRiderListener.riderClickListener(getAdapterPosition());
         }
     }
 
     public interface OnRiderClickListener {
-        void OnRiderClickListener(int position);
+        void riderClickListener(int position);
     }
 }

@@ -36,7 +36,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -454,6 +456,8 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         }else{
+            b.setEnabled(false);
+
             if (favorite)
             {
                 saveNewFood();
@@ -493,9 +497,11 @@ public class DailyActivityEdit extends AppCompatActivity {
                 editor.apply();
 
                 Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
-                finish();
+
             }
         }
+        b.setEnabled(true);
+        finish();
     }
 
     private void saveNewFood() {
@@ -543,7 +549,6 @@ public class DailyActivityEdit extends AppCompatActivity {
                 });
 
         Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
-        finish();
     }
 
     @Override

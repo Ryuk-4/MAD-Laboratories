@@ -214,6 +214,7 @@ public class DailyOfferActivity
     }
 
     private void initializeCardLayout() {
+        Log.d(TAG, "initializeCardLayout: called");
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
 
@@ -348,7 +349,7 @@ public class DailyOfferActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
+//       mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

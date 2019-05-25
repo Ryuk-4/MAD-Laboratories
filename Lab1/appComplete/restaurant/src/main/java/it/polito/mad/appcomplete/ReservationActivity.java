@@ -38,6 +38,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+//import it.polito.mad.appcomplete.CustomViewPager;
+
 public class ReservationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
 
@@ -52,7 +54,7 @@ public class ReservationActivity extends AppCompatActivity
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //The {@link ViewPager} that will host the section contents.
-    private ViewPager mViewPager;
+    private CustomViewPager mViewPager;
 
     private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
@@ -141,6 +143,7 @@ public class ReservationActivity extends AppCompatActivity
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.containerTabs);
+        mViewPager.setPagingEnabled(false);
         setupViewPager(mViewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -289,7 +292,7 @@ public class ReservationActivity extends AppCompatActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
+//        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

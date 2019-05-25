@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 public class PreparingReservationFragment extends Fragment
         implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        RecyclerViewAdapterReservation.OnReservationClickListener{
 
     private static final String TAG = "PreparingReservation";
 
@@ -63,9 +63,6 @@ public class PreparingReservationFragment extends Fragment
         Log.d(TAG, "onCreateView: called");
 
         recyclerView = view.findViewById(R.id.recyclerViewPreparingReservation);
-
-        mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
-        mySwipeRefreshLayout.setOnRefreshListener(this);
 
         auth = FirebaseAuth.getInstance();
 
@@ -105,7 +102,8 @@ public class PreparingReservationFragment extends Fragment
     }
 
     private void initializeRecyclerViewReservation() {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationPreparingList);
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationPreparingList,
+                this, false);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
@@ -123,7 +121,7 @@ public class PreparingReservationFragment extends Fragment
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
-        if (viewHolder instanceof RecyclerViewAdapterReservation.ViewHolder) {
+        if (viewHolder instanceof RecyclerViewAdapterReservation.ReservationViewHolder) {
 
             String name = reservationPreparingList.get(viewHolder.getAdapterPosition()).getNamePerson();
             final String Uid = preferences.getString("Uid", " ");
@@ -168,7 +166,7 @@ public class PreparingReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setRestaurantId(auth.getCurrentUser().getUid());
         res.setNamePerson(reservationInfo.getNamePerson());
-        res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setOrderList(reservationInfo.getOrderList());
         res.setcLatitude(reservationInfo.getcLatitude());
         res.setcLongitude(reservationInfo.getcLongitude());
         res.setTimeReservation(reservationInfo.getTimeReservation());
@@ -181,8 +179,7 @@ public class PreparingReservationFragment extends Fragment
     }
 
     @Override
-    public void onRefresh() {
-        //TODO: myUpdateOP.
-        mySwipeRefreshLayout.setRefreshing(false);
+    public void reservationClickListener(int position) {
+
     }
 }
