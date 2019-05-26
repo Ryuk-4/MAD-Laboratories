@@ -136,6 +136,39 @@
                     android:nestedScrollingEnabled="false" />
 
                 <ProgressBar
+                    android:id="@+id/progress_bar_suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="center"
+                    android:indeterminate="true"
+                    android:visibility="visible" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="6dp"
+                android:text="@string/your_favorite"
+                android:textColor="@android:color/black" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvFavorite"
+                    android:layout_width="match_parent"
+                    android:layout_height="240dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="6dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <ProgressBar
                     android:id="@+id/progress_bar_favorite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

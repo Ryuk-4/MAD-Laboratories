@@ -1,7 +1,9 @@
 package it.polito.mad.customer;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.support.design.card.MaterialCardView;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -48,6 +53,19 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
 
         viewHolder.name.setText(restaurantInfoList.get(i).getName());
         viewHolder.review.setText(restaurantInfoList.get(i).getVotesString());
+
+
+        viewHolder.star.setTag(restaurantInfoList.get(i).getId());
+        if (restaurantInfoList.get(i).isFavorite())
+        {
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap();
+            ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
+        } else
+        {
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
+            ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
+        }
+
 
         for (String s : typeFood)
         {
@@ -135,6 +153,7 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         LinearLayout type;
         MaterialCardView cv;
         RatingBar ratingBar;
+        CircularImageView star;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -145,7 +164,27 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
             type = itemView.findViewById(R.id.restaurant_type);
             cv = itemView.findViewById(R.id.cv_suggested_card);
             ratingBar = itemView.findViewById(R.id.ratingBar);
+            star = itemView.findViewById(R.id.star);
 
+            star.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
+                    Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
+                    String restId = v.getTag().toString();
+
+                    if(bitmap == bitmap2)
+                    {
+                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap());
+                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
+                    } else
+                    {
+                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap());
+                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
+
+                    }
+                }
+            });
 
             cv.setOnClickListener(this);
         }

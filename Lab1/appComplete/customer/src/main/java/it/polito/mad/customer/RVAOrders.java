@@ -116,7 +116,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(50, 0, 0, 0);
+            ll.setPadding(100, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
             quantity.setText(productQuantity.get(s).toString());

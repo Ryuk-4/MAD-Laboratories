@@ -89,6 +89,7 @@
 
     <string name="category_pending_order">PENDING</string>
     <string name="category_completed_order">COMPLETED</string>
+    <string name="your_favorite">Your Favorite</string>
 
 
     <string-array name="time_orders">

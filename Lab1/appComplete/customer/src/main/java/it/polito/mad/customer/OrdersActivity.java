@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +41,7 @@ public class OrdersActivity
     private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
     private myFragmentPageAdapterOrders adapter;
     private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
 
 
     @Override
@@ -48,9 +51,12 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -61,9 +67,12 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -230,7 +239,7 @@ public class OrdersActivity
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
-                ((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
+                //((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
                 //viewPager.invalidate();
             }
 
@@ -249,5 +258,24 @@ public class OrdersActivity
     @Override
     public void onFragmentInteractionPending(Uri uri) {
 
+    }
+
+    private void initBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId())
+                {
+                    case R.id.pending_orders:
+                        viewPager.setCurrentItem(0);
+                        break;
+                    case R.id.completed_orders:
+                        viewPager.setCurrentItem(1);
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 }

@@ -90,8 +90,19 @@
             </LinearLayout>
         </LinearLayout>
 
+        <com.mikhaellopez.circularimageview.CircularImageView
+            android:id="@+id/star"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="217dp"
+            android:layout_marginTop="134dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/baseline_star_border_black_24" />
+
 
     </android.support.design.card.MaterialCardView>
+
+
 
 
 </FrameLayout>

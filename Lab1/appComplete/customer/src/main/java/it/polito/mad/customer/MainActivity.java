@@ -72,18 +72,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<String> foodSelected;
     private FirebaseAuth auth;
     private ImageButton buttonSearch;
-    private RecyclerView rvSuggested, rvNormal;
+    private RecyclerView rvSuggested, rvNormal, rvFavorite;
     private RVASuggestedRestaurant myAdapterSuggested;
     private RVANormalRestaurant myAdapterNormal;
+    private RVAFavoriteRestaurant myAdapterFavorite;
     private AutoCompleteTextView textSearch;
     private Toolbar toolbar;
     public boolean updating = false;
     private FusedLocationProviderClient fusedLocationClient;
     private MyCustomLocation userLocation = null;
-    private ProgressBar progressBar1, progressBar2;
+    private ProgressBar progressBar1, progressBar2, progressBar3;
     private Set<String> keyList;
     private View coordinator;
     private TextView textLocation;
+    private List<String> favRestaurantId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,13 +143,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initDrawer();
 
-        manageUserLocation();
-
         initializeCardLayout();
 
+        manageUserLocation();
+
         StatusBarUtil.setTransparent(this);
-
-
     }
 
     private void initToolbar() {
@@ -325,10 +325,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar = (Toolbar) findViewById(R.id.toolbar_restaurant);
         progressBar1 = findViewById(R.id.progress_bar_favorite);
         progressBar2 = findViewById(R.id.progress_bar_normal);
+        progressBar3 = findViewById(R.id.progress_bar_suggestion);
         textLocation = findViewById(R.id.customer_location);
 
         progressBar1.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.VISIBLE);
+        progressBar3.setVisibility(View.VISIBLE);
     }
 
     private void initDrawer() {
@@ -345,6 +347,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeCardLayout() {
         initializeCardLayoutSuggestedRestaurant();
         initializeCardLayoutNormalRestaurant();
+        initializeCardLayoutFavoriteRestaurant();
+    }
+
+    private void initializeCardLayoutFavoriteRestaurant() {
+        rvFavorite = (RecyclerView) findViewById(R.id.rvFavorite);
+        rvFavorite.setHasFixedSize(false);
+
+        LinearLayoutManager llm = new LinearLayoutManager(this);
+        rvFavorite.setLayoutManager(llm);
+
+        myAdapterFavorite = new RVAFavoriteRestaurant(this, this);
+        rvFavorite.setAdapter(myAdapterFavorite);
     }
 
     //sign out method
@@ -411,107 +425,145 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             myAdapterSuggested.clearAll();
         }
 
-        //update list of normal restaurant
-        final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), RADIUS);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+        if (myAdapterFavorite.getItemCount() != 0)
+        {
+            myAdapterFavorite.clearAll();
+        }
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant");
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onKeyEntered(String key, GeoLocation location) {
-                keyList.add(key);
-            }
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                favRestaurantId = new ArrayList<>();
 
-            @Override
-            public void onKeyExited(String key) {
-
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                ValueEventListener valueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                        progressBar2.setVisibility(View.GONE);
-                        progressBar1.setVisibility(View.GONE);
-                        Object o = dataSnapshot.child("Profile").child("name").getValue();
-                        String name = "";
-                        if (o != null)
-                        {
-                            name = o.toString();
-                        }
-
-                        o = dataSnapshot.child("Profile").child("imgUrl").getValue();
-                        String photo = "";
-
-                        if (o != null)
-                        {
-                            photo = o.toString();
-                        }
-
-                        o = dataSnapshot.child("Profile").child("description").getValue();
-                        String description = "";
-
-                        if (o != null)
-                        {
-                            description = o.toString();
-                        }
-
-                        String id = dataSnapshot.getKey();
-
-                        int[] votes;
-                        int nVotes = 0;
-                        votes = new int[5];
-
-                        for (int i = 0 ; i < 5 ; i++)
-                        {
-                            o = dataSnapshot.child("review").child((i+1)+"star").getValue();
-
-                            if (o != null)
-                            {
-                                votes[i] = Integer.parseInt(o.toString());
-                                nVotes+=votes[i];
-                            }
-                        }
-
-                        List<String> typeFood = new ArrayList<>();
-                        for (DataSnapshot ds1 : dataSnapshot.child("type_food").getChildren())
-                        {
-                            Object obj = ds1.getValue();
-                            if (obj != null)
-                                typeFood.add(obj.toString());
-                        }
-                        myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
-                        myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo));
-
-                        myAdapterNormal.notifyDataSetChanged();
-                        myAdapterSuggested.notifyDataSetChanged();
-
-                        updating = false;
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                };
-
-                for (String key : keyList)
+                for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(key);
-                    databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                    favRestaurantId.add(ds.getKey());
                 }
 
+                final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), RADIUS);
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        keyList.add(key);
+                    }
+
+                    @Override
+                    public void onKeyExited(String key) {
+
+                    }
+
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+                        ValueEventListener valueEventListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                progressBar3.setVisibility(View.GONE);
+                                progressBar2.setVisibility(View.GONE);
+                                progressBar1.setVisibility(View.GONE);
+                                Object o = dataSnapshot.child("Profile").child("name").getValue();
+                                String name = "";
+                                if (o != null)
+                                {
+                                    name = o.toString();
+                                }
+
+                                o = dataSnapshot.child("Profile").child("imgUrl").getValue();
+                                String photo = "";
+
+                                if (o != null)
+                                {
+                                    photo = o.toString();
+                                }
+
+                                o = dataSnapshot.child("Profile").child("description").getValue();
+                                String description = "";
+
+                                if (o != null)
+                                {
+                                    description = o.toString();
+                                }
+
+                                String id = dataSnapshot.getKey();
+
+                                int[] votes;
+                                int nVotes = 0;
+                                votes = new int[5];
+
+                                for (int i = 0 ; i < 5 ; i++)
+                                {
+                                    o = dataSnapshot.child("review").child((i+1)+"star").getValue();
+
+                                    if (o != null)
+                                    {
+                                        votes[i] = Integer.parseInt(o.toString());
+                                        nVotes+=votes[i];
+                                    }
+                                }
+
+                                List<String> typeFood = new ArrayList<>();
+                                for (DataSnapshot ds1 : dataSnapshot.child("type_food").getChildren())
+                                {
+                                    Object obj = ds1.getValue();
+                                    if (obj != null)
+                                        typeFood.add(obj.toString());
+                                }
+
+                                if (favRestaurantId.contains(id))
+                                {
+                                    myAdapterFavorite.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, true), myAdapterFavorite.getItemCount());
+                                    myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, true), myAdapterNormal.getItemCount());
+                                    myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, true));
+                                } else
+                                {
+                                    myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false), myAdapterNormal.getItemCount());
+                                    myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false));
+                                }
+
+
+
+
+                                myAdapterNormal.notifyDataSetChanged();
+                                myAdapterSuggested.notifyDataSetChanged();
+                                myAdapterFavorite.notifyDataSetChanged();
+
+                                updating = false;
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        };
+
+                        for (String key : keyList)
+                        {
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(key);
+                            databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                        }
+
+                    }
+
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
-            public void onGeoQueryError(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
+
+
     }
 
     @Override
@@ -622,7 +674,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         if (name.toUpperCase().contains(nameRestaurant.toUpperCase()) || nameRestaurant.compareTo("") == 0)
         {
-            myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+            if (favRestaurantId.contains(id))
+                myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, true), myAdapterNormal.getItemCount());
+            else
+                myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false), myAdapterNormal.getItemCount());
+
         } else
         {
             for (String s : typeFood)
@@ -636,7 +692,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 if (j != typeOfFood.size())
                 {
-                    myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo), myAdapterNormal.getItemCount());
+                    if (favRestaurantId.contains(id))
+                        myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, true), myAdapterNormal.getItemCount());
+                    else
+                        myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false), myAdapterNormal.getItemCount());
+
                     break;
                 }
             }

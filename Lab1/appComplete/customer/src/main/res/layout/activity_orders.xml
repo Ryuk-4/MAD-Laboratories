@@ -18,24 +18,6 @@
             android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs_orders"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/tabInComingOrders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PENDING" />
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/tabInPreparationOrders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="COMPLETED" />
-
-        </android.support.design.widget.TabLayout>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -43,7 +25,17 @@
         android:id="@+id/containerTabsOrders"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="104dp"
+        android:layout_marginTop="54dp"
         android:background="@color/light_background_color" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:itemIconTint="@color/colorPrimary"
+        app:itemTextColor="@color/colorPrimary"
+        app:menu="@menu/bottom_navigation_menu_orders" />
 
 </android.support.design.widget.CoordinatorLayout>

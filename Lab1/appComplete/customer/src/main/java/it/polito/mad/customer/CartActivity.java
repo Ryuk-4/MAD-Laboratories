@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Parcel;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -34,9 +35,12 @@ import android.widget.Toast;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -308,7 +312,16 @@ public class CartActivity extends AppCompatActivity{
 
                 List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
+                SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+                String lat = sharedPreferences.getString("lat", "0.0");
+                String lon = sharedPreferences.getString("lon", "0.0");
+
+                //TODO check the values to define the proper value
+                RectangularBounds bounds = RectangularBounds.newInstance(
+                        new LatLng(Double.parseDouble(lat)-0.03, Double.parseDouble(lon)-0.03),
+                        new LatLng(Double.parseDouble(lat)+0.03, Double.parseDouble(lon)+0.03));
+
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).setLocationRestriction(bounds).build(CartActivity.this);
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
             }
         });
