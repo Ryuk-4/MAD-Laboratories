@@ -154,7 +154,9 @@ public class ProfileActivity extends AppCompatActivity
         if (id == R.id.nav_reservation) {
             finish();
         } else if (id == R.id.nav_dailyMenu) {
-            Intent intent = new Intent(this, ReportActivity.class);
+            //Intent intent = new Intent(this, ReportActivity.class);
+            Intent intent = new Intent(this, DailyOfferActivity.class);
+
             startActivity(intent);
             finish();
         } else if (id == R.id.nav_share) {

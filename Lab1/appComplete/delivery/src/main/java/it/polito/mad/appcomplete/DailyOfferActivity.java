@@ -82,7 +82,7 @@ public class DailyOfferActivity
 
 
         //Show the UP button in the action bar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
         //ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -164,7 +164,8 @@ public class DailyOfferActivity
 
         return super.onPrepareOptionsMenu(menu);
     }
-/*    @Override
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -184,7 +185,7 @@ public class DailyOfferActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }*/
+    }
 /*
     private void initializeCardLayout() {
         LinearLayoutManager llm = new LinearLayoutManager(this);

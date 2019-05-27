@@ -319,8 +319,9 @@ public class ReservationActivity extends AppCompatActivity
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_dailyMenu) {
-            //Intent intent = new Intent(this, DailyOfferActivity.class);
-            //startActivity(intent);
+            Intent intent = new Intent(ReservationActivity.this, ReportActivity.class);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {

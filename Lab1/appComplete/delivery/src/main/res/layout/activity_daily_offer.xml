@@ -20,7 +20,7 @@
             android:id="@+id/textViewTotalDistance"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
-            android:hint="@string/firstPhone"
+            android:hint="daily offer"
             android:textSize="21sp">
         </TextView>
 
