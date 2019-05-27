@@ -1,4 +1,4 @@
-/*
+
 package it.polito.mad.appcomplete;
 
 import android.content.Context;
@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -44,8 +45,6 @@ import java.util.List;
 public class DailyOfferActivity
         extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        RVAdapter.OnFoodListener,
-        RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener,
         RestaurantLoginActivity.RestaurantLoginInterface{
 
     private static final String TAG = "DailyOfferActivity";
@@ -65,33 +64,43 @@ public class DailyOfferActivity
 
     private Menu mMenu;
 
+
+    TextView TextViewTotalDistance;
+    TextView TextViewIncome;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawer_menu_daily_offer);
-        Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_daily_offer);
+        Log.w(TAG, "1 " );
+
+        //Toolbar toolbar = findViewById(R.id.toolbarDailyOffer);
+        ///setSupportActionBar(toolbar);
+
+         TextViewTotalDistance = findViewById(R.id.textViewTotalDistance);
+         TextViewIncome = findViewById(R.id.TextViewIncome);
+
 
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout_daily_menu);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        //ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+            //    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        //drawer.addDrawerListener(toggle);
+        //toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        rv = (RecyclerView) findViewById(R.id.rv);
-        rv.setHasFixedSize(true);
+       // rv = (RecyclerView) findViewById(R.id.rv);
+       // rv.setHasFixedSize(true);
 
-        materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
-        floatingActionButton1 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
-        floatingActionButton2 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+       // materialDesignFAM = (FloatingActionMenu) findViewById(R.id.material_design_android_floating_action_menu);
+        //floatingActionButton1 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
+        //floatingActionButton2 = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
 
-        floatingActionButton1.setOnClickListener(new View.OnClickListener() {
+        /*floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
                 startActivity(intent);
@@ -102,7 +111,7 @@ public class DailyOfferActivity
                 Intent intent = new Intent(DailyOfferActivity.this, DailyOfferFavoriteActivity.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
 
@@ -155,7 +164,7 @@ public class DailyOfferActivity
 
         return super.onPrepareOptionsMenu(menu);
     }
-    @Override
+/*    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -175,8 +184,8 @@ public class DailyOfferActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
+    }*/
+/*
     private void initializeCardLayout() {
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
@@ -188,7 +197,7 @@ public class DailyOfferActivity
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperFood(0, ItemTouchHelper.LEFT, this);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(rv);
 
-    }
+    }*/
 
     private void initializeData(){
         database = FirebaseDatabase.getInstance().getReference();
@@ -200,7 +209,7 @@ public class DailyOfferActivity
         branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                foodList = new ArrayList<>();
+         /*       foodList = new ArrayList<>();
 
                 for (DataSnapshot data :  dataSnapshot.getChildren()){
                     FoodInfo value = data.getValue(FoodInfo.class);
@@ -209,7 +218,7 @@ public class DailyOfferActivity
                     foodList.add(restoreItem(value));
                 }
 
-                initializeCardLayout();
+                initializeCardLayout();*/
             }
 
             @Override
@@ -219,6 +228,7 @@ public class DailyOfferActivity
         });
     }
 
+/*
     public FoodInfo restoreItem(FoodInfo foodInfo){
         FoodInfo res = new FoodInfo();
 
@@ -231,6 +241,7 @@ public class DailyOfferActivity
 
         return res;
     }
+*/
 
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -255,7 +266,7 @@ public class DailyOfferActivity
         return true;
     }
 
-    @Override
+/*    @Override
     public void OnFoodClickFood(int position) {
 
         Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
@@ -263,9 +274,9 @@ public class DailyOfferActivity
         intent.putExtra("food_position", foodList.get(position).getFoodId());
 
         startActivity(intent);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
         if (viewHolder instanceof RVAdapter.FoodInfoHolder) {
             String name = foodList.get(viewHolder.getAdapterPosition()).getName();
@@ -293,7 +304,7 @@ public class DailyOfferActivity
             snackbar.show();
 
         }
-    }
+    }*/
 
     @Override
     public void onBackPressed() {
@@ -331,4 +342,4 @@ public class DailyOfferActivity
 
 
 
-*/
+
