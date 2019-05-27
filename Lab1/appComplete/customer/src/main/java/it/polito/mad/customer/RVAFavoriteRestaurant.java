@@ -56,11 +56,11 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
         viewHolder.star.setTag(restaurantInfoList.get(i).getId());
         if (restaurantInfoList.get(i).isFavorite())
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap();
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap();
             ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
         } else
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
             ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
         }
 
@@ -97,11 +97,14 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
         restaurantInfoList = new ArrayList<>();
     }
 
-    public void removeItem(int position) {
-        restaurantInfoList.remove(position);
-        // notify the item removed by position
-        // to perform recycler view delete animations
-        notifyItemRemoved(position);
+    public void removeItem(RestaurantInfo position) {
+        for (RestaurantInfo restaurantInfo : restaurantInfoList)
+        {
+            if (restaurantInfo.getId().compareTo(position.getId()) == 0)
+            {
+                restaurantInfoList.remove(position);
+            }
+        }
     }
 
 
@@ -139,16 +142,16 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
                 @Override
                 public void onClick(View v) {
                     Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
-                    Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
+                    Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
                     String restId = v.getTag().toString();
 
                     if(bitmap == bitmap2)
                     {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap());
+                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap());
                         FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
                     } else
                     {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap());
+                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
                         FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
 
                     }

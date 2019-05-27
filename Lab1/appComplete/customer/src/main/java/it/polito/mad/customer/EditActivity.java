@@ -307,7 +307,7 @@ public class EditActivity extends AppCompatActivity{
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    photo = rotateImageIfRequired(photo, contentURI);
+                    //photo = rotateImageIfRequired(photo, contentURI);
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);

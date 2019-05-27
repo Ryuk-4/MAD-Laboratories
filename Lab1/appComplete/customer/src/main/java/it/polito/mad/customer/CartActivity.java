@@ -1,21 +1,13 @@
 package it.polito.mad.customer;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
-import android.os.Parcel;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,35 +17,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -73,6 +53,8 @@ public class CartActivity extends AppCompatActivity{
     private Spinner spinnerTime;
     //private EditText orderAddress;
     private String restName;
+    private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,17 +74,17 @@ public class CartActivity extends AppCompatActivity{
         initSystem();
     }
 
+    /**
+     *  initializes all the CartActivity
+     */
     private void initSystem() {
-        Toolbar toolbar = findViewById(R.id.toolbar_cart);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         initLayoutReferences();
+
+        setupActionBar();
 
         int partial = createCart();
 
-        totalAmount.setText(Integer.toString(partial)+"€");
+        totalAmount.setText(String.format("%s€", Integer.toString(partial)));
 
         setTextviewLocation();
 
@@ -110,6 +92,11 @@ public class CartActivity extends AppCompatActivity{
 
         //StatusBarUtil.setTransparent(this);
         StatusBarUtil.setColor(this, this.getColor(R.color.colorPrimary));
+    }
+
+    private void setupActionBar() {
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private int createCart() {
@@ -126,51 +113,48 @@ public class CartActivity extends AppCompatActivity{
 
     private void getInfoFromExtra() {
         Bundle bundle = getIntent().getExtras();
-        list = bundle.getParcelableArrayList("data");
-        restId = bundle.getString("restId");
-        restName = bundle.getString("restName");
 
-        Log.d("TAG", "getInfoFromExtra: "+restName);
+        if (bundle != null)
+        {
+            list = bundle.getParcelableArrayList("data");
+            restId = bundle.getString("restId");
+            restName = bundle.getString("restName");
+        }
     }
 
+    @SuppressLint("ApplySharedPref")
     private void addListenerToButtons() {
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String orderId = saveOrderToRestaurant();
-                saveOrderToCustomer(orderId);
+        buttonSend.setOnClickListener(v -> {
+            String orderId = saveOrderToRestaurant();
+            saveOrderToCustomer(orderId);
 
-                setResult(RESULT_OK);
-                finish();
-            }
+            setResult(RESULT_OK);
+            finish();
         });
 
-        buttonDiscard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+        buttonDiscard.setOnClickListener(v -> {
+            SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
 
-                sharedPreferences.edit().clear().commit();
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+            sharedPreferences.edit().clear().commit();
+            setResult(RESULT_CANCELED);
+            finish();
         });
 
-        imageLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!Places.isInitialized()) {
-                    Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
-                }
-
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+        imageLocation.setOnClickListener(v -> {
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
             }
+
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
         });
     }
 
+    /**
+     *  get all the references from the layout
+     */
     private void initLayoutReferences() {
         cart = findViewById(R.id.customer_cart);
         totalAmount = findViewById(R.id.total_amount);
@@ -179,7 +163,7 @@ public class CartActivity extends AppCompatActivity{
         buttonDiscard = findViewById(R.id.button_discard);
         userLocation = findViewById(R.id.user_location);
         imageLocation = findViewById(R.id.image_location);
-        //orderAddress = findViewById(R.id.order_address);
+        toolbar = findViewById(R.id.toolbar_cart);
     }
 
     private int addFoodOrder(int partial, OrderRecap orderRecap) {
@@ -199,13 +183,13 @@ public class CartActivity extends AppCompatActivity{
         tvName.setTextSize(22);
         tvName.setTypeface(null, Typeface.BOLD);
         TextView tvQuantity = new TextView(this);
-        tvQuantity.setText(quantity+"pcs");
+        tvQuantity.setText(String.format("%spcs", quantity));
         tvQuantity.setTextSize(18);
         tvQuantity.setPadding(20, 0, 0, 0);
         TextView tvPrice = new TextView(this);
-        tvPrice.setText(quantity+"x"+price+"€");
+        tvPrice.setText(String.format("%sx%s€", quantity, price));
         tvPrice.setTextSize(18);
-        tvPrice.setGravity(Gravity.RIGHT);
+        tvPrice.setGravity(Gravity.END);
         tvPrice.setPadding(0, 0, 10, 0);
 
         View v = new View(this);
@@ -240,11 +224,11 @@ public class CartActivity extends AppCompatActivity{
         }
 
         databaseReference.child("idPerson").setValue(FirebaseAuth.getInstance().getUid());
-        databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        //databaseReference.child("personOrder").setValue(totalOrder.toString());
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
-        //databaseReference.child("addressOrder").setValue(orderAddress.getText().toString());
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
 
         SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
         String lat = sharedPreferences.getString("lat", "");

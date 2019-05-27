@@ -119,7 +119,8 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_marginBottom="54dp"/>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_view"

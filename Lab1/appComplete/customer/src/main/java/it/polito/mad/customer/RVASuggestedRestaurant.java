@@ -31,12 +31,15 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
     private Context myContext;
     private List<RestaurantInfo> restaurantInfoList;
     private OnRestaurantListener onRestaurantListener;
+    private RVAFavoriteRestaurant rvaFavoriteRestaurant;
+    private RVANormalRestaurant rvaNormalRestaurant;
     private final int MAX_NUMBER_SUGGESTED = 10;
 
-    public RVASuggestedRestaurant(Context myContext, OnRestaurantListener restaurantListener){
+    public RVASuggestedRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant){
         this.myContext = myContext;
         this.restaurantInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
+        this.rvaFavoriteRestaurant = rvaFavoriteRestaurant;
     }
 
     @Override
@@ -58,13 +61,15 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         viewHolder.star.setTag(restaurantInfoList.get(i).getId());
         if (restaurantInfoList.get(i).isFavorite())
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap();
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap();
             ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
         } else
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
+            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
             ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
         }
+
+        viewHolder.star.setOnClickListener(new customOnClick(restaurantInfoList.get(i)));
 
 
         for (String s : typeFood)
@@ -143,6 +148,30 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         // notify item added by position
     }
 
+    public void addAdapter(RVANormalRestaurant myAdapterNormal) {
+        rvaNormalRestaurant = myAdapterNormal;
+    }
+
+    public void setItemFavorite(String id) {
+        for (RestaurantInfo restaurantInfo : restaurantInfoList)
+        {
+            if (restaurantInfo.getId().compareTo(id) == 0)
+            {
+                restaurantInfo.setFavorite(true);
+            }
+        }
+    }
+
+    public void setItemNotFavorite(String id) {
+        for (RestaurantInfo restaurantInfo : restaurantInfoList)
+        {
+            if (restaurantInfo.getId().compareTo(id) == 0)
+            {
+                restaurantInfo.setFavorite(false);
+            }
+        }
+    }
+
 
     // inner clas to manage the view
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener { //implements View.OnClickListener {
@@ -166,26 +195,6 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
             ratingBar = itemView.findViewById(R.id.ratingBar);
             star = itemView.findViewById(R.id.star);
 
-            star.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
-                    Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap();
-                    String restId = v.getTag().toString();
-
-                    if(bitmap == bitmap2)
-                    {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_24)).getBitmap());
-                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
-                    } else
-                    {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_24)).getBitmap());
-                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
-
-                    }
-                }
-            });
-
             cv.setOnClickListener(this);
         }
 
@@ -205,5 +214,41 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         }
 
         return total/nVotes;
+    }
+
+    class customOnClick implements View.OnClickListener
+    {
+        private RestaurantInfo restaurantInfo;
+
+        customOnClick(RestaurantInfo restaurantInfo)
+        {
+           this.restaurantInfo = restaurantInfo;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
+            Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
+            String restId = v.getTag().toString();
+
+            if(bitmap == bitmap2)
+            {
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap());
+                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
+                restaurantInfo.setFavorite(true);
+                rvaFavoriteRestaurant.restoreItem(restaurantInfo, rvaFavoriteRestaurant.getItemCount());
+                rvaNormalRestaurant.setItemFavorite(restaurantInfo.getId());
+            } else
+            {
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
+                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
+                restaurantInfo.setFavorite(false);
+                rvaFavoriteRestaurant.removeItem(restaurantInfo);
+                rvaNormalRestaurant.setItemNotFavorite(restaurantInfo.getId());
+            }
+
+            rvaFavoriteRestaurant.notifyDataSetChanged();
+            rvaNormalRestaurant.notifyDataSetChanged();
+        }
     }
 }

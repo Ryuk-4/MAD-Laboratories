@@ -39,6 +39,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
@@ -139,7 +141,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
 
-
+/*
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
         {
             Button button = new Button(myContext);
@@ -150,6 +152,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
             viewHolder.foodOrderList.addView(button);
         }
+        */
 
         if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
         {
@@ -166,14 +169,14 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                     LayoutInflater li = LayoutInflater.from(myContext);
                     View view = li.inflate(R.layout.activity_review, null);
 
-                    Button b = view.findViewById(R.id.button);
-                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId));
-
                     final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
                     alertDialogBuilder.setView(view);
 
                     AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
-                    //alertDialogCongratulations.setCanceledOnTouchOutside(false);
+
+                    Button b = view.findViewById(R.id.button);
+                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId, alertDialogCongratulations));
+
                     alertDialogCongratulations.show();
                 }
             });
@@ -376,28 +379,36 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         private View view;
         private String orderId;
         private String restId;
+        private AlertDialog alertDialog;
+        private String title;
+        private String description;
+        private int rating;
 
-        CustomReviewClickListener(View view, String orderId, String restId)
+        CustomReviewClickListener(View view, String orderId, String restId, AlertDialog alertDialog)
         {
            this.view = view;
            this.restId = restId;
            this.orderId = orderId;
+           this.alertDialog = alertDialog;
         }
+
         @Override
         public void onClick(View v) {
             RatingBar ratingBar = view.findViewById(R.id.ratingBar);
             EditText textTitle = view.findViewById(R.id.textTitle);
             EditText textDescription = view.findViewById(R.id.textDescription);
 
-            String title = textTitle.getText().toString();
-            String description = textDescription.getText().toString();
-            final int rating = (int) ratingBar.getRating();
+            title = textTitle.getText().toString();
+            description = textDescription.getText().toString();
+            rating = (int) ratingBar.getRating();
 
             //Log.d("TAG", "onClick: "+rating);
 
             addNewReview(title, description, rating);
             incrementStarReview(rating);
             setOrderReviewed();
+
+            alertDialog.cancel();
         }
 
         private void setOrderReviewed() {
@@ -407,19 +418,57 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
         private void incrementStarReview(final int rating) {
-            DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star");
-            databaseReference1.addListenerForSingleValueEvent(new ValueEventListener() {
+            DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review");
+
+            databaseReference1.runTransaction( new Transaction.Handler(){
+
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Log.d("TAG", "onDataChange: ");
-                    int value = Integer.parseInt(dataSnapshot.getValue().toString());
-                    value++;
-                    FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star").setValue(value);
+                public Transaction.Result doTransaction(MutableData currentData){
+                    double nVotes=0, nStars=0;
+                    for (int i = 1 ; i <= 5 ; i++)
+                    {
+                        Object o = currentData.child(i+"star").getValue();
+
+                        if (o != null)
+                        {
+                            nVotes += Double.parseDouble(o.toString());
+                            nStars += (Double.parseDouble(o.toString())*i);
+                        }
+
+                        if (i == rating)
+                        {
+                            nVotes++;
+                            nStars += i;
+                        }
+                    }
+
+                    double totalRating;
+                    if (nVotes != 0)
+                    {
+                        totalRating = nStars/nVotes;
+                    } else
+                    {
+                        totalRating = 0;
+                    }
+
+                    FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child("total").setValue(totalRating);
+
+                    Object o = currentData.child(rating+"star").getValue();
+
+                    if (o != null)
+                    {
+                        int value = Integer.parseInt(o.toString());
+                        value++;
+                        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star").setValue(value);
+                    }
+
+                    return Transaction.success(currentData);
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                public void onComplete(DatabaseError databaseError,
+                                       boolean committed, DataSnapshot currentData){
+                    //This method will be called once with the results of the	 		//transaction.
                 }
             });
         }
@@ -436,7 +485,6 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             databaseReference.child("stars").setValue(rating);
             databaseReference.child("date").setValue(formattedDate);
 
-            //TODO add user to be displayed
         }
     }
 }

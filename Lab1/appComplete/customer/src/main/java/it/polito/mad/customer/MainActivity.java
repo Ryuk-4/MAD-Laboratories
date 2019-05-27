@@ -24,11 +24,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +41,11 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -86,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private View coordinator;
     private TextView textLocation;
     private List<String> favRestaurantId;
+    private ImageView locationUserButton;
+    private boolean blocking = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +180,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 onUpdateListNormalFiltered(searchTyped, foodSelected);
             }
         });
+
+        locationUserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Places.isInitialized()) {
+                    Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                }
+
+                blocking = false;
+
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+            }
+        });
     }
 
     private void initAutoCompleteTextSearch() {
@@ -208,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             if (resultCode == RESULT_OK) //the user selected a place
             {
-
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 userLocation = new MyCustomLocation(place.getLatLng().latitude, place.getLatLng().longitude);
 
@@ -220,6 +241,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 textLocation.setText(place.getName());
 
+                initializeCardLayout();
                 initializeData();
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) //some internal error
@@ -227,27 +249,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //TODO implement this case
             } else if (resultCode == RESULT_CANCELED) //the use pressed back
             {
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setTitle("Missing address");
-                alertDialogBuilder.setMessage("Please insert a valid address");
-                alertDialogBuilder.setCancelable(false);
-                alertDialogBuilder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                if (blocking)
+                {
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                    alertDialogBuilder.setTitle("Missing address");
+                    alertDialogBuilder.setMessage("Please insert a valid address");
+                    alertDialogBuilder.setCancelable(false);
+                    alertDialogBuilder.setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                        if (!Places.isInitialized()) {
-                            Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                            if (!Places.isInitialized()) {
+                                Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                            }
+
+                            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
                         }
+                    });
 
-                        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-
-                        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
-                        startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
-                    }
-                });
-
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                } else
+                {
+                    blocking = true;
+                }
             }
         }
     }
@@ -327,6 +355,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressBar2 = findViewById(R.id.progress_bar_normal);
         progressBar3 = findViewById(R.id.progress_bar_suggestion);
         textLocation = findViewById(R.id.customer_location);
+        locationUserButton = findViewById(R.id.image_location);
 
         progressBar1.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.VISIBLE);
@@ -345,9 +374,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initializeCardLayout() {
+        initializeCardLayoutFavoriteRestaurant();
         initializeCardLayoutSuggestedRestaurant();
         initializeCardLayoutNormalRestaurant();
-        initializeCardLayoutFavoriteRestaurant();
+
+        myAdapterSuggested.addAdapter(myAdapterNormal);
+        myAdapterNormal.addAdapter(myAdapterSuggested);
+
     }
 
     private void initializeCardLayoutFavoriteRestaurant() {
@@ -359,6 +392,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         myAdapterFavorite = new RVAFavoriteRestaurant(this, this);
         rvFavorite.setAdapter(myAdapterFavorite);
+
+        LinearLayoutManager horizontalLayoutManagaer = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        rvFavorite.setLayoutManager(horizontalLayoutManagaer);
     }
 
     //sign out method
@@ -396,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rvSuggested.setLayoutManager(llm);
 
-        myAdapterSuggested = new RVASuggestedRestaurant(this, this);
+        myAdapterSuggested = new RVASuggestedRestaurant(this, this, myAdapterFavorite);
         rvSuggested.setAdapter(myAdapterSuggested);
 
         LinearLayoutManager horizontalLayoutManagaer = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
@@ -410,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rvNormal.setLayoutManager(llm);
 
-        myAdapterNormal = new RVANormalRestaurant(this, this);
+        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite);
         rvNormal.setAdapter(myAdapterNormal);
     }
 
@@ -446,6 +482,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
                         keyList.add(key);
+                        Log.d("TAGTAG", "onKeyEntered: ");
                     }
 
                     @Override
@@ -577,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void onUpdateListNormalFiltered(final String nameRestaurant, final List<String> typeOfFood)
     {
-        myAdapterNormal = new RVANormalRestaurant(this, this);
+        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite);
         rvNormal.setAdapter(myAdapterNormal);
 
 
