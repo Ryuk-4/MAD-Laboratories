@@ -339,7 +339,6 @@ public class RestaurantActivity
         } else if (item.getItemId() == android.R.id.home) {
             int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
 
-
             if (nFood != 0) {
                 AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -353,14 +352,12 @@ public class RestaurantActivity
 
                         sharedPreferences.edit().clear().commit();
 
-                        finish();
+                        RestaurantActivity.super.onBackPressed();
                     }
                 });
 
                 pictureDialog.show();
             }
-
-            finish();
         }
 
         return true;

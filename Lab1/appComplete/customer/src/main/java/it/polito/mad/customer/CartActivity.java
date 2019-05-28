@@ -305,7 +305,7 @@ public class CartActivity extends AppCompatActivity{
                         new LatLng(Double.parseDouble(lat)-0.03, Double.parseDouble(lon)-0.03),
                         new LatLng(Double.parseDouble(lat)+0.03, Double.parseDouble(lon)+0.03));
 
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).setLocationRestriction(bounds).build(CartActivity.this);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setLocationRestriction(bounds).build(CartActivity.this);
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
             }
         });

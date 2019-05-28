@@ -521,7 +521,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                Log.d("TAG", "onDataChange: added");
                                 progressBar3.setVisibility(View.GONE);
                                 progressBar2.setVisibility(View.GONE);
                                 progressBar1.setVisibility(View.GONE);

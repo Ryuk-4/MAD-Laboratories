@@ -137,7 +137,7 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
             }
 
             double ratingItem = getRating(item.getVotes(), item.getNumerReview());
-
+            
             if (ratingItem > ratingMin) // replace
             {
                 restaurantInfoList.remove(min_index);
@@ -213,6 +213,10 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         for (int i = 0; i < 5 ; i++)
         {
             total += star[i] * (i+1);
+        }
+
+        if (nVotes == 0) {
+            return 0;
         }
 
         return total/nVotes;
