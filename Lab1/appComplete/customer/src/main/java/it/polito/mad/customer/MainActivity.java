@@ -192,7 +192,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(MainActivity.this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+            }
+        });
+
+        textLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Places.isInitialized()) {
+                    Places.initialize(getApplicationContext(), MainActivity.this.getString(R.string.google_maps_key));
+                }
+
+                blocking = false;
+
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(MainActivity.this);
                 startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
             }
         });
@@ -265,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                             List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(MainActivity.this);
                             startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
                         }
                     });
@@ -332,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         public void onClick(DialogInterface dialog, int which) {
                             List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(MainActivity.this);
+                            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(MainActivity.this);
                             startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
                         }
                     });
@@ -380,6 +396,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         myAdapterSuggested.addAdapter(myAdapterNormal);
         myAdapterNormal.addAdapter(myAdapterSuggested);
+
+        myAdapterFavorite.setAdapterSuggested(myAdapterSuggested);
+        myAdapterFavorite.setAdapterNormal(myAdapterNormal);
 
     }
 
@@ -471,18 +490,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 favRestaurantId = new ArrayList<>();
+                keyList = new TreeSet<>();
 
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     favRestaurantId.add(ds.getKey());
                 }
 
+                Log.d("TAG", "query at location "+userLocation);
                 final GeoQuery geoQuery = new GeoFire(FirebaseDatabase.getInstance().getReference("restaurants_position")).queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), RADIUS);
                 geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                     @Override
                     public void onKeyEntered(String key, GeoLocation location) {
                         keyList.add(key);
-                        Log.d("TAGTAG", "onKeyEntered: ");
                     }
 
                     @Override
@@ -501,6 +521,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                                Log.d("TAG", "onDataChange: added");
                                 progressBar3.setVisibility(View.GONE);
                                 progressBar2.setVisibility(View.GONE);
                                 progressBar1.setVisibility(View.GONE);
@@ -562,13 +583,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     myAdapterNormal.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false), myAdapterNormal.getItemCount());
                                     myAdapterSuggested.restoreItem(new RestaurantInfo(name, nVotes, votes, description, id, typeFood, photo, false));
                                 }
-
-
-
-
-                                myAdapterNormal.notifyDataSetChanged();
-                                myAdapterSuggested.notifyDataSetChanged();
-                                myAdapterFavorite.notifyDataSetChanged();
 
                                 updating = false;
                             }

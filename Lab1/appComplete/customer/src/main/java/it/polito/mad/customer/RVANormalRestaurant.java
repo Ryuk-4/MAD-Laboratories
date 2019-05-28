@@ -48,7 +48,6 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
 
     @Override
     public void onBindViewHolder(@NonNull RVANormalRestaurant.ViewHolder viewHolder, final int i) {
-        //Log.d(TAG, "onBindViewHolder: bind");
         List<String> typeFood = restaurantInfoList.get(i).getTypeOfFood();
 
         viewHolder.name.setText(restaurantInfoList.get(i).getName());
@@ -67,18 +66,21 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
 
         viewHolder.star.setOnClickListener(new customOnClick(restaurantInfoList.get(i)));
 
-        for (String s : typeFood)
+        if (viewHolder.type.getChildCount() == 0)
         {
-            TextView t = new TextView(this.myContext);
-            t.setText(s);
-            t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
-            t.setTypeface(null, Typeface.BOLD);
-            //t.setBackground(this.myContext.getResources().getDrawable(R.drawable.rounded_corner));
-            t.setPadding(10, 10, 10, 10);
+            for (String s : typeFood)
+            {
+                TextView t = new TextView(this.myContext);
+                t.setText(s);
+                t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
+                t.setTypeface(null, Typeface.BOLD);
+                //t.setBackground(this.myContext.getResources().getDrawable(R.drawable.rounded_corner));
+                t.setPadding(10, 10, 10, 10);
 
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, 0, 5, 0);
-            viewHolder.type.addView(t, layoutParams);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMargins(0, 0, 5, 0);
+                viewHolder.type.addView(t, layoutParams);
+            }
         }
 
         viewHolder.photo.setContentDescription(restaurantInfoList.get(i).getId());

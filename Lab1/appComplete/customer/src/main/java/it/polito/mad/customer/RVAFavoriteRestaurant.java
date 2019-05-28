@@ -31,6 +31,8 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
     private List<RestaurantInfo> restaurantInfoList;
     private OnRestaurantListener onRestaurantListener;
     private final int MAX_NUMBER_SUGGESTED = 10;
+    private RVASuggestedRestaurant myAdapterSuggested;
+    private RVANormalRestaurant myAdapterNormal;
 
     public RVAFavoriteRestaurant(Context myContext, OnRestaurantListener restaurantListener){
         this.myContext = myContext;
@@ -47,11 +49,12 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
 
     @Override
     public void onBindViewHolder(@NonNull RVAFavoriteRestaurant.ViewHolder viewHolder, final int i) {
-        Log.d(TAG, "onBindViewHolder: called");
         List<String> typeFood = restaurantInfoList.get(i).getTypeOfFood();
 
         viewHolder.name.setText(restaurantInfoList.get(i).getName());
         viewHolder.review.setText(restaurantInfoList.get(i).getVotesString());
+
+        viewHolder.star.setOnClickListener(new customOnClick(restaurantInfoList.get(i)));
 
         viewHolder.star.setTag(restaurantInfoList.get(i).getId());
         if (restaurantInfoList.get(i).isFavorite())
@@ -64,18 +67,21 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
             ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
         }
 
-        for (String s : typeFood)
+        if (viewHolder.type.getChildCount() == 0)
         {
-            TextView t = new TextView(this.myContext);
-            t.setText(s);
-            //t.setBackgroundColor(this.myContext.getResources().getColor(R.color.colorPrimary));
-            t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
-            t.setTypeface(null, Typeface.BOLD);
-            t.setPadding(10, 10, 10, 10);
+            for (String s : typeFood)
+            {
+                TextView t = new TextView(this.myContext);
+                t.setText(s);
+                //t.setBackgroundColor(this.myContext.getResources().getColor(R.color.colorPrimary));
+                t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
+                t.setTypeface(null, Typeface.BOLD);
+                t.setPadding(10, 10, 10, 10);
 
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, 0, 5, 0);
-            viewHolder.type.addView(t, layoutParams);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMargins(0, 0, 5, 0);
+                viewHolder.type.addView(t, layoutParams);
+            }
         }
 
         viewHolder.photo.setContentDescription(restaurantInfoList.get(i).getId());
@@ -98,20 +104,42 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
     }
 
     public void removeItem(RestaurantInfo position) {
+        int i = 0;
+
         for (RestaurantInfo restaurantInfo : restaurantInfoList)
         {
             if (restaurantInfo.getId().compareTo(position.getId()) == 0)
             {
-                restaurantInfoList.remove(position);
+                restaurantInfoList.remove(i);
+                return;
             }
+
+            i++;
         }
     }
 
 
     public void restoreItem(RestaurantInfo item, int position) {
+        for (RestaurantInfo restaurantInfo : restaurantInfoList)
+        {
+            if (restaurantInfo.getId().compareTo(item.getId())== 0)
+            {
+                restaurantInfo.setFavorite(true);
+                return;
+            }
+        }
+
         restaurantInfoList.add(position, item);
         // notify item added by position
         notifyItemInserted(position);
+    }
+
+    public void setAdapterSuggested(RVASuggestedRestaurant myAdapterSuggested) {
+        this.myAdapterSuggested = myAdapterSuggested;
+    }
+
+    public void setAdapterNormal(RVANormalRestaurant myAdapterNormal) {
+        this.myAdapterNormal = myAdapterNormal;
     }
 
 
@@ -138,27 +166,6 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
             ratingBar = itemView.findViewById(R.id.ratingBar);
             star = itemView.findViewById(R.id.star);
 
-            star.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
-                    Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
-                    String restId = v.getTag().toString();
-
-                    if(bitmap == bitmap2)
-                    {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap());
-                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
-                    } else
-                    {
-                        ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
-                        FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
-
-                    }
-                }
-            });
-
-
             cv.setOnClickListener(this);
         }
 
@@ -178,5 +185,42 @@ public class RVAFavoriteRestaurant extends RecyclerView.Adapter<RVAFavoriteResta
         }
 
         return total/nVotes;
+    }
+
+    class customOnClick implements View.OnClickListener
+    {
+        private RestaurantInfo restaurantInfo;
+
+        customOnClick(RestaurantInfo restaurantInfo)
+        {
+            this.restaurantInfo = restaurantInfo;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
+            Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
+            String restId = v.getTag().toString();
+
+            if(bitmap == bitmap2)
+            {
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap());
+                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
+                restaurantInfo.setFavorite(true);
+                myAdapterNormal.setItemFavorite(restaurantInfo.getId());
+                myAdapterSuggested.setItemFavorite(restaurantInfo.getId());
+
+            } else
+            {
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
+                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
+                restaurantInfo.setFavorite(false);
+                myAdapterNormal.setItemNotFavorite(restaurantInfo.getId());
+                myAdapterSuggested.setItemNotFavorite(restaurantInfo.getId());
+            }
+
+            myAdapterNormal.notifyDataSetChanged();
+            myAdapterSuggested.notifyDataSetChanged();
+        }
     }
 }

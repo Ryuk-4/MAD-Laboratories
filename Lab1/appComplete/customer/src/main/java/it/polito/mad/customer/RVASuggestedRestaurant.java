@@ -33,7 +33,7 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
     private OnRestaurantListener onRestaurantListener;
     private RVAFavoriteRestaurant rvaFavoriteRestaurant;
     private RVANormalRestaurant rvaNormalRestaurant;
-    private final int MAX_NUMBER_SUGGESTED = 10;
+    private final int MAX_NUMBER_SUGGESTED = 2;
 
     public RVASuggestedRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant){
         this.myContext = myContext;
@@ -51,7 +51,6 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, final int i) {
-        Log.d(TAG, "onBindViewHolder: called");
         List<String> typeFood = restaurantInfoList.get(i).getTypeOfFood();
 
         viewHolder.name.setText(restaurantInfoList.get(i).getName());
@@ -72,18 +71,21 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
         viewHolder.star.setOnClickListener(new customOnClick(restaurantInfoList.get(i)));
 
 
-        for (String s : typeFood)
+        if (viewHolder.type.getChildCount() == 0)
         {
-            TextView t = new TextView(this.myContext);
-            t.setText(s);
-            //t.setBackgroundColor(this.myContext.getResources().getColor(R.color.colorPrimary));
-            t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
-            t.setTypeface(null, Typeface.BOLD);
-            t.setPadding(10, 10, 10, 10);
+            for (String s : typeFood)
+            {
+                TextView t = new TextView(this.myContext);
+                t.setText(s);
+                //t.setBackgroundColor(this.myContext.getResources().getColor(R.color.colorPrimary));
+                t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
+                t.setTypeface(null, Typeface.BOLD);
+                t.setPadding(10, 10, 10, 10);
 
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMargins(0, 0, 5, 0);
-            viewHolder.type.addView(t, layoutParams);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMargins(0, 0, 5, 0);
+                viewHolder.type.addView(t, layoutParams);
+            }
         }
 
         viewHolder.photo.setContentDescription(restaurantInfoList.get(i).getId());
