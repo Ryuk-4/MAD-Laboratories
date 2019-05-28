@@ -10,61 +10,32 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:theme="@style/AppTheme.AppBarOverlay">
-<!--
-        android:id="@+id/appbar"
-          android:paddingTop="@dimen/appbar_padding_top"
-          android:layout_weight="1"
-
-            app:layout_scrollFlags="enterAlways"
--->
-
-
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="@string/app_name">
-
         </android.support.v7.widget.Toolbar>
 
-        <!--<android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/tabInComingOrders"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_incoming" />
-
-
-
-            <android.support.design.widget.TabItem
-                android:id="@+id/tabToDelivery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/tab_to_delivery" />
-
-        </android.support.design.widget.TabLayout>-->
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="56dp"
+        android:layout_marginRight="16dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/telephoneLabel"/>
+            android:text="Total Distance:"/>
 
         <TextView
             android:id="@+id/textViewTotalDistance"
@@ -77,29 +48,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/telephoneLabel"/>
+            android:text="Total income:"/>
 
         <TextView
             android:id="@+id/TextViewIncome"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
-            android:hint="@string/firstPhone"
-            android:textSize="21sp">
-        </TextView>
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Total Distance:"/>
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Total income:"/>
-
-
+            android:textSize="21sp"/>
 
     </LinearLayout>
 

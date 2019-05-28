@@ -19,6 +19,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.math.BigDecimal;
+
 public class ReportActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener{
 
@@ -50,6 +52,8 @@ public class ReportActivity extends AppCompatActivity implements
         TextViewTotalDistance = findViewById(R.id.textViewTotalDistance);
         TextViewIncome = findViewById(R.id.TextViewIncome);
 
+        initializeData();
+
     }
 
 
@@ -66,21 +70,15 @@ public class ReportActivity extends AppCompatActivity implements
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
                 float totaldistance= Float.parseFloat( dataSnapshot.child("totaldistance").getValue().toString());
-                TextViewTotalDistance.setText( Float.toString( totaldistance));
+                TextViewTotalDistance.setText( Float.toString( totaldistance)+" km");
 
-                Float income=totaldistance*2;
-                TextViewIncome.setText(Float.toString(income));
+                double paymentPerKm=1.5;
 
-         /*       foodList = new ArrayList<>();
 
-                for (DataSnapshot data :  dataSnapshot.getChildren()){
-                    FoodInfo value = data.getValue(FoodInfo.class);
-                    value.setFoodId(data.getKey());
-
-                    foodList.add(restoreItem(value));
-                }
-
-                initializeCardLayout();*/
+                BigDecimal income=round((float) paymentPerKm*totaldistance,2);
+                //int incomInt=Integer..parseInt(income);
+                //TextViewIncome.setText(Convert.bigdeci .toString(income));
+                TextViewIncome.setText(income.toString()+ " Euro");
             }
 
             @Override
@@ -88,6 +86,13 @@ public class ReportActivity extends AppCompatActivity implements
                 //Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         });
+    }
+
+
+    public static BigDecimal round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd;
     }
 
     @Override
