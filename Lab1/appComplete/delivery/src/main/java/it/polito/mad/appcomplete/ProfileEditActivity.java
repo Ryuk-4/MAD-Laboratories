@@ -162,7 +162,8 @@ public class ProfileEditActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance().getReference();
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
         Uid = preferences.getString("Uid", " ");
-        branchProfile = database.child("delivery").child(Uid).child("Profile");
+        branchProfile = database.child("delivery")
+                .child(Uid).child("Profile");
 
         calendarButton = findViewById(R.id.iconOpenCalendar);
 
@@ -224,12 +225,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         outState.putString("surname", surname_edit.getText().toString());
         //outState.putString("description", description_edit.getText().toString());
-
-        String s=dateOfBirth.getText().toString();
-        int newDay=  Integer.parseInt(s.split("/")[1]);
-        newDay++;
-        String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
-        outState.putString("dateOfBirth",newDate );
+        outState.putString("dateOfBirth", dateOfBirth.getText().toString());
 
         // for sex radio button
         int sexId = radioSex.getCheckedRadioButtonId();
@@ -342,7 +338,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    //photo = rotateImageIfRequired(photo, contentURI);
+                    photo = rotateImageIfRequired(photo, contentURI);
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
@@ -431,13 +427,7 @@ public class ProfileEditActivity extends AppCompatActivity {
             branchProfile.child("email").setValue(email_edit.getText().toString());
             //branchProfile.child("description").setValue(description_edit.getText().toString());
             branchProfile.child("firstTime").setValue(false);
-
-            String s=dateOfBirth.getText().toString();
-            int newDay=  Integer.parseInt(s.split("/")[1]);
-            newDay++;
-            String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
-            branchProfile.child("dateOfBirth").setValue(newDate);
-
+            branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
             branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
             int sexId = radioSex.getCheckedRadioButtonId();

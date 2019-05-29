@@ -244,29 +244,29 @@ public class ProfileActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onDataChange: ");
-                try {
-                    name.setText(dataSnapshot.child("name").getValue().toString());
-                    email.setText(dataSnapshot.child("email").getValue().toString());
 
-                    if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                name.setText(dataSnapshot.child("name").getValue().toString());
+                email.setText(dataSnapshot.child("email").getValue().toString());
 
-                        if (dataSnapshot.child("imgUrl").getValue() != null) {
-                            Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
-                                    .fit().centerCrop().into(im);
-                        }
-                        //address.setText(dataSnapshot.child("address").getValue().toString());
-                        //description.setText(dataSnapshot.child("description").getValue().toString());
-                        phone.setText(dataSnapshot.child("phone").getValue().toString());
-                        //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
 
-                        String surnameEdit = sharedpref.getString("surname", "");
-                        String dateEdit = sharedpref.getString("dateOfBirth", "");
-                        String sexString = sharedpref.getString("sex", "");
-                        dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
-                        surname.setText(dataSnapshot.child("surname").getValue().toString());
-                        sex.setText(dataSnapshot.child("sex").getValue().toString());
+                    if (dataSnapshot.child("imgUrl").getValue() != null){
+                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                .fit().centerCrop().into(im);
                     }
-                    }catch (Exception e){}
+                    //address.setText(dataSnapshot.child("address").getValue().toString());
+                    //description.setText(dataSnapshot.child("description").getValue().toString());
+                    phone.setText(dataSnapshot.child("phone").getValue().toString());
+                    //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+
+                    String surnameEdit = sharedpref.getString("surname", "");
+                    String dateEdit = sharedpref.getString("dateOfBirth", "");
+                    String sexString = sharedpref.getString("sex", "");
+                    dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
+                    surname.setText(dataSnapshot.child("surname").getValue().toString());
+                    sex.setText(dataSnapshot.child("sex").getValue().toString());
+                }
+
             }
 
             @Override
