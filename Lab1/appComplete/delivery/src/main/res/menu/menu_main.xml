@@ -2,6 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="it.polito.mad.appcomplete.ProfileActivity">
+
+    <item
+        android:id="@+id/enable_disable_position"
+        android:icon="@android:drawable/ic_media_play"
+        android:title="Start"
+        android:visible="true"
+        app:showAsAction="always" />
     <item
         android:id="@+id/new_order_incoming"
         android:title="@string/new_order"
@@ -12,9 +19,7 @@
         android:id="@+id/edit_action"
         android:title="@string/edit_action"
         android:orderInCategory="1"
-        android:icon="@drawable/edit_button_image"
-        android:visible="true"
-        app:showAsAction="always" />
+        android:icon="@drawable/edit_button_image" />
 
     <item
         android:id="@+id/logoutButton"
