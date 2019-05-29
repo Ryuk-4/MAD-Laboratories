@@ -35,7 +35,7 @@
 
                 <RatingBar
                     android:id="@+id/restRatingBar"
-                    style="?android:attr/ratingBarStyleSmall"
+                    style="@android:style/Widget.DeviceDefault.Light.RatingBar.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -44,7 +44,7 @@
                     android:stepSize="0.5"
                     android:scaleX="1.2"
                     android:scaleY="1.2"
-                    android:theme="@style/RatingBar" />
+                    android:theme="@style/RatingBar"/>
 
                 <TextView
                     android:id="@+id/dateReview"

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -19,7 +18,6 @@ import android.view.ViewGroup;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -27,9 +25,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class IncomingReservationFragment extends Fragment
-        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener,
-        RecyclerViewAdapterReservation.OnReservationClickListener{
+        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener{
 
     private static final String TAG = "IncomingReservation";
 
@@ -39,7 +38,7 @@ public class IncomingReservationFragment extends Fragment
 
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
-    private DatabaseReference database;
+//    private DatabaseReference database;
 
     public IncomingReservationFragment() {
         // Required empty public constructor
@@ -56,15 +55,17 @@ public class IncomingReservationFragment extends Fragment
 
         preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
+        setupFirebase();
+
         initializeReservation();
 
         return view;
     }
 
     private void initializeReservation() {
-        database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Orders/Incoming");
+//        database = FirebaseDatabase.getInstance().getReference();
+//        DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+//                preferences.getString("Uid", "") + "/Orders/Incoming");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -84,17 +85,16 @@ public class IncomingReservationFragment extends Fragment
             }
 
             private void triggerNotification() {
-                DatabaseReference branchOrders = database.child("restaurants/" +
-                        preferences.getString("Uid", "") + "/Orders/");
+
 
                 if (reservationInfoList.size() == 0) {
-                    branchOrders.child("IncomingReservationFlag").setValue(false);
+                    branchRestaurantOrders.child("IncomingReservationFlag").setValue(false);
 
                     editor = preferences.edit();
                     editor.putBoolean("IncomingReservation", false);
                     editor.apply();
                 } else {
-                    branchOrders.child("IncomingReservationFlag").setValue(true);
+                    branchRestaurantOrders.child("IncomingReservationFlag").setValue(true);
 
                     editor = preferences.edit();
                     editor.putBoolean("IncomingReservation", true);
@@ -116,8 +116,7 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void initializeRecyclerViewReservation() {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList,
-                this, false);
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
 
         Log.d(TAG, "initializeRecyclerViewReservation: called");
 
@@ -159,12 +158,12 @@ public class IncomingReservationFragment extends Fragment
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
 
-            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//
+//            database = FirebaseDatabase.getInstance().getReference();
 
-            database = FirebaseDatabase.getInstance().getReference();
-
-            final DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
-                    preferences.getString("Uid", " ") + "/Orders/Incoming");
+//            final DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
+//                    preferences.getString("Uid", " ") + "/Orders/Incoming");
 
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 
@@ -175,9 +174,9 @@ public class IncomingReservationFragment extends Fragment
             storeFood(deletedItem.getOrderList(), false);
 
             if (direction == ItemTouchHelper.RIGHT) {
-                final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
-                        .child(preferences.getString("Uid", " ")).child("Orders")
-                        .child("In_Preparation");
+//                final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
+//                        .child(preferences.getString("Uid", " ")).child("Orders")
+//                        .child("In_Preparation");
 
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
@@ -227,10 +226,10 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void storeFood(Map<String, FoodInfo> orders, Boolean undo) {
-        DatabaseReference foodBranch = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Food_Analytics");
+//        DatabaseReference foodBranch = database.child("restaurants/" +
+//                preferences.getString("Uid", "") + "/Food_Analytics");
 
-        foodBranch.addListenerForSingleValueEvent(new ValueEventListener() {
+        popularFoodBranch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Map<String, String> foodTimes = new HashMap<>();
@@ -271,8 +270,8 @@ public class IncomingReservationFragment extends Fragment
                     }
                 }
 
-                foodBranch.child(dataSnapshotKey).removeValue();
-                foodBranch.push().setValue(foodTimes);
+                popularFoodBranch.child(dataSnapshotKey).removeValue();
+                popularFoodBranch.push().setValue(foodTimes);
             }
 
             @Override
@@ -283,8 +282,8 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void storeTime(String time, Boolean undo) {
-        DatabaseReference timeBranch = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Time");
+//        DatabaseReference timeBranch = database.child("restaurants/" +
+//                preferences.getString("Uid", "") + "/Time");
 
         timeBranch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -345,8 +344,4 @@ public class IncomingReservationFragment extends Fragment
         return res;
     }
 
-    @Override
-    public void reservationClickListener(int position) {
-
-    }
 }

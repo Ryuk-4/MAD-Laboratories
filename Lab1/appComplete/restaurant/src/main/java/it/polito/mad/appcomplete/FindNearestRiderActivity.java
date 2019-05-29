@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -37,14 +39,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.logging.LogWrapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class FindNearestRiderActivity extends AppCompatActivity
         implements RecyclerViewAdapterRider.OnRiderClickListener {
@@ -55,10 +61,10 @@ public class FindNearestRiderActivity extends AppCompatActivity
     private static final int ERROR_DIALOG_REQUEST = 9012;
     private boolean mLocationPermissionGranted = false;
 
-    private FirebaseAuth auth;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private DatabaseReference database;
-    private GeoFire geofire;
+//    private FirebaseAuth auth;
+//    private FusedLocationProviderClient mFusedLocationClient;
+//    private DatabaseReference database;
+//    private GeoFire geofire;
     private GeoLocation myLocation;
     private Location me;
 
@@ -89,8 +95,11 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
         setupFirebase();
 
-        setupAdapter();
+        mFusedLocationRestaurant = LocationServices.getFusedLocationProviderClient(this);
 
+        setupListeners();
+
+        setupAdapter();
     }
 
     @Override
@@ -111,21 +120,19 @@ public class FindNearestRiderActivity extends AppCompatActivity
         recyclerView.setAdapter(adapter);
     }
 
-    private void setupFirebase() {
+//    private void setupFirebase() {
 
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance().getReference();
-        geofire = new GeoFire(database.child("riders_position"));
+//        auth = FirebaseAuth.getInstance();
+//        database = FirebaseDatabase.getInstance().getReference();
+//        geofire = new GeoFire(database.child("riders_position"));
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        branchOrdersReady = database.child("restaurants").child(auth.getCurrentUser().getUid())
-                .child("Orders").child("Ready_To_Go");
-        branchCustomer = database.child("customers");
-        branchDeliveryMan = database.child("delivery");
+//        branchOrdersReady = database.child("restaurants").child(auth.getCurrentUser().getUid())
+//                .child("Orders").child("Ready_To_Go");
+//        branchCustomer = database.child("customers");
+//        branchDeliveryMan = database.child("delivery");
 
-        setupListeners();
-    }
+//    }
 
     private void setupListeners() {
         RiderValueListener = new ValueEventListener() {
@@ -134,6 +141,8 @@ public class FindNearestRiderActivity extends AppCompatActivity
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 Riders r = new Riders();
+                Geocoder geocoder = new Geocoder(FindNearestRiderActivity.this, Locale.getDefault());
+                List<Address> addresses = new ArrayList<>();
 
                 r.setId(dataSnapshot.getKey());
 
@@ -145,6 +154,15 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                 Location location = ridersLocation.get(dataSnapshot.getKey());
                 r.setLocation(location);
+
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (Exception e){
+                    Log.w(TAG, "onDataChange: ", e);
+                }
+
+                String[] address = addresses.get(0).getAddressLine(0).split(", ");
+                r.setAddress(address[0] + ", " + address[1]);
 
                 if (containRider(r)) {
                     riderUpdated(r);
@@ -376,7 +394,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
         if (myLocation != null) {
             Log.d(TAG, "fetchRider: called");
             // creates a new query around myLocation with a radius of 5 kilometers
-            GeoQuery geoQuery = geofire.queryAtLocation(myLocation, 5);
+            GeoQuery geoQuery = geofireRider.queryAtLocation(myLocation, 5);
 
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
@@ -465,7 +483,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
             return;
         }
 
-        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+        mFusedLocationRestaurant.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
 
             @Override
             public void onComplete(@NonNull Task<android.location.Location> task) {
@@ -479,8 +497,8 @@ public class FindNearestRiderActivity extends AppCompatActivity
                     me.setLatitude(myLocation.latitude);
                     me.setLongitude(myLocation.longitude);
 
-                    GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
-                    geoFire1.setLocation(auth.getUid(), myLocation, new GeoFire.CompletionListener() {
+//                    GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
+                    geofireRestaurant.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
                             Log.d(TAG, "Location set: myPosition(" +
@@ -550,7 +568,12 @@ public class FindNearestRiderActivity extends AppCompatActivity
                             branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
                                     .child("riderId").setValue(riderId);
 
-                            break;
+                            branchOrdersReady.child(orderId + "status_order").setValue("ready");
+
+                            Toast.makeText(FindNearestRiderActivity.this, "Your order's been placed",
+                                    Toast.LENGTH_LONG).show();
+
+                            finish();
                         }
                     }
                 }

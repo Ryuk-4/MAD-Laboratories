@@ -41,6 +41,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class DailyOfferActivity
         extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -55,18 +57,18 @@ public class DailyOfferActivity
     private SharedPreferences sharedpref, preferences;
     private RVAdapter myAdapter;
 
-    private DatabaseReference database;
+//    private DatabaseReference database;
     private FloatingActionMenu materialDesignFAM;
     private FloatingActionButton floatingActionButton1, floatingActionButton2;
 
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
 
     private Menu mMenu;
 
     private boolean newOrders;
-    private DatabaseReference branchOrders;
+//    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +111,9 @@ public class DailyOfferActivity
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
 
-        auth = FirebaseAuth.getInstance();
+//        auth = FirebaseAuth.getInstance();
+
+        setupFirebase();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -130,15 +134,12 @@ public class DailyOfferActivity
             }
         };
 
-        //mMenu = navigationView.getMenu();
-        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        database = FirebaseDatabase.getInstance().getReference();
+//        branchOrders = database.child("restaurants/" +
+//                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
 
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        database = FirebaseDatabase.getInstance().getReference();
-        branchOrders = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
-
-        branchOrders.addValueEventListener(new ValueEventListener() {
+        branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 newOrders = dataSnapshot.getValue(Boolean.class);
@@ -204,7 +205,7 @@ public class DailyOfferActivity
                 break;
 
             case R.id.new_order_incoming:
-                branchOrders.setValue(false);
+                branchOrdersFlag.setValue(false);
                 startActivity(new Intent(this, ReservationActivity.class));
                 finish();
                 break;
@@ -230,8 +231,8 @@ public class DailyOfferActivity
     private void initializeData(){
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-        String Uid = preferences.getString("Uid", "");
-        DatabaseReference branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
+//        String Uid = preferences.getString("Uid", "");
+//        DatabaseReference branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
 
         branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
@@ -279,8 +280,9 @@ public class DailyOfferActivity
             Intent intent = new Intent(DailyOfferActivity.this, ProfileActivity.class);
             startActivity(intent);
             finish();
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_soldOrders) {
+            startActivity(new Intent(this, SoldOrderActivity.class));
+            finish();
         } else if (id == R.id.nav_contactUs) {
 
         }
@@ -310,8 +312,8 @@ public class DailyOfferActivity
             final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
             final String deletedItemId = deletedItem.getFoodId();
 
-            final DatabaseReference branchDailyFood = database.child("restaurants/" +
-                    preferences.getString("Uid", " ") + "/Daily_Food");
+//            final DatabaseReference branchDailyFood = database.child("restaurants/" +
+//                    preferences.getString("Uid", " ") + "/Daily_Food");
 
             branchDailyFood.child(deletedItemId).removeValue();
 

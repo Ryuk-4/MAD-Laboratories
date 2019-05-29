@@ -7,6 +7,7 @@ public class Riders {
     String pic;
     String name;
     Location location;
+    String address;
 
     public Riders(){
 
@@ -48,5 +49,11 @@ public class Riders {
         return location.getLongitude();
     }
 
+    public String getAddress() {
+        return address;
+    }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
 }

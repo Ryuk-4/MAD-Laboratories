@@ -22,20 +22,13 @@
         <!--
             android:icon="@drawable/ic_menu_slideshow"
         -->
+        <item
+            android:id="@+id/nav_soldOrders"
+            android:title="Sold Orders"/>
     </group>
 
     <item android:title="Options">
         <menu>
-            <item
-                android:id="@+id/nav_deleteAccount"
-                android:title="Delete Account"
-                android:icon="@drawable/delete_account"
-                android:visible="false"
-                />
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
             <item
                 android:id="@+id/nav_contactUs"
                 android:icon="@drawable/ic_menu_send"

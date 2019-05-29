@@ -16,19 +16,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 
 public class PreparingReservationFragment extends Fragment
-        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener,
-        RecyclerViewAdapterReservation.OnReservationClickListener{
+        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener{
 
     private static final String TAG = "PreparingReservation";
 
@@ -40,14 +39,14 @@ public class PreparingReservationFragment extends Fragment
 
 
     private SharedPreferences preferences;
-    private DatabaseReference database;
-    private DatabaseReference branchOrdersInPreparation;
-    private DatabaseReference branchOrdersReady;
+//    private DatabaseReference database;
+//    private DatabaseReference branchOrdersInPreparation;
+//    private DatabaseReference branchOrdersReady;
 
     private String deliveryManUid;
     private String orderID;
 
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
     private DatabaseReference deliveryMan;
 
     public PreparingReservationFragment() {
@@ -64,7 +63,9 @@ public class PreparingReservationFragment extends Fragment
 
         recyclerView = view.findViewById(R.id.recyclerViewPreparingReservation);
 
-        auth = FirebaseAuth.getInstance();
+//        auth = FirebaseAuth.getInstance();
+
+        setupFirebase();
 
         initializeReservation();
 
@@ -72,11 +73,11 @@ public class PreparingReservationFragment extends Fragment
     }
 
     private void initializeReservation() {
-        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        String Uid = preferences.getString("Uid", " ");
+//        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        String Uid = preferences.getString("Uid", " ");
 
-        database = FirebaseDatabase.getInstance().getReference();
-        branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
+//        database = FirebaseDatabase.getInstance().getReference();
+//        branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
 
         branchOrdersInPreparation.addValueEventListener(new ValueEventListener() {
             @Override
@@ -102,8 +103,7 @@ public class PreparingReservationFragment extends Fragment
     }
 
     private void initializeRecyclerViewReservation() {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationPreparingList,
-                this, false);
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationPreparingList);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
@@ -124,7 +124,7 @@ public class PreparingReservationFragment extends Fragment
         if (viewHolder instanceof RecyclerViewAdapterReservation.ReservationViewHolder) {
 
             String name = reservationPreparingList.get(viewHolder.getAdapterPosition()).getNamePerson();
-            final String Uid = preferences.getString("Uid", " ");
+//            final String Uid = preferences.getString("Uid", " ");
 
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationPreparingList.get(viewHolder.getAdapterPosition());
@@ -132,11 +132,11 @@ public class PreparingReservationFragment extends Fragment
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
 
-            database = FirebaseDatabase.getInstance().getReference();
+//            database = FirebaseDatabase.getInstance().getReference();
 
-            branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
+//            branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
 
-            branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
+//            branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
 
             branchOrdersInPreparation.child(deletedReservationId).removeValue();
             branchOrdersReady.child(deletedReservationId).setValue(restoreItem(deletedItem));
@@ -178,8 +178,4 @@ public class PreparingReservationFragment extends Fragment
         return res;
     }
 
-    @Override
-    public void reservationClickListener(int position) {
-
-    }
 }

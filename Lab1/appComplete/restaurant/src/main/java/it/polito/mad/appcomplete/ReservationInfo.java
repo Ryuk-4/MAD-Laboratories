@@ -17,10 +17,10 @@ public class ReservationInfo {
     private String rLongitude;
     private String status_order;
     private String note;
-
+    private String date;
 
     public ReservationInfo(String namePerson, String cLatitude, String cLongitude, String restaurantId,
-                           String rLatitude, String rLongitude){
+                           String rLatitude, String rLongitude) {
         this.namePerson = namePerson;
         this.cLatitude = cLatitude;
         this.cLongitude = cLongitude;
@@ -133,6 +133,13 @@ public class ReservationInfo {
         this.OrderList = orders;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {
         @Override
         public int compare(ReservationInfo o1, ReservationInfo o2) {

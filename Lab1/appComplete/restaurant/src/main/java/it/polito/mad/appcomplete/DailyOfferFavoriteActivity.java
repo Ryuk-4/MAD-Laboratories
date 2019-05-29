@@ -29,6 +29,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class DailyOfferFavoriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
 
@@ -39,8 +41,8 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     private RVAdapter myAdapter;
     private RecyclerView rv;
 
-    private SharedPreferences preferences;
-    private DatabaseReference database;
+//    private SharedPreferences preferences;
+//    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,17 +55,18 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        database = FirebaseDatabase.getInstance().getReference();
+//        database = FirebaseDatabase.getInstance().getReference();
 
+        setupFirebase();
         getFavoriteFoodInfo();
     }
 
     private void getFavoriteFoodInfo() {
         Log.d(TAG, "getFavoriteFoodInfo: called");
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
-        String Uid = preferences.getString("Uid", "");
-        DatabaseReference branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food");
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//
+//        String Uid = preferences.getString("Uid", "");
+//        DatabaseReference branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food");
 
         branchFavouriteFood.addValueEventListener(new ValueEventListener() {
             @Override
@@ -126,8 +129,8 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     public void OnFoodClickFood(int position) {
 
         Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", "favorite");
-        intent.putExtra("food_position", position);
+        intent.putExtra("food_selected", "normal");
+        intent.putExtra("food_position", foodList.get(position).getFoodId());
 
         startActivity(intent);
     }

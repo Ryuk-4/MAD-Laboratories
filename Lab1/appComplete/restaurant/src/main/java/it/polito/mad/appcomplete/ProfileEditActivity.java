@@ -1,6 +1,5 @@
 package it.polito.mad.appcomplete;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,15 +7,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,42 +29,35 @@ import android.widget.Toast;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static it.polito.mad.data_layer_access.Costants.*;
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+import static it.polito.mad.data_layer_access.ImageUtils.*;
 
 
 public class ProfileEditActivity extends AppCompatActivity
         implements MultiSelectionSpinner.OnMultipleItemsSelectedListener {
 
     private static final String TAG = "ProfileEditActivity";
-
-    private static final int GALLERY_REQ = 2000;
-    private static final int CAMERA_REQ = 1888;
-    private static final int MY_CAMERA_PERMISSION_CODE = 1000;
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 2001;
 
     private ImageView im_edit;
     private EditText name_edit;
@@ -84,40 +72,13 @@ public class ProfileEditActivity extends AppCompatActivity
     private byte[] photoByteArray;
     private SharedPreferences sharedpref, preferences;
 
-    private DatabaseReference database;
-    private DatabaseReference branchProfile;
-    private String Uid;
+//    private DatabaseReference database;
+//    private DatabaseReference branchProfile;
+//    private String Uid;
 
     private MultiSelectionSpinner multiSelectionSpinner;
     private List<String> array;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        switch (requestCode) {
-
-            case MY_CAMERA_PERMISSION_CODE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                    chooseFromCamera();
-                } else {
-                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-                }
-                break;
-
-            case GALLERY_REQ:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "gallery permission granted", Toast.LENGTH_LONG).show();
-                    chooseFromGallery();
-                } else {
-                    Toast.makeText(this, "gallery permission denied", Toast.LENGTH_LONG).show();
-                }
-                break;
-
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +111,7 @@ public class ProfileEditActivity extends AppCompatActivity
                 new ImageButton.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showPictureDialog();
+                        showPictureDialog(ProfileEditActivity.this);
                     }
                 }
         );
@@ -181,24 +142,23 @@ public class ProfileEditActivity extends AppCompatActivity
                     Log.d(TAG, "onClick: inside try");
                     Intent intent = new Autocomplete.IntentBuilder(
                             AutocompleteActivityMode.OVERLAY, fields)
-                            .setLocationRestriction(RectangularBounds.newInstance(
-                                    new LatLng(45.010426, 7.608653),
-                                    new LatLng(45.136694, 7.724848)))
+                            .setCountry("IT")
                             .build(ProfileEditActivity.this);
 
                     startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.w(TAG, "onClick: ", e);
                 }
 
             }
         });
 
-        database = FirebaseDatabase.getInstance().getReference();
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        Uid = preferences.getString("Uid", " ");
-        branchProfile = database.child("restaurants/" + Uid + "/Profile");
+//        database = FirebaseDatabase.getInstance().getReference();
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        Uid = preferences.getString("Uid", " ");
+//        branchProfile = database.child("restaurants/" + Uid + "/Profile");
 
+        setupFirebase();
 
         array = new ArrayList<>();
 
@@ -264,65 +224,32 @@ public class ProfileEditActivity extends AppCompatActivity
 
     }
 
-    public void showPictureDialog() {
-        AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-        pictureDialog.setTitle("Select Action:");
-        pictureDialog.setCancelable(true);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        String[] picDialogItems = {"Gallery", "Camera"};
+        switch (requestCode) {
 
-        pictureDialog.setItems(picDialogItems,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                chooseFromGalleryPermission();
-                                break;
+            case MY_CAMERA_PERMISSION_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+                    startActivityForResult(chooseFromCamera(), CAMERA_REQ);
+                } else {
+                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
 
-                            case 1:
-                                chooseFromCameraPermission();
-                                break;
-                        }
-                    }
-                });
+            case GALLERY_REQ:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "gallery permission granted", Toast.LENGTH_LONG).show();
+                    startActivityForResult(chooseFromGallery(), GALLERY_REQ);
+                } else {
+                    Toast.makeText(this, "gallery permission denied", Toast.LENGTH_LONG).show();
+                }
+                break;
 
-        pictureDialog.show();
-    }
-
-    public void chooseFromGalleryPermission() {
-        int hasPermissionGallery = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_EXTERNAL_STORAGE);
-
-        if (hasPermissionGallery == PackageManager.PERMISSION_GRANTED) {
-            chooseFromGallery();
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    GALLERY_REQ);
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    public void chooseFromCameraPermission() {
-        int hasPermissionCamera = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA);
-
-        if (hasPermissionCamera == PackageManager.PERMISSION_GRANTED) {
-            chooseFromCamera();
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
-                    MY_CAMERA_PERMISSION_CODE);
-        }
-    }
-
-    public void chooseFromGallery() {
-        Intent galleryIntent = new Intent(Intent.ACTION_PICK);
-        galleryIntent.setType("image/*");
-        startActivityForResult(galleryIntent, GALLERY_REQ);
-    }
-
-    public void chooseFromCamera() {
-        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, CAMERA_REQ);
     }
 
     @Override
@@ -341,7 +268,6 @@ public class ProfileEditActivity extends AppCompatActivity
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    photo = rotateImageIfRequired(photo, contentURI);
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
@@ -349,6 +275,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
+                    Log.w(TAG, "onActivityResult: ", e);
                     e.printStackTrace();
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
@@ -359,7 +286,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
             photoByteArray = bitmapToByteArray(photo);
             Toast.makeText(this, "Image Saved!", Toast.LENGTH_SHORT).show();
-        } else if (requestCode == AUTOCOMPLETE_REQUEST_CODE ){
+        } else if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
 
             if (resultCode == RESULT_OK) {
 
@@ -382,54 +309,14 @@ public class ProfileEditActivity extends AppCompatActivity
     private void updateMyPosition(double latitude, double longitude) {
         GeoLocation myLocation = new GeoLocation(latitude, longitude);
 
-        GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
-        geoFire1.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
+//        GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
+        geofireRestaurant.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {
                 Log.d(TAG, "Location set: myPosition(" +
                         myLocation.latitude + ", " + myLocation.longitude + ")");
             }
         });
-    }
-
-    private static Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
-
-        ExifInterface ei = new ExifInterface(selectedImage.getPath());
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotateImage(img, 90);
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotateImage(img, 180);
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotateImage(img, 270);
-            default:
-                return img;
-        }
-    }
-
-    private static Bitmap rotateImage(Bitmap img, int degree) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImg;
-    }
-
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 0) {
-            width = maxSize;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxSize;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     public void saveInfo(View v) {
@@ -451,13 +338,13 @@ public class ProfileEditActivity extends AppCompatActivity
         } else {
 
             Log.d(TAG, "saveInfo: called");
-            branchProfile.child("name").setValue(name_edit.getText().toString());
-            branchProfile.child("phone").setValue(phone_edit.getText().toString());
-            branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
-            branchProfile.child("address").setValue(address_edit.getText().toString());
-            branchProfile.child("email").setValue(email_edit.getText().toString());
-            branchProfile.child("description").setValue(description_edit.getText().toString());
-            branchProfile.child("firstTime").setValue(false);
+            branchRestaurantProfile.child("name").setValue(name_edit.getText().toString());
+            branchRestaurantProfile.child("phone").setValue(phone_edit.getText().toString());
+            branchRestaurantProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+            branchRestaurantProfile.child("address").setValue(address_edit.getText().toString());
+            branchRestaurantProfile.child("email").setValue(email_edit.getText().toString());
+            branchRestaurantProfile.child("description").setValue(description_edit.getText().toString());
+            branchRestaurantProfile.child("firstTime").setValue(false);
 
             SharedPreferences.Editor editor1 = preferences.edit();
             editor1.putString("address", address_edit.getText().toString());
@@ -467,9 +354,9 @@ public class ProfileEditActivity extends AppCompatActivity
 
             String[] item = s.split(",");
 
-            database.child("restaurants/" + Uid + "/type_food").removeValue();
+            branchRestaurantTypeFood.removeValue();
             for (String str : item) {
-                database.child("restaurants/" + Uid + "/type_food").push().setValue(str.trim());
+                branchRestaurantTypeFood.push().setValue(str.trim());
             }
 
             im_edit.setDrawingCacheEnabled(true);
@@ -490,7 +377,7 @@ public class ProfileEditActivity extends AppCompatActivity
                                 public void onSuccess(Uri uri) {
                                     Uri downloadUrl = uri;
 
-                                    branchProfile.child("imgUrl").setValue(downloadUrl.toString());
+                                    branchRestaurantProfile.child("imgUrl").setValue(downloadUrl.toString());
                                 }
                             });
                         }
@@ -524,7 +411,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
     public void displayData() {
 
-        branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+        branchRestaurantProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -551,7 +438,7 @@ public class ProfileEditActivity extends AppCompatActivity
             }
         });
 
-        database.child("restaurants/" + Uid + "/type_food").addValueEventListener(new ValueEventListener() {
+        branchRestaurantTypeFood.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<String> item = new ArrayList<>();
@@ -569,12 +456,6 @@ public class ProfileEditActivity extends AppCompatActivity
                 Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         });
-    }
-
-    private static byte[] bitmapToByteArray(Bitmap photo) {
-        ByteArrayOutputStream streambyte = new ByteArrayOutputStream();
-        photo.compress(Bitmap.CompressFormat.JPEG, 80, streambyte);
-        return streambyte.toByteArray();
     }
 
     @Override

@@ -5,18 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -26,7 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 
 public class ReadyToGoReservationFragment extends Fragment
@@ -43,7 +39,7 @@ public class ReadyToGoReservationFragment extends Fragment
     private DatabaseReference database;
     private DatabaseReference branchOrdersReady;
 
-    private FloatingActionButton fab1;
+    private View mView;
 
     private FirebaseAuth auth;
 
@@ -83,18 +79,29 @@ public class ReadyToGoReservationFragment extends Fragment
                     ReservationInfo value = data.getValue(ReservationInfo.class);
                     value.setOrderID(data.getKey());
 
-                    Date date = Calendar.getInstance().getTime();
+                    Calendar date = Calendar.getInstance();
 
                     if (value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")) {
-                        database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                .child("sold_orders").child(value.getOrderID()).setValue(value);
 
+                        if (value.getDate() == null){
+                           database.child("restaurants").child(auth.getCurrentUser().getUid())
+                                   .child("sold_orders").child(value.getOrderID()).setValue(value);
+
+                           database.child("restaurants").child(auth.getCurrentUser().getUid())
+                                   .child("sold_orders").child(value.getOrderID()).child("date")
+                                   .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
+                                           (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
+                       }
+
+                    } else if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
                         database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                .child("sold_orders").child(value.getOrderID()).child("date")
-                                .setValue(String.valueOf(date));
-                    } else {
-                        reservationReadyToGoList.add(restoreItem(value));
+                                .child("sold_orders").child(value.getOrderID()).child("status_order")
+                                .setValue(value.getStatus_order());
+                        branchOrdersReady.child(value.getOrderID()).removeValue();
                     }
+
+                    reservationReadyToGoList.add(restoreItem(value));
+
                 }
 
                 initializeRecyclerViewReservation();
@@ -111,7 +118,7 @@ public class ReadyToGoReservationFragment extends Fragment
 
     private void initializeRecyclerViewReservation() {
         myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationReadyToGoList,
-                this, true);
+                this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
@@ -133,6 +140,10 @@ public class ReadyToGoReservationFragment extends Fragment
         if (reservationInfo.getNote() != null) {
             res.setNote(reservationInfo.getNote());
         }
+
+        if (reservationInfo.getStatus_order() != null){
+            res.setStatus_order(reservationInfo.getStatus_order());
+        }
         return res;
     }
 
@@ -140,6 +151,14 @@ public class ReadyToGoReservationFragment extends Fragment
     @Override
     public void reservationClickListener(int position) {
         Log.d(TAG, "OnReservationClickListener: called");
+
+        String status = reservationReadyToGoList.get(position).getStatus_order();
+
+        if (status != null) {
+            if (status.equals("ready") || status.equals("in_delivery")){
+                return;
+            }
+        }
 
         Intent intent = new Intent(getActivity(), FindNearestRiderActivity.class);
         intent.putExtra("reservationId", reservationReadyToGoList.get(position).getOrderID());

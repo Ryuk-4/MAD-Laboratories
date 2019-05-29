@@ -29,10 +29,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class ProfileActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
@@ -49,14 +49,14 @@ public class ProfileActivity extends AppCompatActivity
     private TextView description;
     private SharedPreferences sharedpref, preferences;
 
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
 
-    private Menu mMenu;
-    private DatabaseReference database;
+//    private Menu mMenu;
+//    private DatabaseReference database;
     private boolean newOrders;
-    private DatabaseReference branchOrders;
+//    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +103,7 @@ public class ProfileActivity extends AppCompatActivity
 
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
 
-        auth = FirebaseAuth.getInstance();
+        setupFirebase();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -128,11 +128,11 @@ public class ProfileActivity extends AppCompatActivity
         //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        database = FirebaseDatabase.getInstance().getReference();
-        branchOrders = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
+//        database = FirebaseDatabase.getInstance().getReference();
+//        branchOrders = database.child("restaurants/" +
+//                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
 
-        branchOrders.addValueEventListener(new ValueEventListener() {
+        branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 newOrders = dataSnapshot.getValue(Boolean.class);
@@ -163,8 +163,9 @@ public class ProfileActivity extends AppCompatActivity
             Intent intent = new Intent(this, DailyOfferActivity.class);
             startActivity(intent);
             finish();
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_soldOrders) {
+            startActivity(new Intent(this, SoldOrderActivity.class));
+            finish();
         } else if (id == R.id.nav_contactUs) {
 
         }
@@ -230,7 +231,7 @@ public class ProfileActivity extends AppCompatActivity
 
             case R.id.new_order_incoming:
 
-                branchOrders.setValue(false);
+                branchOrdersFlag.setValue(false);
                 startActivity(new Intent(this, ReservationActivity.class));
                 finish();
                 break;
@@ -240,13 +241,13 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     public void displayData() {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+//        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        String Uid = preferences.getString("Uid", " ");
-        DatabaseReference branchProfile = database.child("restaurants/" + Uid + "/Profile");
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        String Uid = preferences.getString("Uid", " ");
+//        DatabaseReference branchProfile = database.child("restaurants/" + Uid + "/Profile");
 
-        branchProfile.addValueEventListener(new ValueEventListener() {
+        branchRestaurantProfile.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onDataChange: ");

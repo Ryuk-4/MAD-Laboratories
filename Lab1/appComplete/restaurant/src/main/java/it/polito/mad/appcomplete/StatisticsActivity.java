@@ -33,6 +33,8 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class StatisticsActivity extends AppCompatActivity {
 
     private static final String TAG = "StatisticsActivity";
@@ -40,10 +42,10 @@ public class StatisticsActivity extends AppCompatActivity {
     private LineChartView lineChartView;
     private RecyclerView mRecyclerView;
 
-    private DatabaseReference database;
-    private DatabaseReference timeBranch;
-    private DatabaseReference popularFoodBranch;
-    private DatabaseReference foodBranch;
+//    private DatabaseReference database;
+//    private DatabaseReference timeBranch;
+//    private DatabaseReference popularFoodBranch;
+//    private DatabaseReference foodBranch;
     private SharedPreferences preferences;
     private String Uid;
 
@@ -74,24 +76,24 @@ public class StatisticsActivity extends AppCompatActivity {
         lineChartView = findViewById(R.id.timeLineChart);
         mRecyclerView = findViewById(R.id.recyclerViewPopularFood);
 
-        setFirebase();
+        setupFirebase();
 
         fetchPopularFood();
 
         fetchTime();
     }
 
-    private void setFirebase() {
-        Log.d(TAG, "setFirebase: called");
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        Uid = preferences.getString("Uid", "");
-
-        database = FirebaseDatabase.getInstance().getReference().child("restaurants/" + Uid);
-
-        timeBranch = database.child("Time");
-        popularFoodBranch = database.child("Food_Analytics");
-        foodBranch = database.child("Daily_Food");
-    }
+//    private void setFirebase() {
+//        Log.d(TAG, "setFirebase: called");
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        Uid = preferences.getString("Uid", "");
+//
+//        database = FirebaseDatabase.getInstance().getReference().child("restaurants/" + Uid);
+//
+//        timeBranch = database.child("Time");
+//        popularFoodBranch = database.child("Food_Analytics");
+//        foodBranch = database.child("Daily_Food");
+//    }
 
     private void fetchPopularFood() {
         Log.d(TAG, "fetchPopularFood: called");
@@ -126,7 +128,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         food = new HashMap<>();
 
-        foodBranch.addListenerForSingleValueEvent(new ValueEventListener() {
+        branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {

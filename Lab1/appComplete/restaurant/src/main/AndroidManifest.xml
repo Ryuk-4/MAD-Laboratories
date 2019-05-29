@@ -21,6 +21,15 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
+            android:name=".SoldOrderActivity"
+            android:label="@string/title_activity_sold_order"
+            android:parentActivityName=".ReservationActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="it.polito.mad.appcomplete.ReservationActivity" />
+        </activity>
+        <activity
             android:name=".RestaurantReviewActivity"
             android:label="@string/title_activity_restaurant_review"
             android:parentActivityName=".ProfileActivity"
