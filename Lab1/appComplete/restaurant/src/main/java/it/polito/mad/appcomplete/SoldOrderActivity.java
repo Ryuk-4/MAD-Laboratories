@@ -25,13 +25,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class SoldOrderActivity extends AppCompatActivity {
 
     private static final String TAG = "SoldOrderActivity";
 
-    private SharedPreferences preferences;
-    private String Uid;
-    private DatabaseReference database;
+//    private SharedPreferences preferences;
+//    private String Uid;
+//    private DatabaseReference database;
     private List<ReservationInfo> reservationInfoList;
     private RecyclerViewAdapterReservation myAdapter;
     private RecyclerView recyclerView;
@@ -54,7 +56,8 @@ public class SoldOrderActivity extends AppCompatActivity {
 
         calendarButton = findViewById(R.id.iconOpenCalendar);
 
-        setFirebase();
+        setupFirebase();
+
         setDate();
     }
 
@@ -94,12 +97,12 @@ public class SoldOrderActivity extends AppCompatActivity {
 
     }
 
-    private void setFirebase() {
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        Uid = preferences.getString("Uid", "");
+//    private void setFirebase() {
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//        Uid = preferences.getString("Uid", "");
 
-        database = FirebaseDatabase.getInstance().getReference().child("restaurants/" + Uid + "/sold_orders");
-    }
+//        database = FirebaseDatabase.getInstance().getReference().
+//    }
 
     private void showOrders() {
         reservationInfoList = new ArrayList<>();
@@ -134,7 +137,7 @@ public class SoldOrderActivity extends AppCompatActivity {
             }
         };
 
-        database.addListenerForSingleValueEvent(valueEventListener);
+        branchSoldOrders.addListenerForSingleValueEvent(valueEventListener);
     }
 
     public void setAdapter() {

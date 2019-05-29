@@ -46,8 +46,8 @@ public class StatisticsActivity extends AppCompatActivity {
 //    private DatabaseReference timeBranch;
 //    private DatabaseReference popularFoodBranch;
 //    private DatabaseReference foodBranch;
-    private SharedPreferences preferences;
-    private String Uid;
+//    private SharedPreferences preferences;
+//    private String Uid;
 
     private Map<String, Integer> popFood;
     private Map<String, FoodInfo> food;

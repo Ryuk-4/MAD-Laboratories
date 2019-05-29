@@ -1,7 +1,6 @@
 package it.polito.mad.data_layer_access;
 
 import com.firebase.geofire.GeoFire;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -29,24 +28,28 @@ public class FirebaseUtils {
     public static DatabaseReference branchRestaurantProfile;
     public static DatabaseReference branchDeliveryMan;
     public static DatabaseReference branchRestaurantTypeFood;
+    public static DatabaseReference branchSoldOrders;
 
     public static GeoFire geofireRider;
     public static GeoFire geofireRestaurant;
-    public static FusedLocationProviderClient mFusedLocationRestaurant;
-
 
     //        Customer's DatabaseReferences
 
 
     //        DeliverMan's DatabaseReferences
-    public static void setupFirebase() {
+
+    public static void setCommonParam() {
 
 //        Common among all the three modules
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance().getReference();
         Uid = auth.getCurrentUser().getUid();
+    }
 
+    public static void setupFirebase() {
+
+        setCommonParam();
 
 //        Restaurant's DatabaseReferences
 
@@ -63,9 +66,11 @@ public class FirebaseUtils {
         branchOrdersIncoming = database.child("restaurants/" + Uid + "/Orders/Incoming");
         branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
         branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
+        branchSoldOrders = database.child("restaurants/" + Uid + "/sold_orders");
 
         geofireRider = new GeoFire(database.child("riders_position"));
         geofireRestaurant = new GeoFire(database.child("restaurants_position"));
+
 //        Customer's DatabaseReferences
 
 

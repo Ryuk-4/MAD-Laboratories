@@ -51,20 +51,20 @@ import java.util.Map;
 import java.util.Set;
 
 import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+import static it.polito.mad.data_layer_access.Costants.*;
 
 public class FindNearestRiderActivity extends AppCompatActivity
         implements RecyclerViewAdapterRider.OnRiderClickListener {
 
     private static final String TAG = "FindNearestRiderActivit";
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9010;
-    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9011;
-    private static final int ERROR_DIALOG_REQUEST = 9012;
     private boolean mLocationPermissionGranted = false;
 
 //    private FirebaseAuth auth;
 //    private FusedLocationProviderClient mFusedLocationClient;
 //    private DatabaseReference database;
 //    private GeoFire geofire;
+
+    private FusedLocationProviderClient mFusedLocationRestaurant;
     private GeoLocation myLocation;
     private Location me;
 
@@ -80,9 +80,6 @@ public class FindNearestRiderActivity extends AppCompatActivity
     private int initialListSize;
     private int iterationCount;
 
-    private DatabaseReference branchOrdersReady;
-    private DatabaseReference branchCustomer;
-    private DatabaseReference branchDeliveryMan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
