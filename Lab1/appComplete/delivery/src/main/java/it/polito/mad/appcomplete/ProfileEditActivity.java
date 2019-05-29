@@ -225,7 +225,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         outState.putString("surname", surname_edit.getText().toString());
         //outState.putString("description", description_edit.getText().toString());
-        outState.putString("dateOfBirth", dateOfBirth.getText().toString());
+
+        String s=dateOfBirth.getText().toString();
+        int newDay=  Integer.parseInt(s.split("/")[1]);
+        newDay++;
+        String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
+        outState.putString("dateOfBirth",newDate );
 
         // for sex radio button
         int sexId = radioSex.getCheckedRadioButtonId();
@@ -427,7 +432,15 @@ public class ProfileEditActivity extends AppCompatActivity {
                 branchProfile.child("email").setValue(email_edit.getText().toString());
                 //branchProfile.child("description").setValue(description_edit.getText().toString());
                 branchProfile.child("firstTime").setValue(false);
-                branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
+
+
+                String s=dateOfBirth.getText().toString();
+                int newDay=  Integer.parseInt(s.split("/")[1]);
+                newDay++;
+                String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
+                branchProfile.child("dateOfBirth").setValue(newDate);
+
+
                 branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
                 int sexId = radioSex.getCheckedRadioButtonId();
