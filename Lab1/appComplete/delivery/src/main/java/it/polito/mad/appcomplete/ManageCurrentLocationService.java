@@ -16,6 +16,9 @@ import android.util.Log;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 public class ManageCurrentLocationService extends IntentService {
 
     private boolean terminated;
+
+    private static final String TAG = "ManageCurrentLocationSe";
     public ManageCurrentLocationService()
     {
         super("ManageCurrentLocationService");
@@ -110,30 +115,31 @@ public class ManageCurrentLocationService extends IntentService {
 
             }
         };*/
-        while (!terminated)
-        {
-            Location location = ((LocationManager)getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
-            Log.d("TAG", "location update " + location);
-            if (location != null) {
+//        while (!terminated)
+//        {
+//            Location location = ((LocationManager)getSystemService(Context.LOCATION_SERVICE)).getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
+//            Log.d(TAG, "location update " + location);
+//            if (location != null) {
+//
+//                GeoFire geoFire = new GeoFire(ref);
+//                geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
+//                    @Override
+//                    public void onComplete(String key, DatabaseError error) {
+//
+//                    }
+//                });
+//            }
+//
+//            try {
+//                Thread.sleep(5000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 
-                GeoFire geoFire = new GeoFire(ref);
-                geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
-                    @Override
-                    public void onComplete(String key, DatabaseError error) {
-
-                    }
-                });
-            }
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
-
+        new TrackerService().requestLocationUpdates();
 //        ((LocationManager)getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.NETWORK_PROVIDER, (long) 0, (float)0, networkLocationListener);
 //        ((LocationManager)getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
         /*
@@ -190,11 +196,12 @@ public class ManageCurrentLocationService extends IntentService {
 
             while (true) {
 
+                LocationServices.getFusedLocationProviderClient(ManageCurrentLocationService.this).flushLocations();
                 LocationServices.getFusedLocationProviderClient(ManageCurrentLocationService.this).getLastLocation()
                         .addOnSuccessListener(new OnSuccessListener<Location>() {
                             @Override
                             public void onSuccess(Location location) {
-                                Log.d("TAG", "onSuccess: finally " + location);
+                                Log.d(TAG, "Location: \n" + location.getLatitude() +"\n" + location.getLongitude());
 
                                 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
 
@@ -212,12 +219,11 @@ public class ManageCurrentLocationService extends IntentService {
                         });
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-
         }
     }
 

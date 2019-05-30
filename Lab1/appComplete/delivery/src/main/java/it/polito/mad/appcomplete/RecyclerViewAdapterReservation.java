@@ -47,8 +47,6 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
 
         viewHolder.name.setText(reservationInfoList.get(i).getNamePerson());
         viewHolder.time.setText(reservationInfoList.get(i).getTimeReservation());
-        viewHolder.order.setText(reservationInfoList.get(i).getPersonOrder());
-        viewHolder.note.setText(reservationInfoList.get(i).getNote());
         viewHolder.restaurantAddress.setText(reservationInfoList.get(i).getRestaurantAddress());
         viewHolder.custommerAddress.setText(reservationInfoList.get(i).getAddressOrder());
 

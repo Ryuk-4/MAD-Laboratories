@@ -144,13 +144,9 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
 
         res.setOrderID(reservationInfo.getOrderID());
         res.setIdPerson(reservationInfo.getIdPerson());
-        res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
-        if (reservationInfo.getNote() != null) {
-            res.setNote(reservationInfo.getNote());
-        }
 
         return res;
     }

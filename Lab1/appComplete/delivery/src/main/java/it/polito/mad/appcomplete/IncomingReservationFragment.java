@@ -207,6 +207,8 @@ public class IncomingReservationFragment extends Fragment
 
                 // Add delivered flag to restaurant:
                 database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("delivered");
+                // Add delivered flag to customer:
+                database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("status_order").setValue("delivered");
 
                 //Removing order from incoming branch:
                 database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).removeValue();
@@ -238,6 +240,7 @@ public class IncomingReservationFragment extends Fragment
 
                         // Add return back flag to it's default:
                         database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
+                        database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("status_order").setValue("in_delivery");
 
                         //Removing order from finished branch:
                         database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).setValue(restoreItem(deletedItem));
@@ -250,6 +253,7 @@ public class IncomingReservationFragment extends Fragment
             {
                 // Add delivered flag to restaurant:
                 database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("in_delivery");
+                database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("status_order").setValue("in_delivery");
 
                 initializeRecyclerViewReservation();
                 // Show undo message
@@ -260,7 +264,8 @@ public class IncomingReservationFragment extends Fragment
                     public void onClick(View view)
                     {
                         // Add delivered flag to restaurant:
-                        database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("Ready_To_Go");
+                        database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("ready");
+                        database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("status_order").setValue("ready");
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
@@ -276,22 +281,14 @@ public class IncomingReservationFragment extends Fragment
 
         res.setOrderID(reservationInfo.getOrderID());
         res.setIdPerson(reservationInfo.getIdPerson());
-        res.setPersonOrder(reservationInfo.getPersonOrder());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
-
-       // res.setRestaurantAddress(reservationInfo.getRestaurantAddress());
-        //res.setAddressOrder(reservationInfo.getAddressOrder());
         res.setRestaurantId(reservationInfo.getRestaurantId());
         res.setcLatitude(reservationInfo.getcLatitude());
         res.setcLongitude(reservationInfo.getcLongitude());
         res.setrLatitude(reservationInfo.getrLatitude());
         res.setrLongitude(reservationInfo.getrLongitude());
 
-
-        if (reservationInfo.getNote() != null) {
-            res.setNote(reservationInfo.getNote());
-        }
 
         return res;
     }
