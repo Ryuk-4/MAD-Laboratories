@@ -34,8 +34,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -57,18 +55,13 @@ public class DailyOfferActivity
     private SharedPreferences sharedpref, preferences;
     private RVAdapter myAdapter;
 
-//    private DatabaseReference database;
     private FloatingActionMenu materialDesignFAM;
     private FloatingActionButton floatingActionButton1, floatingActionButton2;
 
-//    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
 
-    private Menu mMenu;
-
     private boolean newOrders;
-//    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +91,7 @@ public class DailyOfferActivity
 
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
+                Intent intent = new Intent(DailyOfferActivity.this, DailyFoodEditActivity.class);
                 startActivity(intent);
             }
         });
@@ -109,9 +102,7 @@ public class DailyOfferActivity
             }
         });
 
-        sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
-
-//        auth = FirebaseAuth.getInstance();
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         setupFirebase();
 
@@ -133,11 +124,6 @@ public class DailyOfferActivity
                 }
             }
         };
-
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        database = FirebaseDatabase.getInstance().getReference();
-//        branchOrders = database.child("restaurants/" +
-//                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
 
         branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
@@ -229,10 +215,6 @@ public class DailyOfferActivity
     }
 
     private void initializeData(){
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
-//        String Uid = preferences.getString("Uid", "");
-//        DatabaseReference branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
 
         branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
@@ -296,7 +278,7 @@ public class DailyOfferActivity
     @Override
     public void OnFoodClickFood(int position) {
 
-        Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
+        Intent intent = new Intent(DailyOfferActivity.this, DailyFoodEditActivity.class);
         intent.putExtra("food_selected", "normal");
         intent.putExtra("food_position", foodList.get(position).getFoodId());
 
@@ -312,13 +294,10 @@ public class DailyOfferActivity
             final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
             final String deletedItemId = deletedItem.getFoodId();
 
-//            final DatabaseReference branchDailyFood = database.child("restaurants/" +
-//                    preferences.getString("Uid", " ") + "/Daily_Food");
-
             branchDailyFood.child(deletedItemId).removeValue();
 
             Snackbar snackbar = Snackbar
-                    .make(rv, name + "dish removed", Snackbar.LENGTH_LONG);
+                    .make(rv, name + " dish removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -351,7 +330,6 @@ public class DailyOfferActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-//       mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

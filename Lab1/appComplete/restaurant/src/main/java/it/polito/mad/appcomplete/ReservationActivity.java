@@ -29,8 +29,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import static it.polito.mad.data_layer_access.FirebaseUtils.*;
@@ -55,13 +53,9 @@ public class ReservationActivity extends AppCompatActivity
     private ReadyToGoReservationFragment endFragment;
     private IncomingReservationFragment incFragment;
 
-//    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
-
-//    private DatabaseReference branchOrders;
-//    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,9 +101,6 @@ public class ReservationActivity extends AppCompatActivity
         };
 
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        database = FirebaseDatabase.getInstance().getReference();
-//        DatabaseReference branchProfile = database.child("restaurants/" +
-//                preferences.getString("Uid", " ") + "/Profile");
 
         branchRestaurantProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -179,8 +170,6 @@ public class ReservationActivity extends AppCompatActivity
                 editor.putBoolean("IncomingReservation", false);
                 editor.apply();
 
-//                branchOrders = database.child("restaurants/" +
-//                        preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
                 branchOrdersFlag.setValue(false);
 
                 invalidateOptionsMenu();
@@ -284,7 +273,6 @@ public class ReservationActivity extends AppCompatActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-//        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

@@ -1,13 +1,10 @@
 package it.polito.mad.appcomplete;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -18,7 +15,6 @@ import android.view.ViewGroup;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -35,19 +31,6 @@ public class PreparingReservationFragment extends Fragment
 
     private RecyclerViewAdapterReservation myAdapter;
     private RecyclerView recyclerView;
-    private SwipeRefreshLayout mySwipeRefreshLayout;
-
-
-    private SharedPreferences preferences;
-//    private DatabaseReference database;
-//    private DatabaseReference branchOrdersInPreparation;
-//    private DatabaseReference branchOrdersReady;
-
-    private String deliveryManUid;
-    private String orderID;
-
-//    private FirebaseAuth auth;
-    private DatabaseReference deliveryMan;
 
     public PreparingReservationFragment() {
         // Required empty public constructor
@@ -63,21 +46,34 @@ public class PreparingReservationFragment extends Fragment
 
         recyclerView = view.findViewById(R.id.recyclerViewPreparingReservation);
 
-//        auth = FirebaseAuth.getInstance();
-
         setupFirebase();
 
         initializeReservation();
 
+        removeDailyFoodIfRequired();
+
         return view;
     }
 
-    private void initializeReservation() {
-//        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        String Uid = preferences.getString("Uid", " ");
+    private void removeDailyFoodIfRequired() {
+        branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot data : dataSnapshot.getChildren()){
+                    if (data.child("quantity").getValue()!= null && data.child("quantity").getValue().equals("0")){
+                        branchDailyFood.child(data.getKey()).removeValue();
+                    }
+                }
+            }
 
-//        database = FirebaseDatabase.getInstance().getReference();
-//        branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void initializeReservation() {
 
         branchOrdersInPreparation.addValueEventListener(new ValueEventListener() {
             @Override
@@ -124,19 +120,12 @@ public class PreparingReservationFragment extends Fragment
         if (viewHolder instanceof RecyclerViewAdapterReservation.ReservationViewHolder) {
 
             String name = reservationPreparingList.get(viewHolder.getAdapterPosition()).getNamePerson();
-//            final String Uid = preferences.getString("Uid", " ");
 
             // backup of removed item for undo purpose
             final ReservationInfo deletedItem = reservationPreparingList.get(viewHolder.getAdapterPosition());
             Log.d(TAG, "onSwiped: deletedItem " + deletedItem);
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
-
-//            database = FirebaseDatabase.getInstance().getReference();
-
-//            branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
-
-//            branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
 
             branchOrdersInPreparation.child(deletedReservationId).removeValue();
             branchOrdersReady.child(deletedReservationId).setValue(restoreItem(deletedItem));
@@ -164,7 +153,7 @@ public class PreparingReservationFragment extends Fragment
 
         res.setOrderID(reservationInfo.getOrderID());
         res.setIdPerson(reservationInfo.getIdPerson());
-        res.setRestaurantId(auth.getCurrentUser().getUid());
+        res.setRestaurantId(Uid);
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setOrderList(reservationInfo.getOrderList());
         res.setcLatitude(reservationInfo.getcLatitude());

@@ -33,13 +33,9 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.logging.LogWrapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,11 +54,6 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
     private static final String TAG = "FindNearestRiderActivit";
     private boolean mLocationPermissionGranted = false;
-
-//    private FirebaseAuth auth;
-//    private FusedLocationProviderClient mFusedLocationClient;
-//    private DatabaseReference database;
-//    private GeoFire geofire;
 
     private FusedLocationProviderClient mFusedLocationRestaurant;
     private GeoLocation myLocation;
@@ -116,20 +107,6 @@ public class FindNearestRiderActivity extends AppCompatActivity
         adapter = new RecyclerViewAdapterRider(FindNearestRiderActivity.this, riders, this);
         recyclerView.setAdapter(adapter);
     }
-
-//    private void setupFirebase() {
-
-//        auth = FirebaseAuth.getInstance();
-//        database = FirebaseDatabase.getInstance().getReference();
-//        geofire = new GeoFire(database.child("riders_position"));
-
-
-//        branchOrdersReady = database.child("restaurants").child(auth.getCurrentUser().getUid())
-//                .child("Orders").child("Ready_To_Go");
-//        branchCustomer = database.child("customers");
-//        branchDeliveryMan = database.child("delivery");
-
-//    }
 
     private void setupListeners() {
         RiderValueListener = new ValueEventListener() {
@@ -494,7 +471,6 @@ public class FindNearestRiderActivity extends AppCompatActivity
                     me.setLatitude(myLocation.latitude);
                     me.setLongitude(myLocation.longitude);
 
-//                    GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
                     geofireRestaurant.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
                         @Override
                         public void onComplete(String key, DatabaseError error) {
@@ -546,7 +522,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
                         ReservationInfo value = data.getValue(ReservationInfo.class);
 
                         if (value.getOrderID().equals(orderId)) {
-                            ReservationInfo res = new ReservationInfo(value.getNamePerson(), value.getcLatitude(),
+                            ReservationInfo res = new ReservationInfo(value.getIdPerson(), value.getNamePerson(), value.getcLatitude(),
                                     value.getcLongitude(), value.getRestaurantId(), Double.toString(me.getLatitude()),
                                     Double.toString(me.getLongitude()));
 
@@ -565,7 +541,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
                             branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
                                     .child("riderId").setValue(riderId);
 
-                            branchOrdersReady.child(orderId + "status_order").setValue("ready");
+                            branchOrdersReady.child(orderId + "/status_order").setValue("ready");
 
                             Toast.makeText(FindNearestRiderActivity.this, "Your order's been placed",
                                     Toast.LENGTH_LONG).show();

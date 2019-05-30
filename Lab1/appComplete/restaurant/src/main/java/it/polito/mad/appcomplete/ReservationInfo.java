@@ -19,8 +19,9 @@ public class ReservationInfo {
     private String note;
     private String date;
 
-    public ReservationInfo(String namePerson, String cLatitude, String cLongitude, String restaurantId,
+    public ReservationInfo(String idPerson ,String namePerson, String cLatitude, String cLongitude, String restaurantId,
                            String rLatitude, String rLongitude) {
+        this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.cLatitude = cLatitude;
         this.cLongitude = cLongitude;

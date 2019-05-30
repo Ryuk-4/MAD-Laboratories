@@ -1,10 +1,7 @@
 package it.polito.mad.appcomplete;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,15 +12,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -32,7 +26,7 @@ import java.util.List;
 import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class DailyOfferFavoriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
+        RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener {
 
     private static final String TAG = "DailyOfferFavoriteActiv";
 
@@ -40,9 +34,6 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     private List<FoodInfo> foodList;
     private RVAdapter myAdapter;
     private RecyclerView rv;
-
-//    private SharedPreferences preferences;
-//    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,18 +46,12 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        database = FirebaseDatabase.getInstance().getReference();
-
         setupFirebase();
         getFavoriteFoodInfo();
     }
 
     private void getFavoriteFoodInfo() {
         Log.d(TAG, "getFavoriteFoodInfo: called");
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//
-//        String Uid = preferences.getString("Uid", "");
-//        DatabaseReference branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food");
 
         branchFavouriteFood.addValueEventListener(new ValueEventListener() {
             @Override
@@ -74,7 +59,7 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
                 Log.d(TAG, "onDataChange: called");
                 foodList = new ArrayList<>();
 
-                for (DataSnapshot data :  dataSnapshot.getChildren()){
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
                     FoodInfo value = data.getValue(FoodInfo.class);
                     value.setFoodId(data.getKey());
 
@@ -107,7 +92,7 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
     }
 
-    public FoodInfo restoreItem(FoodInfo foodInfo){
+    public FoodInfo restoreItem(FoodInfo foodInfo) {
         FoodInfo res = new FoodInfo();
 
         res.setFoodId(foodInfo.getFoodId());
@@ -128,8 +113,8 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     @Override
     public void OnFoodClickFood(int position) {
 
-        Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", "normal");
+        Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyFoodEditActivity.class);
+        intent.putExtra("food_selected", "favourite");
         intent.putExtra("food_position", foodList.get(position).getFoodId());
 
         startActivity(intent);
@@ -142,18 +127,18 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
             // backup of removed item for undo purpose
             final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
-            final int deletedIndex = viewHolder.getAdapterPosition();
+            final String deletedItemId = deletedItem.getFoodId();
 
-            myAdapter.removeItem(viewHolder.getAdapterPosition());
+            branchFavouriteFood.child(deletedItemId).removeValue();
 
             Snackbar snackbar = Snackbar
-                    .make(rv, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+                    .make(rv, name + " removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
                     // undo is selected, restore the deleted item
-                    myAdapter.restoreItem(deletedItem, deletedIndex);
+                    branchFavouriteFood.child(deletedItemId).setValue(restoreItem(deletedItem));
                 }
             });
             snackbar.setActionTextColor(Color.YELLOW);

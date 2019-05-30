@@ -1,7 +1,5 @@
 package it.polito.mad.appcomplete;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,8 +11,6 @@ import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -41,13 +37,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private LineChartView lineChartView;
     private RecyclerView mRecyclerView;
-
-//    private DatabaseReference database;
-//    private DatabaseReference timeBranch;
-//    private DatabaseReference popularFoodBranch;
-//    private DatabaseReference foodBranch;
-//    private SharedPreferences preferences;
-//    private String Uid;
 
     private Map<String, Integer> popFood;
     private Map<String, FoodInfo> food;
@@ -83,17 +72,6 @@ public class StatisticsActivity extends AppCompatActivity {
         fetchTime();
     }
 
-//    private void setFirebase() {
-//        Log.d(TAG, "setFirebase: called");
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        Uid = preferences.getString("Uid", "");
-//
-//        database = FirebaseDatabase.getInstance().getReference().child("restaurants/" + Uid);
-//
-//        timeBranch = database.child("Time");
-//        popularFoodBranch = database.child("Food_Analytics");
-//        foodBranch = database.child("Daily_Food");
-//    }
 
     private void fetchPopularFood() {
         Log.d(TAG, "fetchPopularFood: called");
@@ -109,11 +87,13 @@ public class StatisticsActivity extends AppCompatActivity {
                     break;
                 }
 
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.child(key).getChildren()) {
-                    popFood.put(dataSnapshot1.getKey(), Integer.valueOf(dataSnapshot1.getValue().toString()));
-                }
+                if (key != null) {
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.child(key).getChildren()) {
+                        popFood.put(dataSnapshot1.getKey(), Integer.valueOf(dataSnapshot1.getValue().toString()));
+                    }
 
-                fetchFood();
+                    fetchFood();
+                }
             }
 
             @Override
