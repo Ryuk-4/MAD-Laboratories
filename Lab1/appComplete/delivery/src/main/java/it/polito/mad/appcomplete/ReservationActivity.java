@@ -250,7 +250,7 @@ public class ReservationActivity extends AppCompatActivity
                 invalidateOptionsMenu();
                 break;
             case R.id.enable_disable_position:
-                if (started) //disable the service
+                if (locationService != null && started) //disable the service
                 {
                     stopService(locationService);
                     started = false;
@@ -259,6 +259,7 @@ public class ReservationActivity extends AppCompatActivity
                     getLocationPermission();
                     started = true;
                 }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
