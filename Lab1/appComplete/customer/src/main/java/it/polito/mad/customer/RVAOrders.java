@@ -112,13 +112,14 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             TextView name = new TextView(myContext);
             name.setText(s);
             name.setTextSize(18);
+            name.setTextColor(myContext.getColor(android.R.color.black));
             name.setTypeface(null, Typeface.BOLD);
             name.setTag(ordersInfos.get(i).getFoodId().get(s));
             name.setPadding(20, 6, 0, 0);
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(100, 0, 0, 0);
+            ll.setPadding(60, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
             quantity.setText(productQuantity.get(s).toString());
@@ -139,20 +140,6 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
             viewHolder.foodOrderList.addView(linearLayout);
         }
-
-
-/*
-        if (ordersInfos.get(i).getState() == OrderState.PENDING)
-        {
-            Button button = new Button(myContext);
-            button.setTag(ordersInfos.get(i).getRestaurantId() + " " + ordersInfos.get(i).getOrderId());
-            button.setText("SUBMIT");
-
-            button.setOnClickListener(new customOnClickListener(viewHolder) );
-
-            viewHolder.foodOrderList.addView(button);
-        }
-        */
 
         if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
         {
