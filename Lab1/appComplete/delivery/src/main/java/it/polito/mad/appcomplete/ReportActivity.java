@@ -69,16 +69,18 @@ public class ReportActivity extends AppCompatActivity implements
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot)
             {
-                float totaldistance= Float.parseFloat( dataSnapshot.child("totaldistance").getValue().toString());
-                TextViewTotalDistance.setText( Float.toString( totaldistance)+" km");
+                try {
+                    float totaldistance = Float.parseFloat(dataSnapshot.child("totaldistance").getValue().toString());
+                    TextViewTotalDistance.setText(Float.toString(totaldistance) + " km");
 
-                double paymentPerKm=1.5;
+                    double paymentPerKm = 1.5;
 
 
-                BigDecimal income=round((float) paymentPerKm*totaldistance,2);
-                //int incomInt=Integer..parseInt(income);
-                //TextViewIncome.setText(Convert.bigdeci .toString(income));
-                TextViewIncome.setText(income.toString()+ " Euro");
+                    BigDecimal income = round((float) paymentPerKm * totaldistance, 2);
+                    //int incomInt=Integer..parseInt(income);
+                    //TextViewIncome.setText(Convert.bigdeci .toString(income));
+                    TextViewIncome.setText(income.toString() + " Euro");
+                }catch(Exception e){}
             }
 
             @Override

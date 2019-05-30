@@ -25,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -58,7 +60,7 @@ public class ReservationActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
-    private boolean started;
+    private boolean started = false;
 
     // for notification
     private DatabaseReference branchOrders;
@@ -147,7 +149,6 @@ public class ReservationActivity extends AppCompatActivity
 
         tabLayout.setupWithViewPager(mViewPager);
 
-        started = this.getSharedPreferences("savedStuff", Context.MODE_PRIVATE).getBoolean("started", false);
 
         ////////////////////////////////////////////////////////////////
 /*        //For current location blue point on map
@@ -252,18 +253,29 @@ public class ReservationActivity extends AppCompatActivity
             case R.id.enable_disable_position:
                 if (locationService != null && started) //disable the service
                 {
-                    Toast.makeText(this,"enabl",Toast.LENGTH_LONG);
+                    Toast.makeText(this,"enabl",Toast.LENGTH_LONG).show();
                     stopService(locationService);
                     started = false;
                 } else //enable the service
                 {
                     getLocationPermission();
                     started = true;
+                    Toast.makeText(this,"diabled",Toast.LENGTH_LONG).show();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position").child(FirebaseAuth.getInstance().getUid());
+                    ref.removeValue();
                 }
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        started = this.getSharedPreferences("savedStuff", Context.MODE_PRIVATE).getBoolean("started", false);
+
     }
 
     @Override
