@@ -253,16 +253,18 @@ public class ReservationActivity extends AppCompatActivity
             case R.id.enable_disable_position:
                 if (locationService != null && started) //disable the service
                 {
-                    Toast.makeText(this,"enabl",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,"disabled",Toast.LENGTH_LONG).show();
                     stopService(locationService);
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position")
+                            .child(FirebaseAuth.getInstance().getUid());
+                    ref.removeValue();
                     started = false;
                 } else //enable the service
                 {
                     getLocationPermission();
                     started = true;
-                    Toast.makeText(this,"diabled",Toast.LENGTH_LONG).show();
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position").child(FirebaseAuth.getInstance().getUid());
-                    ref.removeValue();
+                    Toast.makeText(this,"enabled",Toast.LENGTH_LONG).show();
+
                 }
                 break;
         }
