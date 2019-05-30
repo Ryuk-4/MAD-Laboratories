@@ -228,7 +228,7 @@ public class OrdersActivity
                     } else if (orderState.compareTo("In_Preparation") == 0)
                     {
                         ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
-                    } else if (orderState.compareTo("Completed") == 0)
+                    } else if (orderState.compareTo("delivered") == 0)
                     {
                         ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
                     } else if (orderState.compareTo("Rejected") == 0)

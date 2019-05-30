@@ -41,8 +41,8 @@
                         android:id="@+id/food_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="6dp"
                         android:text="PIZZA"
                         android:textColor="@android:color/black"
                         android:textSize="20sp"
@@ -50,34 +50,41 @@
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="4dp">
 
                         <TextView
                             android:id="@+id/food_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginTop="4dp"
                             android:text="123"
                             android:textColor="#027900"
-                            android:textSize="14sp"
+                            android:textSize="15sp"
                             android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
                             android:text="€"
                             android:textStyle="bold"
                             android:textColor="#027900"
-                            android:textSize="14sp" />
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/food_quantity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="(3pcs left)"
+                            android:layout_marginLeft="14dp"
+                            android:textSize="15sp" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginTop="8dp">
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="6dp">
 
                         <ImageButton
                             android:id="@+id/minus_button"

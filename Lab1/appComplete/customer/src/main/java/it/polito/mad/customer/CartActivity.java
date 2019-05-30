@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,11 +32,16 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.jaeger.library.StatusBarUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -124,33 +130,45 @@ public class CartActivity extends AppCompatActivity{
 
     @SuppressLint("ApplySharedPref")
     private void addListenerToButtons() {
-        buttonSend.setOnClickListener(v -> {
-            String orderId = saveOrderToRestaurant();
-            saveOrderToCustomer(orderId);
+        buttonSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String orderId = saveOrderToRestaurant();
+                saveOrderToCustomer(orderId);
 
-            setResult(RESULT_OK);
-            finish();
-        });
-
-        buttonDiscard.setOnClickListener(v -> {
-            SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-
-            sharedPreferences.edit().clear().commit();
-            setResult(RESULT_CANCELED);
-            finish();
-        });
-
-        imageLocation.setOnClickListener(v -> {
-            if (!Places.isInitialized()) {
-                Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
+                setResult(RESULT_OK);
+                finish();
             }
+        });
 
-            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
 
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
-            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+        buttonDiscard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+
+                sharedPreferences.edit().clear().commit();
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+
+        imageLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Places.isInitialized()) {
+                    Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
+                }
+
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+            }
         });
     }
+
+
 
     /**
      *  get all the references from the layout
@@ -253,7 +271,10 @@ public class CartActivity extends AppCompatActivity{
             databaseReference.child("food").child(key).child("foodQuantity").setValue(o.getQuantity());
         }
 
+        String name = CartActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).getString("userName", "");
+
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
+        databaseReference.child("namePerson").setValue(name);
         databaseReference.child("addressReservation").setValue(userLocation.getText().toString());
         databaseReference.child("restaurant").setValue(restId);
         databaseReference.child("restaurant_name").setValue(restName);
@@ -262,14 +283,12 @@ public class CartActivity extends AppCompatActivity{
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_CANCELED);
-        finish();
+        increaseQuantityOfFood();
         super.onBackPressed();
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        setResult(RESULT_CANCELED);
-        finish();
+        increaseQuantityOfFood();
         return true;
     }
 
@@ -355,4 +374,43 @@ public class CartActivity extends AppCompatActivity{
             return null;
         }
     }
+
+    public void increaseQuantityOfFood()
+    {
+        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+                .runTransaction( new Transaction.Handler(){
+
+                    @Override
+                    public Transaction.Result doTransaction(MutableData currentData){
+                        for (OrderRecap o : list)
+                        {
+                            for (MutableData mutableData : currentData.getChildren())
+                            {
+                                String key = mutableData.getKey();
+
+                                if (key.compareTo(o.getKey()) == 0)
+                                {
+                                    String quantity = "0";
+                                    Object obj = mutableData.child("quantity").getValue();
+
+                                    if (obj != null)
+                                    {
+                                        quantity = obj.toString();
+                                    }
+
+                                    mutableData.child("quantity").setValue(Integer.parseInt(quantity) + Integer.parseInt(o.getQuantity()));
+                                }
+                            }
+                        }
+                        return Transaction.success(currentData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData){
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
+                });
+    }
+
 }

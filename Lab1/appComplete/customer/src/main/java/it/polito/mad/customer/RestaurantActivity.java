@@ -30,10 +30,13 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
@@ -66,6 +69,7 @@ public class RestaurantActivity
     private myFragmentPageAdapter adapter;
     private ViewPager mViewPager;
     private TextView restaurantNameText, restaurantDescription;
+    private List<OrderRecap> orders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,9 +121,14 @@ public class RestaurantActivity
 
 
     private void getRestaurantInformation() {
+
+
         FirebaseDatabase.getInstance().getReference("restaurants").child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dailyFoodInfoList = new ArrayList<>();
+                reviewInfoList = new ArrayList<>();
+
                 Object object = dataSnapshot.child("Profile").child("imgUrl").getValue();
                 String photoURLrestaurant = "";
 
@@ -149,11 +158,7 @@ public class RestaurantActivity
                 getDataReviews(dataSnapshot);
 
                 adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList, reviewInfoList);
-
-                //viewPager = mViewPager.getViewPager();
                 mViewPager.setAdapter(adapter);
-
-                //mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
 
                 if (photoURLrestaurant != "") {
                     GetBitmapFromURLAsync getBitmapFromURLAsync = new GetBitmapFromURLAsync();
@@ -203,21 +208,6 @@ public class RestaurantActivity
         bottomNavigationView = findViewById(R.id.bottom_view);
     }
 
-    private void setStatusBarTransparent() {
-        //make translucent statusBar on kitkat devices
-        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
-        }
-        if (Build.VERSION.SDK_INT >= 19) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        //make fully Android Transparent Status bar
-        if (Build.VERSION.SDK_INT >= 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
-    }
-
     private void getDataDailyFood(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("Daily_Food").getChildren()) {
             Object o;
@@ -253,7 +243,16 @@ public class RestaurantActivity
             if (o != null)
                 photoURLfood = o.toString();
 
-            dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price, key));
+            o = ds.child("quantity").getValue();
+            String quantity = "0";
+
+            if (o != null)
+            {
+                quantity = o.toString();
+            }
+
+            if (Integer.parseInt(quantity) != 0)
+                dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price, key, quantity));
         }
     }
 
@@ -316,7 +315,7 @@ public class RestaurantActivity
         if (id == R.id.go_to_cart) {
             SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
             int n_food = sharedPreferences.getInt("n_food", 0);
-            List<OrderRecap> orders = new ArrayList<OrderRecap>();
+            orders = new ArrayList<OrderRecap>();
 
             for (int i = 0; i < n_food; i++) {
                 String amount = sharedPreferences.getString("amount" + i, "");
@@ -328,13 +327,9 @@ public class RestaurantActivity
                 }
             }
 
-            Intent intent = new Intent(this, CartActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("data", (ArrayList<? extends Parcelable>) orders);
-            bundle.putString("restId", restId);
-            bundle.putString("restName", restName);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, REQUEST_CART);
+            decreaseQuantityOfFood();
+
+
 
         } else if (item.getItemId() == android.R.id.home) {
             int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
@@ -504,5 +499,58 @@ public class RestaurantActivity
         }
     }
 
+    private void decreaseQuantityOfFood() {
+        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+                .runTransaction( new Transaction.Handler(){
+
+                    @Override
+                    public Transaction.Result doTransaction(MutableData currentData){
+                        for (OrderRecap o : orders)
+                        {
+                            for (MutableData mutableData : currentData.getChildren())
+                            {
+                                String key = mutableData.getKey();
+
+                                if (key.compareTo(o.getKey()) == 0)
+                                {
+                                    String quantity = "0";
+                                    Object obj = mutableData.child("quantity").getValue();
+
+                                    if (obj != null)
+                                    {
+                                        quantity = obj.toString();
+                                    }
+
+                                    if (Integer.parseInt(quantity) < Integer.parseInt(o.getQuantity()))
+                                    {
+                                        return Transaction.abort();
+                                    }
+
+                                    mutableData.child("quantity").setValue(String.valueOf(Integer.parseInt(quantity) - Integer.parseInt(o.getQuantity())));
+                                }
+                            }
+                        }
+                        return Transaction.success(currentData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData){
+                        if (committed == true)
+                        {
+                            Intent intent = new Intent(RestaurantActivity.this, CartActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("data", (ArrayList<? extends Parcelable>) orders);
+                            bundle.putString("restId", restId);
+                            bundle.putString("restName", restName);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, REQUEST_CART);
+                        } else
+                        {
+                            Toast.makeText(RestaurantActivity.this, "The food you've ordered may not be available", Toast.LENGTH_LONG).show();
+                            getRestaurantInformation();
+                        }
+                    }
+                });
+    }
 
 }
