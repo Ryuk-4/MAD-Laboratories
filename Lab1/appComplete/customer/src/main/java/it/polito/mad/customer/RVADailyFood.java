@@ -1,6 +1,7 @@
 package it.polito.mad.customer;
 
 import android.animation.ObjectAnimator;
+import android.app.IntentService;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
@@ -42,8 +43,11 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull RVADailyFood.ViewHolder viewHolder, final int i) {
         viewHolder.name.setText(foodInfoList.get(i).getName());
+        viewHolder.name.setTag(foodInfoList.get(i).getKey());
         viewHolder.price.setText(foodInfoList.get(i).getPrice());
         viewHolder.mItemDescription.setText("''"+foodInfoList.get(i).getDescription()+"''");
+        viewHolder.quantity.setText("("+foodInfoList.get(i).getQuantity()+"pcs left)");
+        viewHolder.amount.setTag(foodInfoList.get(i).getQuantity());
 
         SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
         int n_food = sharedPreferences.getInt("n_food", 0);
@@ -58,6 +62,9 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
                 viewHolder.amount.setText(amount);
             }
         }
+
+        viewHolder.minus_btn.setOnClickListener(new customMinusButtonListener(viewHolder));
+        viewHolder.plus_btn.setOnClickListener(new customPlusButtonListener(viewHolder));
 
         Picasso.get().load(foodInfoList.get(i).getImageUrl()).into(viewHolder.photo);
     }
@@ -91,6 +98,7 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
         ImageView photo, expandCollapse;
         TextView amount;
         ImageButton plus_btn, minus_btn;
+        TextView quantity;
 
 
         public ViewHolder(@NonNull final View itemView) {
@@ -104,77 +112,12 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
             price = itemView.findViewById(R.id.food_price);
             expandCollapse = itemView.findViewById(R.id.item_description_img);
             mItemDescription = itemView.findViewById(R.id.food_description);
+            quantity = itemView.findViewById(R.id.food_quantity);
 
             expandCollapse.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     collapseExpandTextView();
-                }
-            });
-
-            plus_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int i = Integer.parseInt(amount.getText().toString());
-                    i++;
-                    amount.setText(Integer.toString(i));
-
-                    SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-                    int n_food = sharedPreferences.getInt("n_food", 0);
-                    int iter = 0;
-                    String food;
-
-                    for (; iter < n_food ; iter++)
-                    {
-                        food = sharedPreferences.getString("food"+iter, "");
-                        if (food.compareTo(name.getText().toString()) == 0)
-                            break;
-                    }
-
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                    editor.putString("food"+iter, name.getText().toString());
-                    editor.putString("amount"+iter, amount.getText().toString());
-                    editor.putString("price"+iter, price.getText().toString());
-
-                    if (iter == n_food)
-                    {
-                        n_food++;
-                        editor.putInt("n_food", n_food);
-                    }
-
-                    editor.apply();
-                }
-            });
-
-            minus_btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int i = Integer.parseInt(amount.getText().toString());
-                    if (i != 0)
-                    {
-                        i--;
-                        amount.setText(Integer.toString(i));
-
-                        SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-                        int n_food = sharedPreferences.getInt("n_food", 0);
-                        int iter = 0;
-                        String food;
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                        for (; iter < n_food ; iter++)
-                        {
-                            food = sharedPreferences.getString("food"+iter, "");
-                            if (food.compareTo(name.getText().toString()) == 0)
-                            {
-                                editor.putString("amount"+iter, amount.getText().toString());
-                                editor.commit();
-                                break;
-                            }
-                        }
-                    }
-
-
                 }
             });
         }
@@ -192,6 +135,91 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
 
             ObjectAnimator animation = ObjectAnimator.ofInt(mItemDescription, "maxLines", mItemDescription.getMaxLines());
             animation.setDuration(400).start();
+        }
+    }
+
+    class customPlusButtonListener implements View.OnClickListener
+    {
+        private ViewHolder viewHolder;
+
+        public customPlusButtonListener(ViewHolder viewHolder) {
+            this.viewHolder = viewHolder;
+        }
+
+        @Override
+        public void onClick(View v) {
+            int totalFood = Integer.parseInt(viewHolder.amount.getTag().toString());
+            int i = Integer.parseInt(viewHolder.amount.getText().toString());
+            i++;
+
+            if (i > totalFood)
+                return;
+
+            viewHolder.amount.setText(Integer.toString(i));
+
+            SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+            int n_food = sharedPreferences.getInt("n_food", 0);
+            int iter = 0;
+            String food;
+
+            for (; iter < n_food ; iter++)
+            {
+                food = sharedPreferences.getString("food"+iter, "");
+                if (food.compareTo(viewHolder.name.getText().toString()) == 0)
+                    break;
+            }
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
+            editor.putString("food"+iter, viewHolder.name.getText().toString());
+            editor.putString("amount"+iter, viewHolder.amount.getText().toString());
+            editor.putString("price"+iter, viewHolder.price.getText().toString());
+            editor.putString("key"+iter, viewHolder.name.getTag().toString());
+
+            if (iter == n_food)
+            {
+                n_food++;
+                editor.putInt("n_food", n_food);
+            }
+
+            editor.apply();
+        }
+    }
+
+
+    class  customMinusButtonListener implements View.OnClickListener
+    {
+        private ViewHolder viewHolder;
+
+        public customMinusButtonListener(ViewHolder viewHolder) {
+            this.viewHolder = viewHolder;
+        }
+
+        @Override
+        public void onClick(View v) {
+            int i = Integer.parseInt(viewHolder.amount.getText().toString());
+            if (i != 0)
+            {
+                i--;
+                viewHolder.amount.setText(Integer.toString(i));
+
+                SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+                int n_food = sharedPreferences.getInt("n_food", 0);
+                int iter = 0;
+                String food;
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                for (; iter < n_food ; iter++)
+                {
+                    food = sharedPreferences.getString("food"+iter, "");
+                    if (food.compareTo(viewHolder.name.getText().toString()) == 0)
+                    {
+                        editor.putString("amount"+iter, viewHolder.amount.getText().toString());
+                        editor.commit();
+                        break;
+                    }
+                }
+            }
         }
     }
 }

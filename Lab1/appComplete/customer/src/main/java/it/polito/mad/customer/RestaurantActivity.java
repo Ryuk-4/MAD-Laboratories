@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -29,13 +30,15 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.github.florent37.materialviewpager.MaterialViewPager;
-import com.github.florent37.materialviewpager.header.HeaderDesign;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -52,21 +55,21 @@ public class RestaurantActivity
         extends AppCompatActivity
 
         implements  MenuFragment.OnFragmentInteractionListener,
-                    DailyFoodFragment.OnFragmentInteractionListener,
-                    ReviewFragment.OnFragmentInteractionListenerReview{
+        DailyFoodFragment.OnFragmentInteractionListener,
+        ReviewFragment.OnFragmentInteractionListenerReview{
 
     private static final int REQUEST_CART = 12;
-    private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
     private TabLayout tabLayout;
-    private ImageView imageView, imageViewBlur;
+    private ImageView imageView;
     private Toolbar toolbar;
     private String restId, restName;
     private List<SuggestedFoodInfo> dailyFoodInfoList;
     private List<ReviewInfo> reviewInfoList;
     private myFragmentPageAdapter adapter;
-    private MaterialViewPager mViewPager;
-    private TextView restaurantNameText;
-    private Bitmap result;
+    private ViewPager mViewPager;
+    private TextView restaurantNameText, restaurantDescription;
+    private List<OrderRecap> orders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +81,12 @@ public class RestaurantActivity
 
         getLayoutReferences();
 
-        toolbar = mViewPager.getToolbar();
+        toolbar = findViewById(R.id.toolbar_restaurant);
+        setSupportActionBar(toolbar);
 
         deleteStatusBarTitle();
+
+        initBottomNavigation();
 
         deletePreviousCart(this.getSharedPreferences("orders_info", Context.MODE_PRIVATE));
 
@@ -88,14 +94,41 @@ public class RestaurantActivity
 
         getRestaurantInformation();
 
-        setStatusBarTransparent();
+        //setStatusBarTransparent();
+        StatusBarUtil.setTransparent(this);
+
+
+    }
+
+    private void initBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId())
+                {
+                    case R.id.daily_food:
+                        mViewPager.setCurrentItem(0);
+                        break;
+                    case R.id.reviews:
+                        mViewPager.setCurrentItem(1);
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 
 
     private void getRestaurantInformation() {
+
+
         FirebaseDatabase.getInstance().getReference("restaurants").child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                dailyFoodInfoList = new ArrayList<>();
+                reviewInfoList = new ArrayList<>();
+
                 Object object = dataSnapshot.child("Profile").child("imgUrl").getValue();
                 String photoURLrestaurant = "";
 
@@ -111,15 +144,21 @@ public class RestaurantActivity
                     restaurantNameText.setText(name);
                 }
 
+                object = dataSnapshot.child("Profile").child("description").getValue();
+                StringBuffer description = new StringBuffer("'");
+
+                if (object != null)
+                {
+                    description.append(object.toString());
+                    description.append("'");
+                    restaurantDescription.setText(description.toString());
+                }
+
                 getDataDailyFood(dataSnapshot);
                 getDataReviews(dataSnapshot);
 
                 adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList, reviewInfoList);
-
-                viewPager = mViewPager.getViewPager();
-                viewPager.setAdapter(adapter);
-
-                mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
+                mViewPager.setAdapter(adapter);
 
                 if (photoURLrestaurant != "") {
                     GetBitmapFromURLAsync getBitmapFromURLAsync = new GetBitmapFromURLAsync();
@@ -162,48 +201,97 @@ public class RestaurantActivity
 
     private void getLayoutReferences() {
         imageView = findViewById(R.id.htab_header);
-        imageViewBlur = findViewById(R.id.htab_header_blur);
+        //imageViewBlur = findViewById(R.id.htab_header_blur);
         restaurantNameText = findViewById(R.id.restaurant_name_header);
-        mViewPager = (MaterialViewPager) findViewById(R.id.materialViewPager);
-    }
-
-    private void setStatusBarTransparent() {
-        //make translucent statusBar on kitkat devices
-        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, true);
-        }
-        if (Build.VERSION.SDK_INT >= 19) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-        //make fully Android Transparent Status bar
-        if (Build.VERSION.SDK_INT >= 21) {
-            setWindowFlag(this, WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS, false);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+        restaurantDescription = findViewById(R.id.restaurant_description_header);
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        bottomNavigationView = findViewById(R.id.bottom_view);
     }
 
     private void getDataDailyFood(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("Daily_Food").getChildren()) {
-            String name = ds.child("name").getValue().toString();
-            String description = ds.child("description").getValue().toString();
-            String price = ds.child("price").getValue().toString();
-            Object o = ds.child("image").getValue();
-            String photoURLfood = new String("");
+            Object o;
+            String key = ds.getKey();
+
+            o = ds.child("name").getValue();
+            String name = "";
+
+            if (o != null)
+            {
+                name = o.toString();
+            }
+
+            o = ds.child("description").getValue();
+            String description = "";
+
+            if (o != null)
+            {
+                description = o.toString();
+            }
+
+            o = ds.child("price").getValue();
+            String price = "0";
+
+            if (o != null)
+            {
+                price = o.toString();
+            }
+
+            o = ds.child("image").getValue();
+            String photoURLfood = "0";
 
             if (o != null)
                 photoURLfood = o.toString();
 
-            dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price));
+            o = ds.child("quantity").getValue();
+            String quantity = "0";
+
+            if (o != null)
+            {
+                quantity = o.toString();
+            }
+
+            if (Integer.parseInt(quantity) != 0)
+                dailyFoodInfoList.add(new SuggestedFoodInfo(name, description, photoURLfood, price, key, quantity));
         }
     }
 
     private void getDataReviews(@NonNull DataSnapshot dataSnapshot) {
         for (DataSnapshot ds : dataSnapshot.child("review_description").getChildren())
         {
-            String title = ds.child("title").getValue().toString();
-            String description = ds.child("description").getValue().toString();
-            String date = ds.child("date").getValue().toString();
-            String rate = ds.child("stars").getValue().toString();
+            Object o;
+
+            o = ds.child("title").getValue();
+            String title = "";
+
+            if (o != null)
+            {
+                title = o.toString();
+            }
+
+            o = ds.child("description").getValue();
+            String description = "";
+
+            if (o != null)
+            {
+                description = o.toString();
+            }
+
+            o = ds.child("date").getValue();
+            String date = "";
+
+            if (o != null)
+            {
+                date = o.toString();
+            }
+
+            o = ds.child("stars").getValue();
+            String rate = "0";
+
+            if (o != null)
+            {
+                rate = o.toString();
+            }
 
             reviewInfoList.add(new ReviewInfo(rate, title, description, date));
         }
@@ -227,29 +315,24 @@ public class RestaurantActivity
         if (id == R.id.go_to_cart) {
             SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
             int n_food = sharedPreferences.getInt("n_food", 0);
-            List<OrderRecap> orders = new ArrayList<OrderRecap>();
+            orders = new ArrayList<OrderRecap>();
 
             for (int i = 0; i < n_food; i++) {
                 String amount = sharedPreferences.getString("amount" + i, "");
                 if ((amount != "") && (Integer.parseInt(amount) != 0)) {
                     String price = sharedPreferences.getString("price" + i, "");
                     String name = sharedPreferences.getString("food" + i, "");
-
-                    orders.add(new OrderRecap(price, amount, name));
+                    String key = sharedPreferences.getString("key" + i, "");
+                    orders.add(new OrderRecap(price, amount, name, key));
                 }
             }
 
-            Intent intent = new Intent(this, CartActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("data", (ArrayList<? extends Parcelable>) orders);
-            bundle.putString("restId", restId);
-            bundle.putString("restName", restName);
-            intent.putExtras(bundle);
-            startActivityForResult(intent, REQUEST_CART);
+            decreaseQuantityOfFood();
+
+
 
         } else if (item.getItemId() == android.R.id.home) {
             int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
-
 
             if (nFood != 0) {
                 AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -264,14 +347,12 @@ public class RestaurantActivity
 
                         sharedPreferences.edit().clear().commit();
 
-                        finish();
+                        RestaurantActivity.super.onBackPressed();
                     }
                 });
 
                 pictureDialog.show();
             }
-
-            finish();
         }
 
         return true;
@@ -338,7 +419,10 @@ public class RestaurantActivity
 
         getLayoutReferences();
 
-        toolbar = mViewPager.getToolbar();
+        initBottomNavigation();
+
+        toolbar = findViewById(R.id.toolbar_restaurant);
+        setSupportActionBar(toolbar);
 
         deleteStatusBarTitle();
 
@@ -358,7 +442,7 @@ public class RestaurantActivity
             if (resultCode == RESULT_OK) {
                 finish();
             } else if (resultCode == RESULT_CANCELED) {
-                adapter.refreshLayout(0);
+                //adapter.refreshLayout(0);
             }
         }
     }
@@ -395,7 +479,7 @@ public class RestaurantActivity
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             //  return the bitmap by doInBackground and store in result
-            Blurry.with(RestaurantActivity.this).radius(10).from(bitmap).into(imageViewBlur);
+            //Blurry.with(RestaurantActivity.this).radius(10).from(bitmap).into(imageViewBlur);
             imageView.setImageBitmap(bitmap);
         }
     }
@@ -415,5 +499,58 @@ public class RestaurantActivity
         }
     }
 
+    private void decreaseQuantityOfFood() {
+        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+                .runTransaction( new Transaction.Handler(){
+
+                    @Override
+                    public Transaction.Result doTransaction(MutableData currentData){
+                        for (OrderRecap o : orders)
+                        {
+                            for (MutableData mutableData : currentData.getChildren())
+                            {
+                                String key = mutableData.getKey();
+
+                                if (key.compareTo(o.getKey()) == 0)
+                                {
+                                    String quantity = "0";
+                                    Object obj = mutableData.child("quantity").getValue();
+
+                                    if (obj != null)
+                                    {
+                                        quantity = obj.toString();
+                                    }
+
+                                    if (Integer.parseInt(quantity) < Integer.parseInt(o.getQuantity()))
+                                    {
+                                        return Transaction.abort();
+                                    }
+
+                                    mutableData.child("quantity").setValue(String.valueOf(Integer.parseInt(quantity) - Integer.parseInt(o.getQuantity())));
+                                }
+                            }
+                        }
+                        return Transaction.success(currentData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData){
+                        if (committed == true)
+                        {
+                            Intent intent = new Intent(RestaurantActivity.this, CartActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("data", (ArrayList<? extends Parcelable>) orders);
+                            bundle.putString("restId", restId);
+                            bundle.putString("restName", restName);
+                            intent.putExtras(bundle);
+                            startActivityForResult(intent, REQUEST_CART);
+                        } else
+                        {
+                            Toast.makeText(RestaurantActivity.this, "The food you've ordered may not be available", Toast.LENGTH_LONG).show();
+                            getRestaurantInformation();
+                        }
+                    }
+                });
+    }
 
 }

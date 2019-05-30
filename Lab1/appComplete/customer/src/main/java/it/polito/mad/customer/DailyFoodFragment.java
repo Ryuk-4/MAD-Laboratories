@@ -12,8 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -112,7 +110,7 @@ public class DailyFoodFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_daily_food, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.rv_daily_food);
-        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        //recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
 
         initRecyclerView();
 

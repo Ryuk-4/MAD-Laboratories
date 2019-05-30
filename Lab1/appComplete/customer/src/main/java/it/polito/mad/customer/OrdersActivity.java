@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,13 +34,14 @@ public class OrdersActivity
         extends AppCompatActivity
 
         implements NavigationView.OnNavigationItemSelectedListener,
-                   OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
-                   OrdersPendingFragment.OnFragmentInteractionListenerPending{
+        OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
+        OrdersPendingFragment.OnFragmentInteractionListenerPending{
 
     private Toolbar toolbar;
     private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
     private myFragmentPageAdapterOrders adapter;
     private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
 
 
     @Override
@@ -48,9 +51,12 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -61,9 +67,12 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -118,25 +127,87 @@ public class OrdersActivity
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     String orderId = ds.getKey();
-                    String restName = ds.child("restaurant_name").getValue().toString();
-                    String restId = ds.child("restaurant").getValue().toString();
-                    String time = ds.child("timeReservation").getValue().toString();
-                    //String address = ds.child("addressReservation").getValue().toString();
-                    String orderState = ds.child("order_status").getValue().toString();
+
+                    Object o = ds.child("restaurant_name").getValue();
+                    String restName = "";
+
+                    if (o != null)
+                    {
+                        restName = o.toString();
+                    }
+
+                    o = ds.child("restaurant").getValue();
+                    String restId = "";
+
+                    if (o != null)
+                    {
+                        restId = o.toString();
+                    }
+
+                    o = ds.child("timeReservation").getValue();
+                    String time = "";
+
+                    if (o != null)
+                    {
+                        time = o.toString();
+                    }
+
+                    o = ds.child("order_status").getValue();
+                    String orderState = "";
+
+                    if (o != null)
+                    {
+                        orderState = o.toString();
+                    }
+
+                    o = ds.child("addressReservation").getValue();
+                    String address = "";
+
+                    if (o != null)
+                    {
+                        address = o.toString();
+                    }
+
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
                     Map<String, String> foodId = new TreeMap<>();
+                    Map<String, String> foodKey = new TreeMap<>();
 
                     for (DataSnapshot ds1 : ds.child("food").getChildren())
                     {
-                        String foodName = ds1.child("foodName").getValue().toString();
-                        foodAmount.put(foodName, new Integer(ds1.child("foodQuantity").getValue().toString()));
-                        foodPrice.put(foodName, new Float(ds1.child("foodPrice").getValue().toString()));
-                        foodId.put(foodName, ds1.getKey().toString());
+                        String foodName = "";
+                        o = ds1.child("foodName").getValue();
+
+                        if (o != null)
+                        {
+                            foodName = o.toString();
+                        }
+
+                        foodId.put(foodName, ds1.getKey());
+
+                        String quantity = "0";
+                        o = ds1.child("foodQuantity").getValue();
+
+                        if (o != null)
+                        {
+                            quantity = o.toString();
+                        }
+
+                        foodAmount.put(foodName, new Integer(quantity));
+
+                        String price = "0";
+                        o = ds1.child("foodPrice").getValue();
+
+                        if (o != null)
+                        {
+                            price = o.toString();
+                        }
+                        foodPrice.put(foodName, new Float(price));
+
                     }
 
-                    Object o = ds.child("riderId").getValue();
+                    o = ds.child("riderId").getValue();
                     String riderId = "";
 
                     if (o != null)
@@ -150,25 +221,25 @@ public class OrdersActivity
 
                     if (orderState.compareTo("pending") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
                     } else if (orderState.compareTo("In_Preparation") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
-                    } else if (orderState.compareTo("Completed") == 0)
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
+                    } else if (orderState.compareTo("delivered") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
                     } else if (orderState.compareTo("Rejected") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }
                 }
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
-                ((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
+                //((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
                 //viewPager.invalidate();
             }
 
@@ -187,5 +258,24 @@ public class OrdersActivity
     @Override
     public void onFragmentInteractionPending(Uri uri) {
 
+    }
+
+    private void initBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId())
+                {
+                    case R.id.pending_orders:
+                        viewPager.setCurrentItem(0);
+                        break;
+                    case R.id.completed_orders:
+                        viewPager.setCurrentItem(1);
+                        break;
+                }
+
+                return false;
+            }
+        });
     }
 }

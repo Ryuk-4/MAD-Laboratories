@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/pending_orders"
+        android:enabled="true"
+        android:title="PENDING"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/baseline_done_black_18"/>
+
+    <item
+        android:id="@+id/completed_orders"
+        android:enabled="true"
+        android:title="COMPLETED"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/baseline_done_all_black_18"/>
+
+</menu>

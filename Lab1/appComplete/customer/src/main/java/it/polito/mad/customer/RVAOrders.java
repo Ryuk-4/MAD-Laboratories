@@ -9,8 +9,10 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -36,12 +39,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -110,10 +118,11 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(50, 0, 0, 0);
+            ll.setPadding(100, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
-            quantity.setHint(productQuantity.get(s).toString());
+            quantity.setText(productQuantity.get(s).toString());
+            quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
 
             if (ordersInfos.get(i).getState() != OrderState.PENDING)
                 quantity.setKeyListener(null);
@@ -132,7 +141,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
 
-
+/*
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
         {
             Button button = new Button(myContext);
@@ -143,6 +152,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
             viewHolder.foodOrderList.addView(button);
         }
+        */
 
         if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
         {
@@ -156,12 +166,18 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                     String restId = v.getTag().toString().split(" ")[0];
                     String orderId = v.getTag().toString().split(" ")[1];
 
-                    Intent intent = new Intent(myContext, ReviewActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("restId", restId);
-                    bundle.putString("orderId", orderId);
-                    intent.putExtras(bundle);
-                    myContext.startActivity(intent);
+                    LayoutInflater li = LayoutInflater.from(myContext);
+                    View view = li.inflate(R.layout.activity_review, null);
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
+                    alertDialogBuilder.setView(view);
+
+                    AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
+
+                    Button b = view.findViewById(R.id.button);
+                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId, alertDialogCongratulations));
+
+                    alertDialogCongratulations.show();
                 }
             });
 
@@ -201,7 +217,7 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
     // inner class to manage the view
     public class ViewHolder     extends RecyclerView.ViewHolder
-                                implements OnMapReadyCallback { //implements View.OnClickListener {
+            implements OnMapReadyCallback { //implements View.OnClickListener {
         LinearLayout foodOrderList, ll_orders;
         TextView restaurantName;
         TextView orderTime;
@@ -315,25 +331,21 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         }
 
         private void saveDataToRestaurant(String restaurantId, String orderId) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId).child("OrderList");
 
-            Log.d(TAG, "saveDataToRestaurant: " +restaurantId);
             int count = viewHolder.foodOrderList.getChildCount();
-            StringBuffer stringBuffer = new StringBuffer("");
-
             for (int i = 0 ; i < count -1 ; i++)
             {
                 LinearLayout view = (LinearLayout) viewHolder.foodOrderList.getChildAt(i);
 
                 String name = ((TextView) view.getChildAt(0)).getText().toString();
+                String id = ((TextView) view.getChildAt(0)).getTag().toString();
                 String quantity = ((EditText)((LinearLayout) view.getChildAt(1)).getChildAt(0)).getText().toString();
 
-                for (int j = 0 ; j < Integer.parseInt(quantity) ; j++)
-                    stringBuffer.append(name+", ");
 
+                databaseReference.child(id).child("Name").setValue(name);
+                databaseReference.child(id).child("quantity").setValue(quantity);
             }
-
-            databaseReference.child("personOrder").setValue(stringBuffer.toString());
         }
     }
 
@@ -358,6 +370,120 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    }
+
+    class CustomReviewClickListener implements View.OnClickListener
+    {
+        private View view;
+        private String orderId;
+        private String restId;
+        private AlertDialog alertDialog;
+        private String title;
+        private String description;
+        private int rating;
+
+        CustomReviewClickListener(View view, String orderId, String restId, AlertDialog alertDialog)
+        {
+           this.view = view;
+           this.restId = restId;
+           this.orderId = orderId;
+           this.alertDialog = alertDialog;
+        }
+
+        @Override
+        public void onClick(View v) {
+            RatingBar ratingBar = view.findViewById(R.id.ratingBar);
+            EditText textTitle = view.findViewById(R.id.textTitle);
+            EditText textDescription = view.findViewById(R.id.textDescription);
+
+            title = textTitle.getText().toString();
+            description = textDescription.getText().toString();
+            rating = (int) ratingBar.getRating();
+
+            //Log.d("TAG", "onClick: "+rating);
+
+            addNewReview(title, description, rating);
+            incrementStarReview(rating);
+            setOrderReviewed();
+
+            alertDialog.cancel();
+        }
+
+        private void setOrderReviewed() {
+            Log.d("TAG", "setOrderReviewed: ");
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order").child(orderId);
+            databaseReference.child("reviewed").setValue("true");
+        }
+
+        private void incrementStarReview(final int rating) {
+            DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review");
+
+            databaseReference1.runTransaction( new Transaction.Handler(){
+
+                @Override
+                public Transaction.Result doTransaction(MutableData currentData){
+                    double nVotes=0, nStars=0;
+                    for (int i = 1 ; i <= 5 ; i++)
+                    {
+                        Object o = currentData.child(i+"star").getValue();
+
+                        if (o != null)
+                        {
+                            nVotes += Double.parseDouble(o.toString());
+                            nStars += (Double.parseDouble(o.toString())*i);
+                        }
+
+                        if (i == rating)
+                        {
+                            nVotes++;
+                            nStars += i;
+                        }
+                    }
+
+                    double totalRating;
+                    if (nVotes != 0)
+                    {
+                        totalRating = nStars/nVotes;
+                    } else
+                    {
+                        totalRating = 0;
+                    }
+
+                    FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child("total").setValue(totalRating);
+
+                    Object o = currentData.child(rating+"star").getValue();
+
+                    if (o != null)
+                    {
+                        int value = Integer.parseInt(o.toString());
+                        value++;
+                        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review").child(rating+"star").setValue(value);
+                    }
+
+                    return Transaction.success(currentData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError,
+                                       boolean committed, DataSnapshot currentData){
+                    //This method will be called once with the results of the	 		//transaction.
+                }
+            });
+        }
+
+        private void addNewReview(String title, String description, float rating) {
+            Date c = Calendar.getInstance().getTime();
+
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+            String formattedDate = df.format(c);
+
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("review_description").push();
+            databaseReference.child("title").setValue(title);
+            databaseReference.child("description").setValue(description);
+            databaseReference.child("stars").setValue(rating);
+            databaseReference.child("date").setValue(formattedDate);
 
         }
     }
