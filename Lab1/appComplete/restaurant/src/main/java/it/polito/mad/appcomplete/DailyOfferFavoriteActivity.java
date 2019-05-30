@@ -16,19 +16,33 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class DailyOfferFavoriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
+
+    private static final String TAG = "DailyOfferFavoriteActiv";
 
     private SharedPreferences sharedpref;
     private List<FoodInfo> foodList;
     private RVAdapter myAdapter;
     private RecyclerView rv;
+
+//    private SharedPreferences preferences;
+//    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,43 +55,46 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initializeCardLayout();
+//        database = FirebaseDatabase.getInstance().getReference();
 
+        setupFirebase();
+        getFavoriteFoodInfo();
     }
 
-    private void getFavoriteFoodInfo()
-    {
-        sharedpref = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
+    private void getFavoriteFoodInfo() {
+        Log.d(TAG, "getFavoriteFoodInfo: called");
+//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+//
+//        String Uid = preferences.getString("Uid", "");
+//        DatabaseReference branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food");
 
-        foodList = new ArrayList<>();
-        int numberOfFood = sharedpref.getInt("numberOfFood", 0);
+        branchFavouriteFood.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange: called");
+                foodList = new ArrayList<>();
 
-        if (numberOfFood == 0){
-            //foodList.add(new FoodInfo(null, "Pasta", 10, 15, "Very Good"));
-        } else
-        {
-            for (int i = 0;i < numberOfFood;i++)
-            {
-                String foodName = sharedpref.getString("foodName" + i, "");
-                String foodQuantity = sharedpref.getString("foodQuantity" + i, "");
-                String foodPrice = sharedpref.getString("foodPrice" + i, "");
-                String foodDescription = sharedpref.getString("foodDescription" + i, "");
-                String foodImage = sharedpref.getString("foodImage" + i, "");
+                for (DataSnapshot data :  dataSnapshot.getChildren()){
+                    FoodInfo value = data.getValue(FoodInfo.class);
+                    value.setFoodId(data.getKey());
 
-                byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
-                Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                    foodList.add(restoreItem(value));
+                }
 
-                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, foodDescription));
-
+                initializeCardLayout();
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
     }
 
     private void initializeCardLayout() {
-        getFavoriteFoodInfo();
-
         rv = (RecyclerView) findViewById(R.id.rvFavFood);
-        rv.setHasFixedSize(true);
+
+        Log.d(TAG, "initializeCardLayout: called");
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
@@ -90,6 +107,19 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
     }
 
+    public FoodInfo restoreItem(FoodInfo foodInfo){
+        FoodInfo res = new FoodInfo();
+
+        res.setFoodId(foodInfo.getFoodId());
+        res.setImage(foodInfo.getImage());
+        res.setName(foodInfo.getName());
+        res.setPrice(foodInfo.getPrice());
+        res.setQuantity(foodInfo.getQuantity());
+        res.setDescription(foodInfo.getDescription());
+
+        return res;
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         return false;
@@ -99,8 +129,8 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     public void OnFoodClickFood(int position) {
 
         Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", "favorite");
-        intent.putExtra("food_position", position);
+        intent.putExtra("food_selected", "normal");
+        intent.putExtra("food_position", foodList.get(position).getFoodId());
 
         startActivity(intent);
     }

@@ -152,6 +152,26 @@
                     android:textSize="20sp"
                     android:hint="@string/descriptionText">
                 </TextView>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginBottom="4dp">
+                    <Button
+                        android:id="@+id/statisticsButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:text="Stats"/>
+
+                    <Button
+                        android:id="@+id/commentButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:text="Comments"/>
+                </RelativeLayout>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

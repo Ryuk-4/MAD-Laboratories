@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_popFoodCardView_item">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardViewPopFood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:cardBackgroundColor="@color/cardBackground"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/popFoodPicture"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:padding="12dp"
+                android:src="@drawable/default_user_image"/>
+
+            <TextView
+                android:id="@+id/popFoodName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="45dp"
+                android:layout_marginTop="11dp"
+                android:layout_toRightOf="@+id/popFoodPicture"
+                android:textColor="#262626"
+                android:textSize="28sp" />
+
+            <ProgressBar
+                android:id="@+id/horizontalProgressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/popFoodName"
+
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="14dp"
+                android:layout_marginTop="11dp"
+                android:layout_toRightOf="@+id/popFoodPicture"
+                android:indeterminate="false"
+                android:max="100"
+                android:maxHeight="10dip"
+                android:minHeight="10dip"
+                android:progressDrawable="@drawable/custom_progress" />
+
+            <TextView
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/horizontalProgressBar"
+                android:layout_alignLeft="@+id/horizontalProgressBar"
+                android:layout_alignStart="@+id/horizontalProgressBar" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+</RelativeLayout>

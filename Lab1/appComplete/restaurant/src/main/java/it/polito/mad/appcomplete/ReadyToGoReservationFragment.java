@@ -5,18 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,10 +22,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class ReadyToGoReservationFragment extends Fragment
-        implements SwipeRefreshLayout.OnRefreshListener{
+        implements RecyclerViewAdapterReservation.OnReservationClickListener {
 
     private static final String TAG = "ReservationReadyToGo";
 
@@ -41,7 +39,7 @@ public class ReadyToGoReservationFragment extends Fragment
     private DatabaseReference database;
     private DatabaseReference branchOrdersReady;
 
-    private FloatingActionButton fab1;
+    private View mView;
 
     private FirebaseAuth auth;
 
@@ -60,38 +58,9 @@ public class ReadyToGoReservationFragment extends Fragment
 
         auth = FirebaseAuth.getInstance();
 
-        fab1 = view.findViewById(R.id.material_design_floating_call_rider);
-
-        fab1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getActivity(), FindNearestRiderActivity.class));
-            }
-        });
-
-        mySwipeRefreshLayout = view.findViewById(R.id.swiperefresh);
-        mySwipeRefreshLayout.setOnRefreshListener(this);
+        initializeReservation();
 
         return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated: called");
-
-        if (getActivity() == null){
-            Log.d(TAG, "onActivityCreated: inside if");
-        } else {
-            Log.d(TAG, "onActivityCreated: inside else");
-
-            initializeReservation();
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     private void initializeReservation() {
@@ -110,12 +79,29 @@ public class ReadyToGoReservationFragment extends Fragment
                     ReservationInfo value = data.getValue(ReservationInfo.class);
                     value.setOrderID(data.getKey());
 
-                    if(value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")){
+                    Calendar date = Calendar.getInstance();
+
+                    if (value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")) {
+
+                        if (value.getDate() == null){
+                           database.child("restaurants").child(auth.getCurrentUser().getUid())
+                                   .child("sold_orders").child(value.getOrderID()).setValue(value);
+
+                           database.child("restaurants").child(auth.getCurrentUser().getUid())
+                                   .child("sold_orders").child(value.getOrderID()).child("date")
+                                   .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
+                                           (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
+                       }
+
+                    } else if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
                         database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                .child("sold_orders").child(value.getOrderID()).setValue(value);
-                    }else {
-                        reservationReadyToGoList.add(restoreItem(value));
+                                .child("sold_orders").child(value.getOrderID()).child("status_order")
+                                .setValue(value.getStatus_order());
+                        branchOrdersReady.child(value.getOrderID()).removeValue();
                     }
+
+                    reservationReadyToGoList.add(restoreItem(value));
+
                 }
 
                 initializeRecyclerViewReservation();
@@ -130,28 +116,9 @@ public class ReadyToGoReservationFragment extends Fragment
     }
 
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        int id = item.getItemId();
-
-        if(id == R.id.menu_refresh){
-
-            /*
-             * TODO: mySwipeRefreshLayout.setRefreshing(true);
-             * TODO: myUpdateOP.
-             */
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     private void initializeRecyclerViewReservation() {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationReadyToGoList);
+        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationReadyToGoList,
+                this);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(myAdapter);
@@ -165,7 +132,7 @@ public class ReadyToGoReservationFragment extends Fragment
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setRestaurantId(auth.getCurrentUser().getUid());
         res.setNamePerson(reservationInfo.getNamePerson());
-        res.setPersonOrder(reservationInfo.getPersonOrder());
+        res.setOrderList(reservationInfo.getOrderList());
         res.setcLatitude(reservationInfo.getcLatitude());
         res.setcLongitude(reservationInfo.getcLongitude());
         res.setTimeReservation(reservationInfo.getTimeReservation());
@@ -173,12 +140,28 @@ public class ReadyToGoReservationFragment extends Fragment
         if (reservationInfo.getNote() != null) {
             res.setNote(reservationInfo.getNote());
         }
+
+        if (reservationInfo.getStatus_order() != null){
+            res.setStatus_order(reservationInfo.getStatus_order());
+        }
         return res;
     }
 
+
     @Override
-    public void onRefresh() {
-        //TODO: myUpdateOP.
-        mySwipeRefreshLayout.setRefreshing(false);
+    public void reservationClickListener(int position) {
+        Log.d(TAG, "OnReservationClickListener: called");
+
+        String status = reservationReadyToGoList.get(position).getStatus_order();
+
+        if (status != null) {
+            if (status.equals("ready") || status.equals("in_delivery")){
+                return;
+            }
+        }
+
+        Intent intent = new Intent(getActivity(), FindNearestRiderActivity.class);
+        intent.putExtra("reservationId", reservationReadyToGoList.get(position).getOrderID());
+        startActivity(intent);
     }
 }

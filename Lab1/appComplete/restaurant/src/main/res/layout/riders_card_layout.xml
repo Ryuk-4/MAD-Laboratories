@@ -14,7 +14,6 @@
         android:layout_marginTop="4dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="4dp"
-        android:elevation="1dp"
         app:cardBackgroundColor="@color/cardBackground"
         app:cardCornerRadius="10dp">
 
@@ -31,14 +30,24 @@
 
             <TextView
                 android:id="@+id/riderName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
+                android:layout_marginTop="24dp"
+                android:layout_marginRight="12dp"
                 android:layout_toRightOf="@+id/riderPicture"
                 android:textColor="#262626"
-                android:textSize="28sp"
-                android:text="prova"/>
+                android:textSize="23sp"/>
+
+            <TextView
+                android:id="@+id/riderAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/riderPicture"
+                android:textColor="#262626"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="4dp"
+                android:textSize="20dp"/>
 
         </RelativeLayout>
     </android.support.v7.widget.CardView>

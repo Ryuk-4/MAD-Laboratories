@@ -1,6 +1,8 @@
 package it.polito.mad.appcomplete;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ReservationInfo {
     private String orderID;
@@ -9,16 +11,16 @@ public class ReservationInfo {
     private String cLatitude;
     private String cLongitude;
     private String timeReservation;
-    private String personOrder;
+    private Map<String, FoodInfo> OrderList = new HashMap<>();
     private String restaurantId;
     private String rLatitude;
     private String rLongitude;
     private String status_order;
     private String note;
-
+    private String date;
 
     public ReservationInfo(String namePerson, String cLatitude, String cLongitude, String restaurantId,
-                           String rLatitude, String rLongitude){
+                           String rLatitude, String rLongitude) {
         this.namePerson = namePerson;
         this.cLatitude = cLatitude;
         this.cLongitude = cLongitude;
@@ -39,14 +41,8 @@ public class ReservationInfo {
         this.restaurantId = restaurantId;
     }
 
-
-
     public void setNamePerson(String namePerson) {
         this.namePerson = namePerson;
-    }
-
-    public void setPersonOrder(String personOrder) {
-        this.personOrder = personOrder;
     }
 
     public void setNote(String note) {
@@ -65,10 +61,6 @@ public class ReservationInfo {
         this.timeReservation = timeReservation;
     }
 
-    public void setPhonePerson(String phonePerson) {
-        this.personOrder = phonePerson;
-    }
-
     public void setEmail(String email) {
         this.note = email;
     }
@@ -79,10 +71,6 @@ public class ReservationInfo {
 
     public String getTimeReservation() {
         return timeReservation;
-    }
-
-    public String getPersonOrder() {
-        return personOrder;
     }
 
     public String getcLatitude() {
@@ -137,6 +125,21 @@ public class ReservationInfo {
         this.status_order = status_order;
     }
 
+    public Map<String, FoodInfo> getOrderList() {
+        return OrderList;
+    }
+
+    public void setOrderList(Map<String, FoodInfo> orders) {
+        this.OrderList = orders;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
     public static final Comparator<ReservationInfo> BY_TIME_ASCENDING = new Comparator<ReservationInfo>() {
         @Override
         public int compare(ReservationInfo o1, ReservationInfo o2) {
