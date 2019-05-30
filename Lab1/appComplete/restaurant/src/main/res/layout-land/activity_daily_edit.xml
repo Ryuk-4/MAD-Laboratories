@@ -52,11 +52,6 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <!--<Spinner
-                    android:id="@+id/dayForFood"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />-->
-
                 <TextView
                     android:id="@+id/textViewNameLabel"
                     android:layout_width="match_parent"
@@ -112,6 +107,7 @@
                     android:id="@+id/EditDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="top|left"
                     android:ems="10"
                     android:hint="@string/EditDescription"
                     android:inputType="textMultiLine"

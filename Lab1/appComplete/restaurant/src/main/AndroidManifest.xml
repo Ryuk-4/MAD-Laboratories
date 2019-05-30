@@ -81,7 +81,7 @@
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DailyActivityEdit"
+            android:name=".DailyFoodEditActivity"
             android:label="@string/title_activity_daily_offer_edit"
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />

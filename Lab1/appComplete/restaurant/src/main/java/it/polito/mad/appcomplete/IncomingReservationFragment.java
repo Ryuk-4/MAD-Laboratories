@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +19,8 @@ import android.view.ViewGroup;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -38,7 +41,6 @@ public class IncomingReservationFragment extends Fragment
 
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
-//    private DatabaseReference database;
 
     public IncomingReservationFragment() {
         // Required empty public constructor
@@ -63,9 +65,6 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void initializeReservation() {
-//        database = FirebaseDatabase.getInstance().getReference();
-//        DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
-//                preferences.getString("Uid", "") + "/Orders/Incoming");
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -158,25 +157,15 @@ public class IncomingReservationFragment extends Fragment
             final String deletedReservationId = deletedItem.getOrderID();
             Log.d(TAG, "onSwiped: deletedOrderId " + deletedReservationId);
 
-//            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//
-//            database = FirebaseDatabase.getInstance().getReference();
-
-//            final DatabaseReference branchOrdersIncoming = database.child("restaurants/" +
-//                    preferences.getString("Uid", " ") + "/Orders/Incoming");
-
             branchOrdersIncoming.child(deletedReservationId).removeValue();
 
-            final DatabaseReference statusOrder = database.child("customers").child(deletedItem.getIdPerson())
+            final DatabaseReference statusOrder = branchCustomer.child(deletedItem.getIdPerson())
                     .child("previous_order").child(deletedReservationId).child("order_status");
 
             storeTime(deletedItem.getTimeReservation(), false);
             storeFood(deletedItem.getOrderList(), false);
 
             if (direction == ItemTouchHelper.RIGHT) {
-//                final DatabaseReference branchOrdersInPreparation = database.child("restaurants")
-//                        .child(preferences.getString("Uid", " ")).child("Orders")
-//                        .child("In_Preparation");
 
                 branchOrdersInPreparation.child(deletedReservationId).setValue(restoreItem(deletedItem));
 
@@ -205,6 +194,9 @@ public class IncomingReservationFragment extends Fragment
                 // showing snack bar with Undo option
 
                 statusOrder.setValue("canceled");
+
+                restoreQuantity(deletedItem.getOrderList(), true);
+
                 Snackbar snackbar = Snackbar
                         .make(recyclerView, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
                 snackbar.setAction("UNDO", new View.OnClickListener() {
@@ -217,6 +209,8 @@ public class IncomingReservationFragment extends Fragment
 
                         storeTime(deletedItem.getTimeReservation(), true);
                         storeFood(deletedItem.getOrderList(), true);
+
+                        restoreQuantity(deletedItem.getOrderList(), false);
                     }
                 });
                 snackbar.setActionTextColor(Color.YELLOW);
@@ -225,9 +219,55 @@ public class IncomingReservationFragment extends Fragment
         }
     }
 
+    private void restoreQuantity(Map<String, FoodInfo> foodList, Boolean flag) {
+        branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+
+                    if (foodList.containsKey(dataSnapshot1.getKey())){
+
+                        branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
+                                .runTransaction(new Transaction.Handler() {
+
+                            @NonNull
+                            @Override
+                            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                if (mutableData.getValue() == null){
+                                    mutableData.setValue("0");
+                                } else {
+                                    if (flag){
+                                        mutableData.setValue(Integer.valueOf(mutableData.getValue().toString()) +
+                                                Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity()));
+                                    } else {
+                                        mutableData.setValue(Integer.valueOf(mutableData.getValue().toString()) -
+                                                Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity()));
+                                    }
+                                }
+
+                                return Transaction.success(mutableData);
+                            }
+
+                            @Override
+                            public void onComplete(@Nullable DatabaseError databaseError, boolean b,
+                                                   @Nullable DataSnapshot dataSnapshot) {
+
+                                branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
+                                        .setValue(String.valueOf(dataSnapshot.getValue()));
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
+    }
+
     private void storeFood(Map<String, FoodInfo> orders, Boolean undo) {
-//        DatabaseReference foodBranch = database.child("restaurants/" +
-//                preferences.getString("Uid", "") + "/Food_Analytics");
 
         popularFoodBranch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -270,7 +310,7 @@ public class IncomingReservationFragment extends Fragment
                     }
                 }
 
-                popularFoodBranch.child(dataSnapshotKey).removeValue();
+                popularFoodBranch.removeValue();
                 popularFoodBranch.push().setValue(foodTimes);
             }
 
@@ -282,8 +322,6 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void storeTime(String time, Boolean undo) {
-//        DatabaseReference timeBranch = database.child("restaurants/" +
-//                preferences.getString("Uid", "") + "/Time");
 
         timeBranch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

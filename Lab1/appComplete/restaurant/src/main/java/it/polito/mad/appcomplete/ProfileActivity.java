@@ -49,14 +49,10 @@ public class ProfileActivity extends AppCompatActivity
     private TextView description;
     private SharedPreferences sharedpref, preferences;
 
-//    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
 
-//    private Menu mMenu;
-//    private DatabaseReference database;
     private boolean newOrders;
-//    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,13 +120,7 @@ public class ProfileActivity extends AppCompatActivity
             }
         };
 
-        //mMenu = navigationView.getMenu();
-        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
-
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        database = FirebaseDatabase.getInstance().getReference();
-//        branchOrders = database.child("restaurants/" +
-//                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
 
         branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
@@ -241,11 +231,6 @@ public class ProfileActivity extends AppCompatActivity
     }
 
     public void displayData() {
-//        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        String Uid = preferences.getString("Uid", " ");
-//        DatabaseReference branchProfile = database.child("restaurants/" + Uid + "/Profile");
 
         branchRestaurantProfile.addValueEventListener(new ValueEventListener() {
             @Override
@@ -286,7 +271,6 @@ public class ProfileActivity extends AppCompatActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-//        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

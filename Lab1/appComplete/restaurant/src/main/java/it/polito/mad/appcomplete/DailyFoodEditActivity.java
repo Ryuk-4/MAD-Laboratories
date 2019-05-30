@@ -1,10 +1,6 @@
 package it.polito.mad.appcomplete;
 
-import android.Manifest;
-import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -35,7 +31,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,13 +44,11 @@ import java.io.InputStream;
 
 import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 import static it.polito.mad.data_layer_access.ImageUtils.*;
-import static it.polito.mad.data_layer_access.Costants.CAMERA_REQ;
-import static it.polito.mad.data_layer_access.Costants.GALLERY_REQ;
-import static it.polito.mad.data_layer_access.Costants.MY_CAMERA_PERMISSION_CODE;
+import static it.polito.mad.data_layer_access.Costants.*;
 
-public class DailyActivityEdit extends AppCompatActivity {
+public class DailyFoodEditActivity extends AppCompatActivity {
 
-    private static final String TAG = "DailyActivityEdit";
+    private static final String TAG = "DailyFoodEditActivity";
 
     private ImageView im_edit;
     private EditText name_edit;
@@ -63,18 +58,14 @@ public class DailyActivityEdit extends AppCompatActivity {
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
-    private SharedPreferences sharedpref, foodFavorite, preferences;
+    private SharedPreferences sharedpref;
     private CheckBox favoriteFood;
-    private boolean favorite, editFood;
+    private boolean editFavorite, editFoodNormal;
     private int i = -1;
-
-    private FoodInfo foodInfo;
 
     private Bitmap photo;
 
     private String id;
-//    private DatabaseReference database;
-//    private DatabaseReference branchDailyFood;
     private DatabaseReference targetFavouriteFood;
     private DatabaseReference targetDailyFood;
 
@@ -100,11 +91,8 @@ public class DailyActivityEdit extends AppCompatActivity {
         im_edit = findViewById(R.id.foodImage);
 
         sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
-        foodFavorite = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
-//        database = FirebaseDatabase.getInstance().getReference();
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-        favorite = true;
+        editFavorite = true;
 
         SharedPreferences.Editor e = sharedpref.edit();
         e.putBoolean("saved", false);
@@ -117,10 +105,10 @@ public class DailyActivityEdit extends AppCompatActivity {
         ib = findViewById(R.id.buttonImageFood);
 
         ib.setOnClickListener(
-                new ImageButton.OnClickListener(){
+                new ImageButton.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showPictureDialog(DailyActivityEdit.this);
+                        showPictureDialog(DailyFoodEditActivity.this);
                     }
                 }
         );
@@ -130,7 +118,7 @@ public class DailyActivityEdit extends AppCompatActivity {
 
         //When I click on the Save button
         b.setOnClickListener(
-                new Button.OnClickListener(){
+                new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         saveInfo(v);
@@ -140,29 +128,23 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
     private void initLayout() {
-//        String Uid = preferences.getString("Uid", "");
-//        branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/");
-//        branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/");
-
 
         if (getIntent().hasExtra("food_selected")) {
-            if (getIntent().getStringExtra("food_selected").compareTo("normal") == 0)
-            {
-                initLayoutModifyFood(sharedpref);
-            } else if(getIntent().getStringExtra("food_selected").compareTo("favourite") == 0)
-            {
-                initLayoutFavoriteFood(foodFavorite);
+            if (getIntent().getStringExtra("food_selected").compareTo("normal") == 0) {
+
+                initLayoutModifyFood();
+            } else if (getIntent().getStringExtra("food_selected").compareTo("favourite") == 0) {
+
+                initLayoutFavoriteFood();
             }
             favoriteFood.setVisibility(View.GONE);
         }
     }
 
-    private void initLayoutFavoriteFood(SharedPreferences foodFavorite) {
+    private void initLayoutFavoriteFood() {
 
-        if ( (id = getIntent().getStringExtra("food_position")) != null) {
+        if ((id = getIntent().getStringExtra("food_position")) != null) {
             Log.d(TAG, "initLayoutFavoriteFood: id " + id);
-//            String Uid = preferences.getString("Uid", "");
-//            branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/" + id);
 
             targetFavouriteFood = branchFavouriteFood.child(id);
 
@@ -187,15 +169,14 @@ public class DailyActivityEdit extends AppCompatActivity {
             });
 
             favoriteFood.setVisibility(View.GONE);
-            favorite = false;
-            editFood = false;
+            editFavorite = false;
+            editFoodNormal = false;
         }
     }
 
-    private void initLayoutModifyFood(SharedPreferences sharedpref) {
-        if ( (id = getIntent().getStringExtra("food_position")) != null) {
-//            String Uid = preferences.getString("Uid", "");
-//            branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food/" + id);
+    private void initLayoutModifyFood() {
+        if ((id = getIntent().getStringExtra("food_position")) != null) {
+
             targetDailyFood = branchDailyFood.child(id);
             targetDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -218,8 +199,8 @@ public class DailyActivityEdit extends AppCompatActivity {
             });
         }
 
-        favorite = false;
-        editFood = true;
+        editFavorite = false;
+        editFoodNormal = true;
     }
 
 
@@ -229,8 +210,8 @@ public class DailyActivityEdit extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        if(item.getItemId() == android.R.id.home){
-            if(sharedpref.getBoolean("saved", false) == false){
+        if (item.getItemId() == android.R.id.home) {
+            if (sharedpref.getBoolean("saved", false) == false) {
                 Toast.makeText(this, "Changes not saved!", Toast.LENGTH_LONG).show();
             }
         }
@@ -249,19 +230,19 @@ public class DailyActivityEdit extends AppCompatActivity {
         outState.putString("surname", editTextPrice.getText().toString());
         outState.putString("phone", editAvailableQuantity.getText().toString());
         outState.putString("address", EditDescription.getText().toString());
-        outState.putBoolean("favorite", favorite);
-        outState.putBoolean("editFood", editFood);
+        outState.putBoolean("favorite", editFavorite);
+        outState.putBoolean("editFood", editFoodNormal);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        favorite = savedInstanceState.getBoolean("favorite");
-        editFood = savedInstanceState.getBoolean("editFood");
+        editFavorite = savedInstanceState.getBoolean("favorite");
+        editFoodNormal = savedInstanceState.getBoolean("editFood");
 
         photoByteArray = savedInstanceState.getByteArray("profilePicture");
 
-        if(photoByteArray != null){
+        if (photoByteArray != null) {
             im_edit.setImageBitmap(BitmapFactory.decodeByteArray(photoByteArray,
                     0, photoByteArray.length));
         }
@@ -271,7 +252,7 @@ public class DailyActivityEdit extends AppCompatActivity {
         editAvailableQuantity.setText(savedInstanceState.getString("phone"));
         EditDescription.setText(savedInstanceState.getString("address"));
 
-        if (favorite || editFood)
+        if (editFavorite || editFoodNormal)
             favoriteFood.setVisibility(View.GONE);
 
 
@@ -280,9 +261,9 @@ public class DailyActivityEdit extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called");
-        switch (requestCode){
+        switch (requestCode) {
 
-            case  MY_CAMERA_PERMISSION_CODE:
+            case MY_CAMERA_PERMISSION_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
 
@@ -311,13 +292,13 @@ public class DailyActivityEdit extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d(TAG, "onActivityResult: called");
-        if(resultCode == this.RESULT_CANCELED){
+        if (resultCode == this.RESULT_CANCELED) {
             return;
         }
 
-        if(requestCode == GALLERY_REQ && resultCode == this.RESULT_OK){
-            if(data != null){
-                try{
+        if (requestCode == GALLERY_REQ && resultCode == this.RESULT_OK) {
+            if (data != null) {
+                try {
                     final Uri contentURI = data.getData();
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
@@ -328,12 +309,12 @@ public class DailyActivityEdit extends AppCompatActivity {
                     im_edit.setImageBitmap(photo);
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }
-        } else if( requestCode == CAMERA_REQ && resultCode == this.RESULT_OK){
+        } else if (requestCode == CAMERA_REQ && resultCode == this.RESULT_OK) {
             photo = (Bitmap) data.getExtras().get("data");
             im_edit.setImageBitmap(photo);
 
@@ -344,11 +325,11 @@ public class DailyActivityEdit extends AppCompatActivity {
     }
 
 
-    public void saveInfo(View v){
+    public void saveInfo(View v) {
         SharedPreferences.Editor editor = sharedpref.edit();
 
         if (im_edit.getDrawable() == null || TextUtils.isEmpty(name_edit.getText().toString()) || TextUtils.isEmpty(editTextPrice.getText().toString()) ||
-                TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())){
+                TextUtils.isEmpty(editAvailableQuantity.getText().toString()) || TextUtils.isEmpty(EditDescription.getText().toString())) {
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
@@ -356,14 +337,12 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setMessage("All the fields must be filled.");
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
-        }else{
+        } else {
             b.setEnabled(false);
 
-            if (favorite)
-            {
+            if (editFavorite) {
                 saveNewFood();
-            } else
-            {
+            } else {
                 Log.d(TAG, "saveInfo: update");
                 im_edit.setDrawingCacheEnabled(true);
                 im_edit.buildDrawingCache();
@@ -376,7 +355,6 @@ public class DailyActivityEdit extends AppCompatActivity {
                 newFood.setQuantity(editAvailableQuantity.getText().toString());
                 newFood.setDescription(EditDescription.getText().toString());
                 newFood.setFoodId(id);
-
 
 
                 final StorageReference ref = FirebaseStorage.getInstance().getReference()
@@ -394,7 +372,24 @@ public class DailyActivityEdit extends AppCompatActivity {
                                         Uri downloadUrl = uri;
 
                                         newFood.setImage(downloadUrl.toString());
-                                        branchDailyFood.setValue(newFood);
+
+                                        if (!editFoodNormal) {
+                                            branchFavouriteFood.child(id).setValue(newFood);
+                                            branchDailyFood.push().setValue(newFood);
+                                        } else {
+                                            branchDailyFood.child(id).runTransaction(new Transaction.Handler() {
+                                                @NonNull
+                                                @Override
+                                                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                                    return Transaction.success(mutableData);
+                                                }
+
+                                                @Override
+                                                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                                                    branchDailyFood.child(id).setValue(newFood);
+                                                }
+                                            });
+                                        }
                                     }
                                 });
                             }
@@ -462,7 +457,7 @@ public class DailyActivityEdit extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(sharedpref.getBoolean("saved", false) == false){
+        if (sharedpref.getBoolean("saved", false) == false) {
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
 
             pictureDialog.setTitle("Exit:");
@@ -470,8 +465,8 @@ public class DailyActivityEdit extends AppCompatActivity {
             pictureDialog.setNegativeButton(android.R.string.no, null);
             pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which){
-                    DailyActivityEdit.super.onBackPressed();
+                public void onClick(DialogInterface dialog, int which) {
+                    DailyFoodEditActivity.super.onBackPressed();
                 }
             });
 

@@ -72,10 +72,6 @@ public class ProfileEditActivity extends AppCompatActivity
     private byte[] photoByteArray;
     private SharedPreferences sharedpref, preferences;
 
-//    private DatabaseReference database;
-//    private DatabaseReference branchProfile;
-//    private String Uid;
-
     private MultiSelectionSpinner multiSelectionSpinner;
     private List<String> array;
 
@@ -153,10 +149,7 @@ public class ProfileEditActivity extends AppCompatActivity
             }
         });
 
-//        database = FirebaseDatabase.getInstance().getReference();
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        Uid = preferences.getString("Uid", " ");
-//        branchProfile = database.child("restaurants/" + Uid + "/Profile");
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         setupFirebase();
 
@@ -309,7 +302,6 @@ public class ProfileEditActivity extends AppCompatActivity
     private void updateMyPosition(double latitude, double longitude) {
         GeoLocation myLocation = new GeoLocation(latitude, longitude);
 
-//        GeoFire geoFire1 = new GeoFire(database.child("restaurants_position"));
         geofireRestaurant.setLocation(Uid, myLocation, new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {

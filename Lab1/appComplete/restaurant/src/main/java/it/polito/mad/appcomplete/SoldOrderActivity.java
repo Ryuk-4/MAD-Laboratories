@@ -1,8 +1,6 @@
 package it.polito.mad.appcomplete;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +15,6 @@ import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -31,9 +27,6 @@ public class SoldOrderActivity extends AppCompatActivity {
 
     private static final String TAG = "SoldOrderActivity";
 
-//    private SharedPreferences preferences;
-//    private String Uid;
-//    private DatabaseReference database;
     private List<ReservationInfo> reservationInfoList;
     private RecyclerViewAdapterReservation myAdapter;
     private RecyclerView recyclerView;
@@ -96,13 +89,6 @@ public class SoldOrderActivity extends AppCompatActivity {
         });
 
     }
-
-//    private void setFirebase() {
-//        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-//        Uid = preferences.getString("Uid", "");
-
-//        database = FirebaseDatabase.getInstance().getReference().
-//    }
 
     private void showOrders() {
         reservationInfoList = new ArrayList<>();

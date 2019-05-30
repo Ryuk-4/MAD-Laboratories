@@ -14,15 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 
 public class ReadyToGoReservationFragment extends Fragment
@@ -33,15 +32,6 @@ public class ReadyToGoReservationFragment extends Fragment
     private ArrayList<ReservationInfo> reservationReadyToGoList;
     private RecyclerViewAdapterReservation myAdapter;
     private RecyclerView recyclerView;
-    private SwipeRefreshLayout mySwipeRefreshLayout;
-
-    private SharedPreferences preferences;
-    private DatabaseReference database;
-    private DatabaseReference branchOrdersReady;
-
-    private View mView;
-
-    private FirebaseAuth auth;
 
     public ReadyToGoReservationFragment() {
         // Required empty public constructor
@@ -56,7 +46,7 @@ public class ReadyToGoReservationFragment extends Fragment
 
         recyclerView = view.findViewById(R.id.recyclerViewReadyToGoReservation);
 
-        auth = FirebaseAuth.getInstance();
+        setupFirebase();
 
         initializeReservation();
 
@@ -64,11 +54,6 @@ public class ReadyToGoReservationFragment extends Fragment
     }
 
     private void initializeReservation() {
-        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
-        database = FirebaseDatabase.getInstance().getReference();
-        branchOrdersReady = database.child("restaurants").child(preferences.getString("Uid", " "))
-                .child("Orders").child("Ready_To_Go");
 
         branchOrdersReady.addValueEventListener(new ValueEventListener() {
             @Override
@@ -81,23 +66,25 @@ public class ReadyToGoReservationFragment extends Fragment
 
                     Calendar date = Calendar.getInstance();
 
-                    if (value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")) {
+                    /*if (value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")) {
+
+
+                    } else*/
+                    if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
 
                         if (value.getDate() == null){
-                           database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                   .child("sold_orders").child(value.getOrderID()).setValue(value);
+                            branchSoldOrders.child(value.getOrderID()).setValue(value);
 
-                           database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                   .child("sold_orders").child(value.getOrderID()).child("date")
-                                   .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
-                                           (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
-                       }
+                            branchSoldOrders.child(value.getOrderID()).child("date")
+                                    .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
+                                            (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
 
-                    } else if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
-                        database.child("restaurants").child(auth.getCurrentUser().getUid())
-                                .child("sold_orders").child(value.getOrderID()).child("status_order")
-                                .setValue(value.getStatus_order());
-                        branchOrdersReady.child(value.getOrderID()).removeValue();
+                            branchOrdersReady.child(value.getOrderID()).removeValue();
+                        }
+
+//                        branchSoldOrders.child(value.getOrderID()).child("status_order")
+//                                .setValue(value.getStatus_order());
+
                     }
 
                     reservationReadyToGoList.add(restoreItem(value));
@@ -130,7 +117,7 @@ public class ReadyToGoReservationFragment extends Fragment
 
         res.setOrderID(reservationInfo.getOrderID());
         res.setIdPerson(reservationInfo.getIdPerson());
-        res.setRestaurantId(auth.getCurrentUser().getUid());
+        res.setRestaurantId(Uid);
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setOrderList(reservationInfo.getOrderList());
         res.setcLatitude(reservationInfo.getcLatitude());
