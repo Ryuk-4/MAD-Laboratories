@@ -252,6 +252,7 @@ public class ReservationActivity extends AppCompatActivity
             case R.id.enable_disable_position:
                 if (locationService != null && started) //disable the service
                 {
+                    Toast.makeText(this,"enabl",Toast.LENGTH_LONG);
                     stopService(locationService);
                     started = false;
                 } else //enable the service

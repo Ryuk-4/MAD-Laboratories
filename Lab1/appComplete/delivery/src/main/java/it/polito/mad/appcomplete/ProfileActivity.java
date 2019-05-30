@@ -155,7 +155,7 @@ public class ProfileActivity extends AppCompatActivity
             finish();
         } else if (id == R.id.nav_dailyMenu) {
             //Intent intent = new Intent(this, ReportActivity.class);
-            Intent intent = new Intent(this, DailyOfferActivity.class);
+            Intent intent = new Intent(this, ReportActivity.class);
 
             startActivity(intent);
             finish();

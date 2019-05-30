@@ -72,19 +72,9 @@
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DailyActivityEdit"
-            android:label="@string/title_activity_daily_offer_edit"
-            android:parentActivityName=".DailyOfferActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".ReservationActivity"
             android:label="@string/title_activity_reservation"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".DailyOfferActivity"
-            android:label="@string/title_activity_daily_offer"
-            android:parentActivityName=".ReservationActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ProfileActivity"
