@@ -35,26 +35,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Total Distance:"/>
+            android:text="Total Distance:"
+            android:textSize="19sp"/>
 
         <TextView
             android:id="@+id/textViewTotalDistance"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
-            android:textSize="21sp">
+            android:textSize="22sp">
         </TextView>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Total income:"/>
+            android:text="Total income:"
+            android:textSize="19sp"/>
 
         <TextView
             android:id="@+id/TextViewIncome"
             android:layout_width="fill_parent"
             android:layout_height="50dp"
-            android:textSize="21sp"/>
+            android:textSize="22sp"/>
 
     </LinearLayout>
 
