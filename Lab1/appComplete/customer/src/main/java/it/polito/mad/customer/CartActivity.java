@@ -404,7 +404,7 @@ public class CartActivity extends AppCompatActivity{
 
     public void increaseQuantityOfFood()
     {
-        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+        FirebaseUtils.branchRestaurant.child(restId).child("Daily_Food")
                 .runTransaction( new Transaction.Handler(){
 
                     @NonNull
@@ -426,7 +426,7 @@ public class CartActivity extends AppCompatActivity{
                                         quantity = obj.toString();
                                     }
 
-                                    mutableData.child("quantity").setValue(Integer.parseInt(quantity) + Integer.parseInt(o.getQuantity()));
+                                    mutableData.child("quantity").setValue(String.valueOf(Integer.parseInt(quantity) + Integer.parseInt(o.getQuantity())));
                                 }
                             }
                         }
