@@ -120,11 +120,14 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                 r.setId(dataSnapshot.getKey());
 
-                if (dataSnapshot.child("Profile/imgUrl").getValue() != null) {
+                if (dataSnapshot.child("Profile/imgUrl").getValue() != null &&
+                        dataSnapshot.child("Profile/name").getValue() != null) {
 
                     r.setPic(dataSnapshot.child("Profile/imgUrl").getValue().toString());
+                    r.setName(dataSnapshot.child("Profile/name").getValue().toString());
+                } else {
+                    return;
                 }
-                r.setName(dataSnapshot.child("Profile/name").getValue().toString());
 
                 Location location = ridersLocation.get(dataSnapshot.getKey());
                 r.setLocation(location);
@@ -465,7 +468,11 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                     Location location = task.getResult();
 
-                    myLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
+                    try {
+                        myLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
+                    }catch (NullPointerException e){
+                        Log.w(TAG, "onComplete: ", e);
+                    }
 
                     me = new Location("");
                     me.setLatitude(myLocation.latitude);

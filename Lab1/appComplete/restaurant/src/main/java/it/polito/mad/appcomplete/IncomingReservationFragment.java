@@ -31,7 +31,7 @@ import java.util.Map;
 import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class IncomingReservationFragment extends Fragment
-        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener{
+        implements RecyclerItemTouchHelperReservation.RecyclerItemTouchHelperListener {
 
     private static final String TAG = "IncomingReservation";
 
@@ -223,39 +223,51 @@ public class IncomingReservationFragment extends Fragment
         branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
-                    if (foodList.containsKey(dataSnapshot1.getKey())){
+                    if (foodList.containsKey(dataSnapshot1.getKey())) {
 
                         branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
                                 .runTransaction(new Transaction.Handler() {
 
-                            @NonNull
-                            @Override
-                            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                                if (mutableData.getValue() == null){
-                                    mutableData.setValue("0");
-                                } else {
-                                    if (flag){
-                                        mutableData.setValue(Integer.valueOf(mutableData.getValue().toString()) +
-                                                Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity()));
-                                    } else {
-                                        mutableData.setValue(Integer.valueOf(mutableData.getValue().toString()) -
-                                                Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity()));
+                                    @NonNull
+                                    @Override
+                                    public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                        if (mutableData.getValue() == null) {
+                                            mutableData.setValue("0");
+                                        } else {
+                                            Integer quantity;
+                                            if (flag) {
+                                                quantity = Integer.valueOf(mutableData.getValue().toString()) +
+                                                        Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity());
+                                                mutableData.setValue(String.valueOf(quantity));
+                                            } else {
+                                                quantity = Integer.valueOf(mutableData.getValue().toString()) -
+                                                        Integer.valueOf(foodList.get(dataSnapshot1.getKey()).getQuantity());
+                                                mutableData.setValue(String.valueOf(quantity));
+                                            }
+                                        }
+
+                                        return Transaction.success(mutableData);
                                     }
-                                }
 
-                                return Transaction.success(mutableData);
-                            }
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, boolean b,
+                                                           @Nullable DataSnapshot dataSnapshot) {
 
-                            @Override
-                            public void onComplete(@Nullable DatabaseError databaseError, boolean b,
-                                                   @Nullable DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.getValue() != null) {
 
-                                branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
-                                        .setValue(String.valueOf(dataSnapshot.getValue()));
-                            }
-                        });
+                                            if (dataSnapshot.getValue() instanceof String) {
+                                                branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
+                                                        .setValue(dataSnapshot.getValue());
+                                            } else {
+                                                branchDailyFood.child(dataSnapshot1.getKey() + "/quantity")
+                                                        .setValue(String.valueOf(dataSnapshot.getValue()));
+                                            }
+
+                                        }
+                                    }
+                                });
                     }
                 }
             }
@@ -299,7 +311,7 @@ public class IncomingReservationFragment extends Fragment
                             t = Integer.valueOf(foodTimes.get(key)) +
                                     Integer.valueOf(orders.get(key).getQuantity());
 
-                            if (t > 100){
+                            if (t > 100) {
                                 t = 100;
                             }
                         }

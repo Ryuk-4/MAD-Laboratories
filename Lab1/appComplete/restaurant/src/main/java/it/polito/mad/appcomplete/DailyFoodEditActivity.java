@@ -424,6 +424,7 @@ public class DailyFoodEditActivity extends AppCompatActivity {
         newFood.setFoodId(foodId);
 
         branchDailyFood.child(foodId).setValue(newFood);
+        branchStoricFood.child(foodId).setValue(newFood);
 
         if (favoriteFood.isChecked()) {
             branchFavouriteFood.child(foodId).setValue(newFood);

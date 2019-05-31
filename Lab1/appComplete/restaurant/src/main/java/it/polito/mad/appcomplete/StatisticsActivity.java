@@ -108,7 +108,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         food = new HashMap<>();
 
-        branchDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
+        branchStoricFood.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
