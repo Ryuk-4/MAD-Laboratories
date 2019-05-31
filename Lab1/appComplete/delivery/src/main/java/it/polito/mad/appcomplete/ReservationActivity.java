@@ -369,9 +369,9 @@ public class ReservationActivity extends AppCompatActivity
     private void setupViewPager(@NonNull ViewPager viewPager) {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        mSectionsPagerAdapter.addFragments(incFragment, "Incoming");
+        mSectionsPagerAdapter.addFragments(incFragment, "New");
         //mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
-        mSectionsPagerAdapter.addFragments(endFragment, "Ready To Go");
+        mSectionsPagerAdapter.addFragments(endFragment, "Finished");
 
         viewPager.setAdapter(mSectionsPagerAdapter);
     }
