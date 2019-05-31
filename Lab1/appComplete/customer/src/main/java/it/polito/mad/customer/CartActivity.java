@@ -404,7 +404,7 @@ public class CartActivity extends AppCompatActivity{
 
     public void increaseQuantityOfFood()
     {
-        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+        FirebaseUtils.branchRestaurant.child(restId).child("Daily_Food")
                 .runTransaction( new Transaction.Handler(){
 
                     @NonNull
