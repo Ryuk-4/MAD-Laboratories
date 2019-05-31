@@ -87,7 +87,7 @@ public class ImageUtils {
         return galleryIntent;
     }
 
-    public static Intent  chooseFromCamera(){
+    public static Intent chooseFromCamera(){
         Log.d(TAG, "chooseFromCamera: ");
         Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         return intent;

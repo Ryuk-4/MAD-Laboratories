@@ -11,8 +11,9 @@ public class RestaurantInfo {
     private String id;
     private List<String> typeOfFood;
     private String photoURL;
+    private boolean favorite;
 
-    public RestaurantInfo(String name, int numerReview, int[] votes, String description, String id, List<String> typeOfFood, String photo) {
+    public RestaurantInfo(String name, int numerReview, int[] votes, String description, String id, List<String> typeOfFood, String photo, boolean favorite) {
         this.name = name;
         this.numerReview = numerReview;
         this.votes = votes;
@@ -20,6 +21,7 @@ public class RestaurantInfo {
         this.id = id;
         this.typeOfFood = typeOfFood;
         this.photoURL = photo;
+        this.favorite = favorite;
     }
 
     public String getPhoto() {
@@ -89,7 +91,6 @@ public class RestaurantInfo {
     public float getValueRatinBar()
     {
         float ret = 0;
-        int total = 0;
 
         for (int i = 0 ; i < 5 ; i++)
         {
@@ -98,5 +99,13 @@ public class RestaurantInfo {
 
         ret = ret/numerReview;
         return ret;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

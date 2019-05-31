@@ -1,53 +1,43 @@
 package it.polito.mad.customer;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
-    private static final String TAG = "RecyclerViewAdapterRese";
+public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
     private Context myContext;
     private List<OrdersInfo> ordersInfos;
@@ -56,13 +46,15 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
     public RVAOrders(Context myContext, List<OrdersInfo> ordersInfos){
         this.myContext = myContext;
         this.ordersInfos = ordersInfos;
+
+        FirebaseUtils.setupFirebaseCustomer();
     }
 
+    @NonNull
     @Override
     public RVAOrders.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_orders, viewGroup, false);
-        RVAOrders.ViewHolder holder = new RVAOrders.ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -73,23 +65,23 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
         if (ordersInfos.get(i).getState() == OrderState.PENDING)
         {
-            viewHolder.orderState.setText("PENDING");
+            viewHolder.orderState.setText(myContext.getString(R.string.pending));
             viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.colorPrimary));
         } else if (ordersInfos.get(i).getState() == OrderState.ACCEPTED)
         {
-            viewHolder.orderState.setText("IN PREPARATION");
+            viewHolder.orderState.setText(myContext.getString(R.string.in_preparation));
             viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.holo_blue_light));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERED)
         {
-            viewHolder.orderState.setText("DELIVERED");
+            viewHolder.orderState.setText(myContext.getString(R.string.delivered));
             viewHolder.orderStateView.setBackground(myContext.getDrawable(android.R.color.black));
         } else if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
         {
-            viewHolder.orderState.setText("IN DELIVERY");
+            viewHolder.orderState.setText(myContext.getString(R.string.in_delivery));
             viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.green));
         } else if (ordersInfos.get(i).getState() == OrderState.CANCELLED)
         {
-            viewHolder.orderState.setText("REJECTED");
+            viewHolder.orderState.setText(myContext.getString(R.string.rejected));
             viewHolder.orderStateView.setBackground(myContext.getDrawable(R.color.red));
         }
 
@@ -104,16 +96,18 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             TextView name = new TextView(myContext);
             name.setText(s);
             name.setTextSize(18);
+            name.setTextColor(myContext.getColor(android.R.color.black));
             name.setTypeface(null, Typeface.BOLD);
             name.setTag(ordersInfos.get(i).getFoodId().get(s));
             name.setPadding(20, 6, 0, 0);
 
             LinearLayout ll = new LinearLayout(myContext);
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(50, 0, 0, 0);
+            ll.setPadding(60, 0, 0, 0);
 
             EditText quantity = new EditText(myContext);
-            quantity.setHint(productQuantity.get(s).toString());
+            quantity.setText(productQuantity.get(s).toString());
+            quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
 
             if (ordersInfos.get(i).getState() != OrderState.PENDING)
                 quantity.setKeyListener(null);
@@ -131,24 +125,11 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             viewHolder.foodOrderList.addView(linearLayout);
         }
 
-
-
-        if (ordersInfos.get(i).getState() == OrderState.PENDING)
-        {
-            Button button = new Button(myContext);
-            button.setTag(ordersInfos.get(i).getRestaurantId() + " " + ordersInfos.get(i).getOrderId());
-            button.setText("SUBMIT");
-
-            button.setOnClickListener(new customOnClickListener(viewHolder) );
-
-            viewHolder.foodOrderList.addView(button);
-        }
-
         if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
         {
             Button button = new Button(myContext);
             button.setTag(ordersInfos.get(i).getRestaurantId()+" "+ordersInfos.get(i).getOrderId());
-            button.setText("REVIEW YOUR ORDER");
+            button.setText(myContext.getString(R.string.review_your_order));
 
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,12 +137,18 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                     String restId = v.getTag().toString().split(" ")[0];
                     String orderId = v.getTag().toString().split(" ")[1];
 
-                    Intent intent = new Intent(myContext, ReviewActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("restId", restId);
-                    bundle.putString("orderId", orderId);
-                    intent.putExtras(bundle);
-                    myContext.startActivity(intent);
+                    LayoutInflater li = LayoutInflater.from(myContext);
+                    View view = li.inflate(R.layout.activity_review, null);
+
+                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
+                    alertDialogBuilder.setView(view);
+
+                    AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
+
+                    Button b = view.findViewById(R.id.button);
+                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId, alertDialogCongratulations));
+
+                    alertDialogCongratulations.show();
                 }
             });
 
@@ -170,14 +157,12 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
 
         if (ordersInfos.get(i).getState() == OrderState.DELIVERING)
         {
-            FirebaseDatabase.getInstance().getReference("riders_position").child(ordersInfos.get(i).getDeliverymanId()).addListenerForSingleValueEvent(new myValueEventListener(viewHolder));
+            FirebaseUtils.branchRiderPosition.child(ordersInfos.get(i).getDeliverymanId()).addListenerForSingleValueEvent(new myValueEventListener(viewHolder));
             viewHolder.mapView.setVisibility(View.VISIBLE);
         } else
         {
             viewHolder.mapView.setVisibility(View.GONE);
         }
-
-
     }
 
     @Override
@@ -185,23 +170,13 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         return ordersInfos.size();
     }
 
-    public void removeItem(int position) {
-        ordersInfos.remove(position);
-        // notify the item removed by position
-        // to perform recycler view delete animations
-        notifyItemRemoved(position);
-    }
 
-    public void restoreItem(OrdersInfo item, int position) {
-        ordersInfos.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-    }
+    public class ViewHolder
 
+            extends RecyclerView.ViewHolder
 
-    // inner class to manage the view
-    public class ViewHolder     extends RecyclerView.ViewHolder
-                                implements OnMapReadyCallback { //implements View.OnClickListener {
+            implements OnMapReadyCallback {
+
         LinearLayout foodOrderList, ll_orders;
         TextView restaurantName;
         TextView orderTime;
@@ -231,21 +206,14 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
                 mapView.getMapAsync(this);
             }
 
-            orderView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    collapseExpandListView();
-                }
-            });
+            orderView.setOnClickListener(v -> collapseExpandListView());
 
         }
 
         void collapseExpandListView() {
             if (ll_orders.getVisibility() == View.GONE) {
-                // it's collapsed - expand it
                 ll_orders.setVisibility(View.VISIBLE);
             } else {
-                // it's expanded - collapse it
                 ll_orders.setVisibility(View.GONE);
             }
         }
@@ -263,77 +231,15 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             LatLng location = (LatLng) mapView.getTag();
             if (location == null) return;
 
-            // Add a marker for this item and set the camera
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 13f));
             map.addMarker(new MarkerOptions().position(location));
 
-            // Set the map type back to normal.
             map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         }
 
         private void bindView(LatLng latLng) {
-            // Store a reference to the item in the mapView's tag. We use it to get the
-            // coordinate of a location, when setting the map location.
             mapView.setTag(latLng);
             setMapLocation();
-        }
-    }
-
-    class customOnClickListener implements View.OnClickListener
-    {
-        private ViewHolder viewHolder;
-
-        public customOnClickListener(ViewHolder viewHolder)
-        {
-            this.viewHolder = viewHolder;
-        }
-
-        @Override
-        public void onClick(View v) {
-            String tag = v.getTag().toString();
-            String restaurantId = tag.split(" ")[0];
-            String orderId = tag.split(" ")[1];
-
-            saveDataToRestaurant(restaurantId, orderId);
-            saveDataToCustomer(orderId);
-        }
-
-        private void saveDataToCustomer(String orderId) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order").child(orderId).child("food");
-
-            int count = viewHolder.foodOrderList.getChildCount();
-            for (int i = 0 ; i < count-1 ; i++)
-            {
-                LinearLayout view = (LinearLayout) viewHolder.foodOrderList.getChildAt(i);
-
-                //String name = ((TextView) view.getChildAt(0)).getText().toString();
-                String quantity = ((EditText) ((LinearLayout)view.getChildAt(1)).getChildAt(0)).getText().toString();
-                String id = ((TextView) view.getChildAt(0)).getTag().toString();
-
-                databaseReference.child(id).child("foodQuantity").setValue(quantity);
-            }
-        }
-
-        private void saveDataToRestaurant(String restaurantId, String orderId) {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restaurantId).child("Orders").child("Incoming").child(orderId);
-
-            Log.d(TAG, "saveDataToRestaurant: " +restaurantId);
-            int count = viewHolder.foodOrderList.getChildCount();
-            StringBuffer stringBuffer = new StringBuffer("");
-
-            for (int i = 0 ; i < count -1 ; i++)
-            {
-                LinearLayout view = (LinearLayout) viewHolder.foodOrderList.getChildAt(i);
-
-                String name = ((TextView) view.getChildAt(0)).getText().toString();
-                String quantity = ((EditText)((LinearLayout) view.getChildAt(1)).getChildAt(0)).getText().toString();
-
-                for (int j = 0 ; j < Integer.parseInt(quantity) ; j++)
-                    stringBuffer.append(name+", ");
-
-            }
-
-            databaseReference.child("personOrder").setValue(stringBuffer.toString());
         }
     }
 
@@ -350,14 +256,138 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             String lat, lon;
 
-            lat = dataSnapshot.child("l").child("0").getValue().toString();
-            lon = dataSnapshot.child("l").child("1").getValue().toString();
+            Object o = dataSnapshot.child("l").child("0").getValue();
+            lat = "0.0";
+
+            if (o != null)
+            {
+                lat = o.toString();
+            }
+
+            o = dataSnapshot.child("l").child("1").getValue();
+            lon = "0.0";
+
+            if (o != null)
+            {
+                lon = o.toString();
+            }
 
             viewHolder.bindView(new LatLng(Double.parseDouble(lat), Double.parseDouble(lon)));
         }
 
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    }
+
+    class CustomReviewClickListener implements View.OnClickListener
+    {
+        private View view;
+        private String orderId;
+        private String restId;
+        private AlertDialog alertDialog;
+        private String title;
+        private String description;
+        private int rating;
+
+        CustomReviewClickListener(View view, String orderId, String restId, AlertDialog alertDialog)
+        {
+           this.view = view;
+           this.restId = restId;
+           this.orderId = orderId;
+           this.alertDialog = alertDialog;
+        }
+
+        @Override
+        public void onClick(View v) {
+            RatingBar ratingBar = view.findViewById(R.id.ratingBar);
+            EditText textTitle = view.findViewById(R.id.textTitle);
+            EditText textDescription = view.findViewById(R.id.textDescription);
+
+            title = textTitle.getText().toString();
+            description = textDescription.getText().toString();
+            rating = (int) ratingBar.getRating();
+
+            addNewReview(title, description, rating);
+            incrementStarReview(rating);
+            setOrderReviewed();
+
+            alertDialog.cancel();
+        }
+
+        private void setOrderReviewed() {
+            DatabaseReference databaseReference = FirebaseUtils.branchCustomerPreviousOrder.child(orderId);
+            databaseReference.child("reviewed").setValue("true");
+        }
+
+        private void incrementStarReview(final int rating) {
+            DatabaseReference databaseReference1 = FirebaseUtils.branchRestaurant.child(restId).child("review");
+
+            databaseReference1.runTransaction( new Transaction.Handler(){
+
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData currentData){
+                    double nVotes=0, nStars=0;
+                    for (int i = 1 ; i <= 5 ; i++)
+                    {
+                        Object o = currentData.child(i+"star").getValue();
+
+                        if (o != null)
+                        {
+                            nVotes += Double.parseDouble(o.toString());
+                            nStars += (Double.parseDouble(o.toString())*i);
+                        }
+
+                        if (i == rating)
+                        {
+                            nVotes++;
+                            nStars += i;
+                        }
+                    }
+
+                    double totalRating;
+                    if (nVotes != 0)
+                    {
+                        totalRating = nStars/nVotes;
+                    } else
+                    {
+                        totalRating = 0;
+                    }
+
+                    FirebaseUtils.branchRestaurant.child(restId).child("review").child("total").setValue(totalRating);
+
+                    Object o = currentData.child(rating+"star").getValue();
+
+                    if (o != null)
+                    {
+                        int value = Integer.parseInt(o.toString());
+                        value++;
+                        FirebaseUtils.branchRestaurant.child(restId).child("review").child(rating+"star").setValue(value);
+                    }
+
+                    return Transaction.success(currentData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError,
+                                       boolean committed, DataSnapshot currentData){
+                }
+            });
+        }
+
+        private void addNewReview(String title, String description, float rating) {
+            Date c = Calendar.getInstance().getTime();
+
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+            String formattedDate = df.format(c);
+
+            DatabaseReference databaseReference = FirebaseUtils.branchRestaurant.child(restId).child("review_description").push();
+            databaseReference.child("title").setValue(title);
+            databaseReference.child("description").setValue(description);
+            databaseReference.child("stars").setValue(rating);
+            databaseReference.child("date").setValue(formattedDate);
 
         }
     }

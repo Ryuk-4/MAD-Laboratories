@@ -10,27 +10,25 @@ import java.util.List;
 public class myFragmentPageAdapter extends FragmentPagerAdapter {
 
     private Context mContext;
-    private List<SuggestedFoodInfo> suggestedFoodInfos;
-    private List<ReviewInfo> reviewInfos;
-    private DailyFoodFragment dailyFoodFragment;
-    private ReviewFragment reviewFragment;
+    private List<SuggestedFoodInfo> suggestedFoodInfo;
+    private List<ReviewInfo> reviewInfo;
 
-    public myFragmentPageAdapter(Context mContext, FragmentManager fm, List<SuggestedFoodInfo> suggestedFoodInfos, List<ReviewInfo> reviewInfos) {
+    public myFragmentPageAdapter(Context mContext, FragmentManager fm, List<SuggestedFoodInfo> suggestedFoodInfo, List<ReviewInfo> reviewInfo) {
         super(fm);
         this.mContext = mContext;
-        this.suggestedFoodInfos = suggestedFoodInfos;
-        this.reviewInfos = reviewInfos;
+        this.suggestedFoodInfo = suggestedFoodInfo;
+        this.reviewInfo = reviewInfo;
     }
 
     @Override
     public Fragment getItem(int i) {
         if (i == 0) {
-            dailyFoodFragment = new DailyFoodFragment();
-            dailyFoodFragment.setSuggestedFoodInfos(suggestedFoodInfos).setContext(mContext);
+            DailyFoodFragment dailyFoodFragment = new DailyFoodFragment();
+            dailyFoodFragment.setSuggestedFoodInfos(suggestedFoodInfo).setContext(mContext);
             return dailyFoodFragment;
         } else {
-            reviewFragment = new ReviewFragment();
-            reviewFragment.setReviewInfos(reviewInfos).setContext(mContext);
+            ReviewFragment reviewFragment = new ReviewFragment();
+            reviewFragment.setReviewInfos(reviewInfo).setContext(mContext);
             return reviewFragment;
         }
     }
@@ -40,24 +38,4 @@ public class myFragmentPageAdapter extends FragmentPagerAdapter {
         return 2;
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
-        switch (position) {
-            case 0:
-                return mContext.getString(R.string.category_daily_menu);
-            case 1:
-                return mContext.getString(R.string.category_review);
-            default:
-                return null;
-        }
-    }
-
-    public void refreshLayout(int fragId) {
-        if (fragId == 0) {
-            dailyFoodFragment.refreshLayout();
-        } else {
-            reviewFragment.refreshLayout();
-        }
-    }
 }

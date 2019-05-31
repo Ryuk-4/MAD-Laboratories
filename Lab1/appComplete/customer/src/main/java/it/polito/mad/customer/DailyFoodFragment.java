@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,8 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -27,16 +26,11 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class DailyFoodFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
     private RecyclerView recyclerView;
-    private RVADailyFood adapter;
-    private View view;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private List<SuggestedFoodInfo> suggestedFoodInfos;
@@ -59,7 +53,6 @@ public class DailyFoodFragment extends Fragment {
 
     public DailyFoodFragment setSuggestedFoodInfos(List<SuggestedFoodInfo> suggestedFoodInfos) {
         this.suggestedFoodInfos = suggestedFoodInfos;
-        //Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
         return this;
     }
 
@@ -82,7 +75,6 @@ public class DailyFoodFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment DailyFoodFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static DailyFoodFragment newInstance(String param1, String param2) {
         DailyFoodFragment fragment = new DailyFoodFragment();
         Bundle args = new Bundle();
@@ -94,29 +86,22 @@ public class DailyFoodFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //Log.d("TAG", "onCreate: DailyFoodFragment");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Log.d("TAG", "onCreateView: DailyFoodFragment");
-        //scaricare i dati nell'attivita principale e passare i dati come parametro di costruzione
 
-        view = inflater.inflate(R.layout.fragment_daily_food, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_daily_food);
-        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        View view = inflater.inflate(R.layout.fragment_daily_food, container, false);
+        recyclerView = view.findViewById(R.id.rv_daily_food);
 
         initRecyclerView();
 
-        // Inflate the layout for this fragment
         return view;
     }
 
@@ -127,15 +112,8 @@ public class DailyFoodFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
 
-        adapter = new RVADailyFood(context, suggestedFoodInfos);
+        RVADailyFood adapter = new RVADailyFood(context, suggestedFoodInfos);
         recyclerView.setAdapter(adapter);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -167,7 +145,6 @@ public class DailyFoodFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 }

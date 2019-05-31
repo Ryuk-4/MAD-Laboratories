@@ -10,7 +10,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
-        android:elevation="5dp"
+        android:elevation="3dp"
         app:cardCornerRadius="5dp"
         android:layout_gravity="top"
         android:background="@color/white">

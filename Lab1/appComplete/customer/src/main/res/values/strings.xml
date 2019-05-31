@@ -65,9 +65,9 @@
     <string name="signin_with_google">SIGNIN WITH GOOGLE</string>
     <string name="default_web_client_id">77895527913-sve5938bl6qg1uqarfuge2j2cgjj29mm.apps.googleusercontent.com</string>
     <string name="or">or</string>
-    <string name="name">Name</string>
-    <string name="surname">Surname</string>
-    <string name="phone_number">Phone number</string>
+    <string name="name">Name:</string>
+    <string name="surname">Surname:</string>
+    <string name="phone_number">Phone number:</string>
     <string name="our_suggestions">Our Suggestions</string>
     <string name="search_a_restaurant">Search a restaurant</string>
     <string name="all_restaurants">All restaurants</string>
@@ -89,6 +89,13 @@
 
     <string name="category_pending_order">PENDING</string>
     <string name="category_completed_order">COMPLETED</string>
+    <string name="your_favorite">Your Favorite</string>
+    <string name="pending">PENDING</string>
+    <string name="in_preparation">IN PREPARATION</string>
+    <string name="delivered">DELIVERED</string>
+    <string name="in_delivery">IN DELIVERY</string>
+    <string name="rejected">REJECTED</string>
+    <string name="review_your_order">REVIEW YOUR ORDER</string>
 
 
     <string-array name="time_orders">
