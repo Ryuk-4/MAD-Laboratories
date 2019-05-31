@@ -227,11 +227,15 @@ public class ProfileEditActivity extends AppCompatActivity {
         //outState.putString("description", description_edit.getText().toString());
 
         String s=dateOfBirth.getText().toString();
-        int newDay=  Integer.parseInt(s.split("/")[1]);
-        newDay++;
-        String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
-        outState.putString("dateOfBirth",newDate );
-
+        if(s!= null ) {
+            String[] a= s.split("/");
+            if (a.length>1) {
+                int newDay = Integer.parseInt(s.split("/")[1]);
+                newDay++;
+                String newDate = s.split("/")[0] + "/" + Integer.toString(newDay) + "/" + s.split("/")[2];
+                outState.putString("dateOfBirth", newDate);
+            }
+        }
         // for sex radio button
         int sexId = radioSex.getCheckedRadioButtonId();
         View radioButton = radioSex.findViewById(sexId);
