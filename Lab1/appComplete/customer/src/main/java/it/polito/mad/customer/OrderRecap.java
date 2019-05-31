@@ -3,6 +3,7 @@ package it.polito.mad.customer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 public class OrderRecap implements Parcelable {
     private String price;
@@ -70,6 +71,7 @@ public class OrderRecap implements Parcelable {
         this.key = key;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "OrderRecap{" +

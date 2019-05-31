@@ -10,26 +10,24 @@ import java.util.List;
 public class myFragmentPageAdapterOrders extends FragmentPagerAdapter {
 
     private Context mContext;
-    private List<OrdersInfo> ordersInfosPending, ordersInfosCompleted;
-    private OrdersPendingFragment ordersPendingFragment;
-    private OrdersCompletedFragment ordersCompletedFragment;
+    private List<OrdersInfo> ordersInfoPending, ordersInfoCompleted;
 
-    public myFragmentPageAdapterOrders(Context mContext, FragmentManager fm, List<OrdersInfo> ordersInfosPending, List<OrdersInfo> ordersInfosCompleted) {
+    public myFragmentPageAdapterOrders(Context mContext, FragmentManager fm, List<OrdersInfo> ordersInfoPending, List<OrdersInfo> ordersInfoCompleted) {
         super(fm);
         this.mContext = mContext;
-        this.ordersInfosPending = ordersInfosPending;
-        this.ordersInfosCompleted = ordersInfosCompleted;
+        this.ordersInfoPending = ordersInfoPending;
+        this.ordersInfoCompleted = ordersInfoCompleted;
     }
 
     @Override
     public Fragment getItem(int i) {
         if (i == 0) {
-            ordersPendingFragment = new OrdersPendingFragment();
-            ordersPendingFragment.setOrderInfos(ordersInfosPending).setContext(mContext);
+            OrdersPendingFragment ordersPendingFragment = new OrdersPendingFragment();
+            ordersPendingFragment.setOrderInfos(ordersInfoPending).setContext(mContext);
             return ordersPendingFragment;
         } else {
-            ordersCompletedFragment = new OrdersCompletedFragment();
-            ordersCompletedFragment.setOrderInfos(ordersInfosCompleted).setContext(mContext);
+            OrdersCompletedFragment ordersCompletedFragment = new OrdersCompletedFragment();
+            ordersCompletedFragment.setOrderInfo(ordersInfoCompleted).setContext(mContext);
             return ordersCompletedFragment;
         }
     }
@@ -51,14 +49,4 @@ public class myFragmentPageAdapterOrders extends FragmentPagerAdapter {
                 return null;
         }
     }
-
-    public void refreshLayout(int fragId)
-    {
-        if (fragId == 0) {
-            ordersPendingFragment.refreshLayout();
-        } else if (fragId == 1){
-            ordersCompletedFragment.refreshLayout();
-        }
-    }
-
 }

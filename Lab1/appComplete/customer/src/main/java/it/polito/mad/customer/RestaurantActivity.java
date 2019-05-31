@@ -1,32 +1,24 @@
 package it.polito.mad.customer;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
@@ -34,12 +26,10 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
-import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,20 +37,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-import jp.wasabeef.blurry.Blurry;
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class RestaurantActivity
 
         extends AppCompatActivity
 
-        implements  MenuFragment.OnFragmentInteractionListener,
-        DailyFoodFragment.OnFragmentInteractionListener,
+        implements DailyFoodFragment.OnFragmentInteractionListener,
         ReviewFragment.OnFragmentInteractionListenerReview{
 
     private static final int REQUEST_CART = 12;
     private BottomNavigationView bottomNavigationView;
-    private TabLayout tabLayout;
     private ImageView imageView;
     private Toolbar toolbar;
     private String restId, restName;
@@ -71,11 +60,167 @@ public class RestaurantActivity
     private TextView restaurantNameText, restaurantDescription;
     private List<OrderRecap> orders;
 
+
+    /**
+     *  -------------------------------
+     *  system callbacks
+     *  -------------------------------
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant);
 
+        deletePreviousCart(this.getSharedPreferences("orders_info", Context.MODE_PRIVATE));
+
+        getDataFromIntent(savedInstanceState);
+
+        initSystem();
+
+        StatusBarUtil.setTransparent(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
+
+        if (nFood != 0) {
+            AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+
+            pictureDialog.setTitle("Exit:");
+            pictureDialog.setMessage("The content of your cart will be deleted. Are you sure to exit?");
+            pictureDialog.setNegativeButton(android.R.string.no, null);
+            pictureDialog.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+
+                sharedPreferences.edit().clear().commit();
+
+                RestaurantActivity.super.onBackPressed();
+            });
+
+            pictureDialog.show();
+        } else {
+            RestaurantActivity.super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelableArrayList("food", (ArrayList<? extends Parcelable>) dailyFoodInfoList);
+        outState.putString("restId", restId);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        dailyFoodInfoList = savedInstanceState.getParcelableArrayList("food");
+        restId = savedInstanceState.getString("restId");
+    }
+
+    //implement if tabs need to exchange data
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        restId = this.getSharedPreferences("saved", Context.MODE_PRIVATE).getString("id", "");
+
+        initSystem();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CART) {
+            if (resultCode == RESULT_OK) {
+                finish();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getSharedPreferences("saved_restaurant", MODE_PRIVATE).edit().putString("restId", restId).commit();
+    }
+
+    @Override
+    public void onFragmentInteractionReview(Uri uri) {
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_restaurant, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.go_to_cart) {
+            SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+            int n_food = sharedPreferences.getInt("n_food", 0);
+            orders = new ArrayList<>();
+
+            for (int i = 0; i < n_food; i++) {
+                String amount = sharedPreferences.getString("amount" + i, "");
+                if ((amount != "") && (Integer.parseInt(amount) != 0)) {
+                    String price = sharedPreferences.getString("price" + i, "");
+                    String name = sharedPreferences.getString("food" + i, "");
+                    String key = sharedPreferences.getString("key" + i, "");
+                    orders.add(new OrderRecap(price, amount, name, key));
+                }
+            }
+
+            decreaseQuantityOfFood();
+
+        } else if (item.getItemId() == android.R.id.home) {
+            int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
+
+            if (nFood != 0) {
+                AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
+
+                pictureDialog.setTitle("Exit:");
+                pictureDialog.setMessage("The content of your cart will be deleted. Are you sure to exit?");
+                pictureDialog.setNegativeButton(android.R.string.no, null);
+                pictureDialog.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+
+                    sharedPreferences.edit().clear().commit();
+
+                    RestaurantActivity.super.onBackPressed();
+                });
+
+                pictureDialog.show();
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * --------------------------------------
+     * programmer defined functions
+     * --------------------------------------
+     */
+
+    private void initSystem() {
         dailyFoodInfoList = new ArrayList<>();
         reviewInfoList = new ArrayList<>();
 
@@ -88,42 +233,31 @@ public class RestaurantActivity
 
         initBottomNavigation();
 
-        deletePreviousCart(this.getSharedPreferences("orders_info", Context.MODE_PRIVATE));
-
-        getDataFromIntent(savedInstanceState);
+        FirebaseUtils.setupFirebaseCustomer();
 
         getRestaurantInformation();
-
-        //setStatusBarTransparent();
-        StatusBarUtil.setTransparent(this);
-
-
     }
 
     private void initBottomNavigation() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId())
-                {
-                    case R.id.daily_food:
-                        mViewPager.setCurrentItem(0);
-                        break;
-                    case R.id.reviews:
-                        mViewPager.setCurrentItem(1);
-                        break;
-                }
-
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(menuItem -> {
+            switch (menuItem.getItemId())
+            {
+                case R.id.daily_food:
+                    mViewPager.setCurrentItem(0);
+                    break;
+                case R.id.reviews:
+                    mViewPager.setCurrentItem(1);
+                    break;
             }
+
+            return false;
         });
     }
 
 
     private void getRestaurantInformation() {
 
-
-        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUtils.branchRestaurant.child(restId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dailyFoodInfoList = new ArrayList<>();
@@ -145,7 +279,7 @@ public class RestaurantActivity
                 }
 
                 object = dataSnapshot.child("Profile").child("description").getValue();
-                StringBuffer description = new StringBuffer("'");
+                StringBuilder description = new StringBuilder("'");
 
                 if (object != null)
                 {
@@ -160,7 +294,7 @@ public class RestaurantActivity
                 adapter = new myFragmentPageAdapter(RestaurantActivity.this, getSupportFragmentManager(), dailyFoodInfoList, reviewInfoList);
                 mViewPager.setAdapter(adapter);
 
-                if (photoURLrestaurant != "") {
+                if (!photoURLrestaurant.equals("")) {
                     GetBitmapFromURLAsync getBitmapFromURLAsync = new GetBitmapFromURLAsync();
                     getBitmapFromURLAsync.execute(photoURLrestaurant);
                 }
@@ -190,7 +324,7 @@ public class RestaurantActivity
     private void deleteStatusBarTitle() {
         if (toolbar != null) {
             setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
 
             final ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
@@ -201,10 +335,9 @@ public class RestaurantActivity
 
     private void getLayoutReferences() {
         imageView = findViewById(R.id.htab_header);
-        //imageViewBlur = findViewById(R.id.htab_header_blur);
         restaurantNameText = findViewById(R.id.restaurant_name_header);
         restaurantDescription = findViewById(R.id.restaurant_description_header);
-        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        mViewPager = findViewById(R.id.viewPager);
         bottomNavigationView = findViewById(R.id.bottom_view);
     }
 
@@ -297,179 +430,12 @@ public class RestaurantActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_restaurant, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.go_to_cart) {
-            SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-            int n_food = sharedPreferences.getInt("n_food", 0);
-            orders = new ArrayList<OrderRecap>();
-
-            for (int i = 0; i < n_food; i++) {
-                String amount = sharedPreferences.getString("amount" + i, "");
-                if ((amount != "") && (Integer.parseInt(amount) != 0)) {
-                    String price = sharedPreferences.getString("price" + i, "");
-                    String name = sharedPreferences.getString("food" + i, "");
-                    String key = sharedPreferences.getString("key" + i, "");
-                    orders.add(new OrderRecap(price, amount, name, key));
-                }
-            }
-
-            decreaseQuantityOfFood();
 
 
 
-        } else if (item.getItemId() == android.R.id.home) {
-            int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
-
-            if (nFood != 0) {
-                AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-
-                pictureDialog.setTitle("Exit:");
-                pictureDialog.setMessage("The content of your cart will be deleted. Are you sure to exit?");
-                pictureDialog.setNegativeButton(android.R.string.no, null);
-                pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-
-                        sharedPreferences.edit().clear().commit();
-
-                        RestaurantActivity.super.onBackPressed();
-                    }
-                });
-
-                pictureDialog.show();
-            }
-        }
-
-        return true;
-    }
 
 
-    @Override
-    public void onBackPressed() {
-        int nFood = getSharedPreferences("orders_info", Context.MODE_PRIVATE).getInt("n_food", 0);
-
-        if (nFood != 0) {
-            AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
-
-            pictureDialog.setTitle("Exit:");
-            pictureDialog.setMessage("The content of your cart will be deleted. Are you sure to exit?");
-            pictureDialog.setNegativeButton(android.R.string.no, null);
-            pictureDialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
-
-                    sharedPreferences.edit().clear().commit();
-
-                    RestaurantActivity.super.onBackPressed();
-                }
-            });
-
-            pictureDialog.show();
-        } else {
-            RestaurantActivity.super.onBackPressed();
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putParcelableArrayList("food", (ArrayList<? extends Parcelable>) dailyFoodInfoList);
-        outState.putString("restId", restId);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        dailyFoodInfoList = savedInstanceState.getParcelableArrayList("food");
-        restId = savedInstanceState.getString("restId");
-    }
-
-    //implement if tabs need to exchange data
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        restId = this.getSharedPreferences("saved", Context.MODE_PRIVATE).getString("id", "");
-
-        dailyFoodInfoList = new ArrayList<>();
-        reviewInfoList = new ArrayList<>();
-
-        getLayoutReferences();
-
-        initBottomNavigation();
-
-        toolbar = findViewById(R.id.toolbar_restaurant);
-        setSupportActionBar(toolbar);
-
-        deleteStatusBarTitle();
-
-        getRestaurantInformation();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CART) {
-            if (resultCode == RESULT_OK) {
-                finish();
-            } else if (resultCode == RESULT_CANCELED) {
-                //adapter.refreshLayout(0);
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        getSharedPreferences("saved_restaurant", MODE_PRIVATE).edit().putString("restId", restId);
-    }
-
-    public static void setWindowFlag(Activity activity, final int bits, boolean on) {
-        Window win = activity.getWindow();
-        WindowManager.LayoutParams winParams = win.getAttributes();
-        if (on) {
-            winParams.flags |= bits;
-        } else {
-            winParams.flags &= ~bits;
-        }
-        win.setAttributes(winParams);
-    }
-
-    @Override
-    public void onFragmentInteractionReview(Uri uri) {
-
-    }
-
-
+    @SuppressLint("StaticFieldLeak")
     private class GetBitmapFromURLAsync extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... params) {
@@ -478,8 +444,6 @@ public class RestaurantActivity
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            //  return the bitmap by doInBackground and store in result
-            //Blurry.with(RestaurantActivity.this).radius(10).from(bitmap).into(imageViewBlur);
             imageView.setImageBitmap(bitmap);
         }
     }
@@ -491,8 +455,7 @@ public class RestaurantActivity
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -500,11 +463,12 @@ public class RestaurantActivity
     }
 
     private void decreaseQuantityOfFood() {
-        FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
+        FirebaseUtils.branchRestaurant.child(restId).child("Daily_Food")
                 .runTransaction( new Transaction.Handler(){
 
+                    @NonNull
                     @Override
-                    public Transaction.Result doTransaction(MutableData currentData){
+                    public Transaction.Result doTransaction(@NonNull MutableData currentData){
                         for (OrderRecap o : orders)
                         {
                             for (MutableData mutableData : currentData.getChildren())
@@ -535,7 +499,7 @@ public class RestaurantActivity
 
                     @Override
                     public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData){
-                        if (committed == true)
+                        if (committed)
                         {
                             Intent intent = new Intent(RestaurantActivity.this, CartActivity.class);
                             Bundle bundle = new Bundle();
