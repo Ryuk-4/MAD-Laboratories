@@ -23,6 +23,7 @@ public class FirebaseUtils {
     public static DatabaseReference branchOrdersInPreparation;
     public static DatabaseReference branchOrdersReady;
     public static DatabaseReference branchDailyFood;
+    public static DatabaseReference branchStoricFood;
     public static DatabaseReference branchFavouriteFood;
     public static DatabaseReference branchCustomer;
     public static DatabaseReference branchRestaurantProfile;
@@ -60,6 +61,7 @@ public class FirebaseUtils {
         timeBranch = database.child("restaurants/" + Uid + "/Time");
         popularFoodBranch = database.child("restaurants/" + Uid + "/Food_Analytics");
         branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
+        branchStoricFood = database.child("restaurants/" + Uid + "/Storic_Food");
         branchFavouriteFood = database.child("restaurants/" + Uid + "/Favourites_Food/");
         branchRestaurantOrders = database.child("restaurants/" + Uid + "/Orders/");
         branchOrdersFlag = database.child("restaurants/" + Uid + "/Orders/IncomingReservationFlag");
