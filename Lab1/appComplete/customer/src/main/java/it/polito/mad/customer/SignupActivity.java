@@ -87,13 +87,18 @@ public class SignupActivity extends AppCompatActivity {
                     return;
                 }
 
+                if (TextUtils.isEmpty(inputSurname.getText().toString().trim())) {
+                    Toast.makeText(getApplicationContext(), "Enter surname!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
 
                 if (password.length() < 6) {
                     Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                SignupActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).edit().putString("userName", inputName.getText().toString().trim()).commit();
+                SignupActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).edit().putString("userName", inputName.getText().toString().trim() + " " + inputSurname.getText().toString().trim()).commit();
 
                 progressBar.setVisibility(View.VISIBLE);
                 //create user

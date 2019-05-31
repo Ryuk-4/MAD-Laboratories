@@ -231,7 +231,7 @@ public class OrdersActivity
                     } else if (orderState.compareTo("delivered") == 0)
                     {
                         ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
-                    } else if (orderState.compareTo("Rejected") == 0)
+                    } else if (orderState.compareTo("canceled") == 0)
                     {
                         ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }

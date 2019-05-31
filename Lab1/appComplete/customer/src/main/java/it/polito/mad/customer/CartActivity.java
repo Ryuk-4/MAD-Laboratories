@@ -245,8 +245,17 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+        String name = CartActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).getString("userName", "");
+
+        if (name.compareTo("") != 0)
+        {
+            databaseReference.child("namePerson").setValue(name);
+        }
+        else
+        {
+            Log.d("TAG", "saveOrderToRestaurant: i am here name = " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
             databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        }
 
         SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
         String lat = sharedPreferences.getString("lat", "");
@@ -271,10 +280,7 @@ public class CartActivity extends AppCompatActivity{
             databaseReference.child("food").child(key).child("foodQuantity").setValue(o.getQuantity());
         }
 
-        String name = CartActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).getString("userName", "");
-
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
-        databaseReference.child("namePerson").setValue(name);
         databaseReference.child("addressReservation").setValue(userLocation.getText().toString());
         databaseReference.child("restaurant").setValue(restId);
         databaseReference.child("restaurant_name").setValue(restName);
