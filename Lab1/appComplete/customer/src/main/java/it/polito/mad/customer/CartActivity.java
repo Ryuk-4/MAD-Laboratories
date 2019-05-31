@@ -426,7 +426,7 @@ public class CartActivity extends AppCompatActivity{
                                         quantity = obj.toString();
                                     }
 
-                                    mutableData.child("quantity").setValue(Integer.parseInt(quantity) + Integer.parseInt(o.getQuantity()));
+                                    mutableData.child("quantity").setValue(String.valueOf(Integer.parseInt(quantity) + Integer.parseInt(o.getQuantity())));
                                 }
                             }
                         }
