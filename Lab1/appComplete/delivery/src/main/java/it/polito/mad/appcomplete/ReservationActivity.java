@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -27,15 +26,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,10 +60,12 @@ public class ReservationActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
+    private boolean started = false;
 
     // for notification
     private DatabaseReference branchOrders;
     private DatabaseReference database;
+    private Intent locationService;
 
 
     @Override
@@ -129,7 +125,7 @@ public class ReservationActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("firstTime").getValue().equals(true)){
-                    showDialogMenu();
+                    //showDialogMenu();
                 }
             }
 
@@ -153,6 +149,7 @@ public class ReservationActivity extends AppCompatActivity
 
         tabLayout.setupWithViewPager(mViewPager);
 
+
         ////////////////////////////////////////////////////////////////
 /*        //For current location blue point on map
         if (mLocationPermissionsGranted)
@@ -169,18 +166,18 @@ public class ReservationActivity extends AppCompatActivity
 
         }*/
         Toast.makeText(this, "lkksjdflsjf;lk", Toast.LENGTH_SHORT).show();
-        getLocationPermission();
-
+/*
         LocationRequest request = new LocationRequest();
-        request.setInterval(10000);
-        request.setFastestInterval(5000);
+        request.setInterval(1000);
+        request.setFastestInterval(500);
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(ReservationActivity.this);
+        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(ReservationActivity.this);*/
 
         int permission = ContextCompat.checkSelfPermission(ReservationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permission == PackageManager.PERMISSION_GRANTED) {
             // Request location updates and when an update is
             // received, store the location in Firebase
+            /*
             client.requestLocationUpdates(request, new LocationCallback() {
                 @Override
                 public void onLocationResult(LocationResult locationResult) {
@@ -203,7 +200,9 @@ public class ReservationActivity extends AppCompatActivity
                         //ref.child("1").setValue(location.getLongitude());
                     }
                 }
-            }, null);
+            }, null);*/
+
+
         }
     }
 
@@ -251,9 +250,43 @@ public class ReservationActivity extends AppCompatActivity
 
                 invalidateOptionsMenu();
                 break;
+            case R.id.enable_disable_position:
+                if (locationService != null && started) //disable the service
+                {
+                    Toast.makeText(this,"disabled",Toast.LENGTH_LONG).show();
+                    stopService(locationService);
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position")
+                            .child(FirebaseAuth.getInstance().getUid());
+                    ref.removeValue();
+                    started = false;
+                } else //enable the service
+                {
+                    getLocationPermission();
+                    started = true;
+                    Toast.makeText(this,"enabled",Toast.LENGTH_LONG).show();
+
+                }
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        started = this.getSharedPreferences("savedStuff", Context.MODE_PRIVATE).getBoolean("started", false);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        SharedPreferences sharedPreferences = this.getSharedPreferences("savedStuff", Context.MODE_PRIVATE);
+
+        sharedPreferences.edit().putBoolean("started", started).commit();
     }
 
     @Override
@@ -319,8 +352,9 @@ public class ReservationActivity extends AppCompatActivity
             Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_dailyMenu) {
-            //Intent intent = new Intent(this, DailyOfferActivity.class);
-            //startActivity(intent);
+            Intent intent = new Intent(ReservationActivity.this, ReportActivity.class);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
@@ -373,24 +407,32 @@ public class ReservationActivity extends AppCompatActivity
 
     private void getLocationPermission(){
         Log.d(TAG, "getLocationPermission: getting location permissions");
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
 
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                mLocationPermissionsGranted = true;
-                //initMap();
-            }else{
-                ActivityCompat.requestPermissions(this,
-                        permissions,
-                        LOCATION_PERMISSION_REQUEST_CODE);
-            }
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+
+            locationService = new Intent(this, ManageCurrentLocationService.class);
+            startService(locationService);
+            mLocationPermissionsGranted = true;
+            Log.d("TAG", "getLocationPermission: hello helle");
         }else{
             ActivityCompat.requestPermissions(this,
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                locationService = new Intent(this, ManageCurrentLocationService.class);
+                startService(locationService);
+            }
         }
     }
 

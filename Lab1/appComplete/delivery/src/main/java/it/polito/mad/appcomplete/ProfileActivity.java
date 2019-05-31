@@ -154,9 +154,11 @@ public class ProfileActivity extends AppCompatActivity
         if (id == R.id.nav_reservation) {
             finish();
         } else if (id == R.id.nav_dailyMenu) {
-            //Intent intent = new Intent(this, DailyOfferActivity.class);
-            //startActivity(intent);
-            //finish();
+            //Intent intent = new Intent(this, ReportActivity.class);
+            Intent intent = new Intent(this, ReportActivity.class);
+
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
@@ -245,28 +247,28 @@ public class ProfileActivity extends AppCompatActivity
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onDataChange: ");
 
-                name.setText(dataSnapshot.child("name").getValue().toString());
-                email.setText(dataSnapshot.child("email").getValue().toString());
+                try {
+                    name.setText(dataSnapshot.child("name").getValue().toString());
+                    email.setText(dataSnapshot.child("email").getValue().toString());
 
-                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                    if (dataSnapshot.child("firstTime").getValue().equals(false)) {
 
-                    if (dataSnapshot.child("imgUrl").getValue() != null){
-                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
-                                .fit().centerCrop().into(im);
+                        if (dataSnapshot.child("imgUrl").getValue() != null) {
+                            Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString()).fit().centerCrop().into(im);
+                        }
+                        //address.setText(dataSnapshot.child("address").getValue().toString());
+                        //description.setText(dataSnapshot.child("description").getValue().toString());
+                        phone.setText(dataSnapshot.child("phone").getValue().toString());
+                        //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
+
+                        String surnameEdit = sharedpref.getString("surname", "");
+                        String dateEdit = sharedpref.getString("dateOfBirth", "");
+                        String sexString = sharedpref.getString("sex", "");
+                        dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
+                        surname.setText(dataSnapshot.child("surname").getValue().toString());
+                        sex.setText(dataSnapshot.child("sex").getValue().toString());
                     }
-                    //address.setText(dataSnapshot.child("address").getValue().toString());
-                    //description.setText(dataSnapshot.child("description").getValue().toString());
-                    phone.setText(dataSnapshot.child("phone").getValue().toString());
-                    //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
-
-                    String surnameEdit = sharedpref.getString("surname", "");
-                    String dateEdit = sharedpref.getString("dateOfBirth", "");
-                    String sexString = sharedpref.getString("sex", "");
-                    dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
-                    surname.setText(dataSnapshot.child("surname").getValue().toString());
-                    sex.setText(dataSnapshot.child("sex").getValue().toString());
-                }
-
+                }catch (Exception e){}
             }
 
             @Override

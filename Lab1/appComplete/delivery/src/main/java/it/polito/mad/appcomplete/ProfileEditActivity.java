@@ -225,7 +225,12 @@ public class ProfileEditActivity extends AppCompatActivity {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         outState.putString("surname", surname_edit.getText().toString());
         //outState.putString("description", description_edit.getText().toString());
-        outState.putString("dateOfBirth", dateOfBirth.getText().toString());
+
+        String s=dateOfBirth.getText().toString();
+        int newDay=  Integer.parseInt(s.split("/")[1]);
+        newDay++;
+        String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
+        outState.putString("dateOfBirth",newDate );
 
         // for sex radio button
         int sexId = radioSex.getCheckedRadioButtonId();
@@ -338,7 +343,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                     final InputStream stream = getContentResolver().openInputStream(contentURI);
                     photo = BitmapFactory.decodeStream(stream);
 
-                    photo = rotateImageIfRequired(photo, contentURI);
+                   // photo = rotateImageIfRequired(photo, contentURI);
                     photo = getResizedBitmap(photo, 500);
 
                     photoByteArray = bitmapToByteArray(photo);
@@ -418,55 +423,62 @@ public class ProfileEditActivity extends AppCompatActivity {
             pictureDialog.setPositiveButton(android.R.string.ok, null);
             pictureDialog.show();
         } else {
-
-            Log.d(TAG, "saveInfo: called");
-            branchProfile.child("name").setValue(name_edit.getText().toString());
-            branchProfile.child("phone").setValue(phone_edit.getText().toString());
-            //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
-            //branchProfile.child("address").setValue(address_edit.getText().toString());
-            branchProfile.child("email").setValue(email_edit.getText().toString());
-            //branchProfile.child("description").setValue(description_edit.getText().toString());
-            branchProfile.child("firstTime").setValue(false);
-            branchProfile.child("dateOfBirth").setValue(dateOfBirth.getText().toString());
-            branchProfile.child("surname").setValue(surname_edit.getText().toString());
-
-            int sexId = radioSex.getCheckedRadioButtonId();
-            View radioButton = radioSex.findViewById(sexId);
-            int idx = radioSex.indexOfChild(radioButton);
-            RadioButton r = (RadioButton) radioSex.getChildAt(idx);
-            branchProfile.child("sex").setValue(r.getText().toString());
+            try {
+                Log.d(TAG, "saveInfo: called");
+                branchProfile.child("name").setValue(name_edit.getText().toString());
+                branchProfile.child("phone").setValue(phone_edit.getText().toString());
+                //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
+                //branchProfile.child("address").setValue(address_edit.getText().toString());
+                branchProfile.child("email").setValue(email_edit.getText().toString());
+                //branchProfile.child("description").setValue(description_edit.getText().toString());
+                branchProfile.child("firstTime").setValue(false);
 
 
+                String s=dateOfBirth.getText().toString();
+                int newDay=  Integer.parseInt(s.split("/")[1]);
+                newDay++;
+                String newDate=s.split("/")[0]+"/"+ Integer.toString(newDay)+"/"+s.split("/")[2];
+                branchProfile.child("dateOfBirth").setValue(newDate);
 
 
-            im_edit.setDrawingCacheEnabled(true);
-            im_edit.buildDrawingCache();
-            Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
+                branchProfile.child("surname").setValue(surname_edit.getText().toString());
 
-            final StorageReference ref = FirebaseStorage.getInstance().getReference()
-                    .child("delivery/profile_images/profile" + Uid);
-            final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                int sexId = radioSex.getCheckedRadioButtonId();
+                View radioButton = radioSex.findViewById(sexId);
+                int idx = radioSex.indexOfChild(radioButton);
+                RadioButton r = (RadioButton) radioSex.getChildAt(idx);
+                branchProfile.child("sex").setValue(r.getText().toString());
 
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.d(TAG, "onSuccess: called");
-                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    Uri downloadUrl = uri;
+                im_edit.setDrawingCacheEnabled(true);
+                im_edit.buildDrawingCache();
+                Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
-                                    branchProfile.child("imgUrl").setValue(downloadUrl.toString());
-                                }
-                            });
-                        }
-                    });
+                final StorageReference ref = FirebaseStorage.getInstance().getReference()
+                        .child("delivery/profile_images/profile" + Uid);
+                final UploadTask uploadTask = (UploadTask) ref.putBytes(bitmapToByteArray(picture))
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
 
-            editor.putBoolean("saved", true);
-            editor.apply();
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "onSuccess: called");
+                                ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-            Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
+
+                                        branchProfile.child("imgUrl").setValue(downloadUrl.toString());
+                                    }
+                                });
+                            }
+                        });
+
+                editor.putBoolean("saved", true);
+                editor.apply();
+
+                Toast.makeText(this, "Saved", Toast.LENGTH_LONG).show();
+            }catch (Exception e){}
         }
     }
 

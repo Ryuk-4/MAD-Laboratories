@@ -10,8 +10,6 @@ public class ReservationInfo implements Parcelable {
     private String namePerson;
     private String idPerson;
     private String timeReservation;
-    private String personOrder;
-    private String note;
     private String restaurantAddress;
     private String addressOrder;
     private String restaurantId;
@@ -53,8 +51,6 @@ public class ReservationInfo implements Parcelable {
         this.namePerson = namePerson;
         this.idPerson = idPerson;
         this.timeReservation = timeReservation;
-        this.personOrder = personOrder;
-        this.note = note;
         this.restaurantAddress = restaurantAddress;
         this.addressOrder = addressOrder;
         this.restaurantId = restaurantId;
@@ -73,8 +69,6 @@ public class ReservationInfo implements Parcelable {
         this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
-        this.personOrder = personOrder;
-        this.note = note;
         this.restaurantAddress = restaurantAddress;
         this.addressOrder = addressOrder;
         this.restaurantId = restaurantId;
@@ -85,23 +79,10 @@ public class ReservationInfo implements Parcelable {
         this.idPerson = idPerson;
         this.namePerson = namePerson;
         this.timeReservation = timeReservation;
-        this.personOrder = personOrder;
     }
 
     public ReservationInfo() {
-        this.idPerson = " ";
-        this.orderID = " ";
-        this.namePerson = " ";
-        this.timeReservation = " ";
-        this.personOrder = " ";
-        this.note = " ";
-        this.restaurantAddress = " ";
-        this.addressOrder = " ";
-        this.restaurantId = " ";
-        this.rLongitude= " ";
-        this.rLatitude= " ";
-        this.cLongitude= " ";
-        this.cLatitude= " ";
+
     }
 
     protected ReservationInfo(Parcel in) {
@@ -109,8 +90,6 @@ public class ReservationInfo implements Parcelable {
         idPerson = in.readString();
         namePerson = in.readString();
         timeReservation = in.readString();
-        personOrder = in.readString();
-        note = in.readString();
         restaurantAddress = in.readString();
         addressOrder =  in.readString();
         restaurantId =  in.readString();
@@ -134,14 +113,6 @@ public class ReservationInfo implements Parcelable {
 
     public void setNamePerson(String namePerson) {
         this.namePerson = namePerson;
-    }
-
-    public void setPersonOrder(String personOrder) {
-        this.personOrder = personOrder;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
     }
 
     public void setOrderID(String orderID) {
@@ -168,13 +139,6 @@ public class ReservationInfo implements Parcelable {
         this.restaurantId = restaurantId;
     }
 
-    public void setPhonePerson(String phonePerson) {
-        this.personOrder = phonePerson;
-    }
-
-    public void setEmail(String email) {
-        this.note = email;
-    }
 
     public String getNamePerson() {
         return namePerson;
@@ -182,14 +146,6 @@ public class ReservationInfo implements Parcelable {
 
     public String getTimeReservation() {
         return timeReservation;
-    }
-
-    public String getPersonOrder() {
-        return personOrder;
-    }
-
-    public String getNote() {
-        return note;
     }
 
     public String getOrderID() {
@@ -228,8 +184,6 @@ public class ReservationInfo implements Parcelable {
         dest.writeString(idPerson);
         dest.writeString(namePerson);
         dest.writeString(timeReservation);
-        dest.writeString(personOrder);
-        dest.writeString(note);
         dest.writeString(cLatitude);
         dest.writeString(cLongitude);
         dest.writeString(rLongitude);
