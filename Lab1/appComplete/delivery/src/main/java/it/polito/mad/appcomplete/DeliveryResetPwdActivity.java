@@ -15,7 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class RestaurantResetPwdActivity extends AppCompatActivity {
+public class DeliveryResetPwdActivity extends AppCompatActivity {
 
     private static final String TAG = "RestaurantResetPwdActiv";
 
@@ -59,11 +59,11 @@ public class RestaurantResetPwdActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    Toast.makeText(RestaurantResetPwdActivity.this,
+                                    Toast.makeText(DeliveryResetPwdActivity.this,
                                             "We have sent you instructions to reset your password!",
                                             Toast.LENGTH_LONG).show();
                                 } else {
-                                    Toast.makeText(RestaurantResetPwdActivity.this,
+                                    Toast.makeText(DeliveryResetPwdActivity.this,
                                             "Failed to send reset email!", Toast.LENGTH_LONG).show();
                                 }
 

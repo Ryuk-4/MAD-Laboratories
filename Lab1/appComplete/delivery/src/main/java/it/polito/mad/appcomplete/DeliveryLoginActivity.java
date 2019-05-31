@@ -118,7 +118,7 @@ public class DeliveryLoginActivity extends AppCompatActivity
 
             case R.id.resetPwdLink:
                 startActivity(new Intent(DeliveryLoginActivity.this,
-                        RestaurantResetPwdActivity.class));
+                        DeliveryResetPwdActivity.class));
                 break;
 
             case R.id.googleSignInButton:

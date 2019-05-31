@@ -49,7 +49,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".RestaurantResetPwdActivity"
+            android:name=".DeliveryResetPwdActivity"
             android:label="@string/title_activity_restaurant_reset_pwd"
             android:parentActivityName=".DeliveryLoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
