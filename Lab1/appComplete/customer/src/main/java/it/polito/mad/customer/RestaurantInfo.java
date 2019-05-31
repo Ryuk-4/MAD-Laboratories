@@ -91,7 +91,6 @@ public class RestaurantInfo {
     public float getValueRatinBar()
     {
         float ret = 0;
-        int total = 0;
 
         for (int i = 0 ; i < 5 ; i++)
         {

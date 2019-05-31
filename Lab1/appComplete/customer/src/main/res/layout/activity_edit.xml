@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="16dp"
         android:background="#F6F6F5"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -57,32 +57,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textViewNameLabel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/nameLabel" />
 
-            <EditText
-                android:id="@+id/editTextName"
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:inputType="textPersonName"
-                android:textSize="20sp"></EditText>
-
-            <TextView
-                android:id="@+id/textViewSurnameLabel"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/surnameLabel" />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/editTextSurname"
+                <EditText
+                    android:id="@+id/editTextName"
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:hint="@string/name"
+                    android:inputType="textPersonName"
+                    android:textSize="20sp" />
+            </android.support.design.widget.TextInputLayout>
+
+
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:textSize="20sp" />
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/editTextSurname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/surname"
+                    android:inputType="textPersonName"
+                    android:textSize="20sp" />
+            </android.support.design.widget.TextInputLayout>
 
             <TextView
                 android:id="@+id/textViewSex"
@@ -148,33 +150,32 @@
                     app:srcCompat="@android:drawable/ic_menu_my_calendar" />
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/textViewTelephoneLabel"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/telephoneLabel" />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/editTextTelephone"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:textSize="20sp"></EditText>
+                <EditText
+                    android:id="@+id/editTextTelephone"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/phone_number"
+                    android:inputType="phone"
+                    android:textSize="20sp" />
+            </android.support.design.widget.TextInputLayout>
 
-            <TextView
-                android:id="@+id/textViewAddressLabel"
+
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/addressLabel" />
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/editTextAddress"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:textSize="20sp"></EditText>
+                <EditText
+                    android:id="@+id/editTextAddress"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/addressLabel"
+                    android:inputType="text"
+                    android:textSize="20sp" />
+            </android.support.design.widget.TextInputLayout>
 
             <Button
                 android:id="@+id/button"

@@ -1,5 +1,7 @@
 package it.polito.mad.customer;
 
+import android.support.annotation.NonNull;
+
 public class MyCustomLocation{
     private double latitude;
     private double longitude;
@@ -25,6 +27,7 @@ public class MyCustomLocation{
         this.longitude = longitude;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MyCustomLocation{" +

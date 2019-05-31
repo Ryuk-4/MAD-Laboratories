@@ -15,16 +15,16 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestaurant.ViewHolder>{
-    private static final String TAG = "RecyclerViewAdapterRese";
 
     private Context myContext;
     private List<RestaurantInfo> restaurantInfoList;
@@ -37,13 +37,15 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
         this.restaurantInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
         this.rvaFavoriteRestaurant = rvaFavoriteRestaurant;
+
+        FirebaseUtils.setupFirebaseCustomer();
     }
 
+    @NonNull
     @Override
     public RVANormalRestaurant.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_normal_restaurant, viewGroup, false);
-        RVANormalRestaurant.ViewHolder holder = new RVANormalRestaurant.ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -56,12 +58,12 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
         viewHolder.star.setTag(restaurantInfoList.get(i).getId());
         if (restaurantInfoList.get(i).isFavorite())
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap();
-            ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
+            Bitmap bitmap = ((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_black_36))).getBitmap();
+            (viewHolder.star).setImageBitmap(bitmap);
         } else
         {
-            Bitmap bitmap = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
-            ((CircularImageView) viewHolder.star).setImageBitmap(bitmap);
+            Bitmap bitmap = ((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_border_black_36))).getBitmap();
+            (viewHolder.star).setImageBitmap(bitmap);
         }
 
         viewHolder.star.setOnClickListener(new customOnClick(restaurantInfoList.get(i)));
@@ -74,7 +76,6 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
                 t.setText(s);
                 t.setTextColor(this.myContext.getColor(R.color.colorPrimary));
                 t.setTypeface(null, Typeface.BOLD);
-                //t.setBackground(this.myContext.getResources().getDrawable(R.drawable.rounded_corner));
                 t.setPadding(10, 10, 10, 10);
 
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -100,13 +101,6 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
     public void clearAll()
     {
         restaurantInfoList = new ArrayList<>();
-    }
-
-    public void removeItem(int position) {
-        restaurantInfoList.remove(position);
-        // notify the item removed by position
-        // to perform recycler view delete animations
-        notifyItemRemoved(position);
     }
 
     public void restoreItem(RestaurantInfo item, int position) {
@@ -140,7 +134,6 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
     }
 
 
-    // inner clas to manage the view
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{ //implements View.OnClickListener {
 
         TextView name;
@@ -172,12 +165,6 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
         }
     }
 
-
-    public interface updateRestaurantList
-    {
-        void onUpdateListNormal();
-    }
-
     class customOnClick implements View.OnClickListener
     {
         private RestaurantInfo restaurantInfo;
@@ -190,21 +177,21 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
         @Override
         public void onClick(View v) {
             Bitmap bitmap = ((BitmapDrawable)((CircularImageView)v).getDrawable()).getBitmap();
-            Bitmap bitmap2 = ((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap();
+            Bitmap bitmap2 = ((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_border_black_36))).getBitmap();
             String restId = v.getTag().toString();
 
             if(bitmap == bitmap2)
             {
-                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_black_36)).getBitmap());
-                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).setValue("true");
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_black_36))).getBitmap());
+                FirebaseUtils.branchCustomerFavoriteRestaurant.child(restId).setValue("true");
                 restaurantInfo.setFavorite(true);
                 rvaFavoriteRestaurant.restoreItem(restaurantInfo, rvaFavoriteRestaurant.getItemCount());
                 rvaSuggestedRestaurant.setItemFavorite(restaurantInfo.getId());
 
             } else
             {
-                ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
-                FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("favorite_restaurant").child(restId).removeValue();
+                ((CircularImageView) v).setImageBitmap(((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_border_black_36))).getBitmap());
+                FirebaseUtils.branchCustomerFavoriteRestaurant.child(restId).removeValue();
                 restaurantInfo.setFavorite(false);
                 rvaFavoriteRestaurant.removeItem(restaurantInfo);
                 rvaSuggestedRestaurant.setItemNotFavorite(restaurantInfo.getId());

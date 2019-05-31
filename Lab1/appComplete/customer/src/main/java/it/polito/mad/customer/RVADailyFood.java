@@ -1,43 +1,36 @@
 package it.polito.mad.customer;
 
 import android.animation.ObjectAnimator;
-import android.app.IntentService;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.support.design.card.MaterialCardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
 
-    private static final String TAG = "RecyclerViewAdapterRese";
-
     private Context myContext;
     private List<SuggestedFoodInfo> foodInfoList;
-    private RVANormalRestaurant.updateRestaurantList updateRestaurantList;
 
     public RVADailyFood(Context myContext, List<SuggestedFoodInfo> foodInfoList){
         this.myContext = myContext;
         this.foodInfoList = foodInfoList;
     }
 
+    @NonNull
     @Override
     public RVADailyFood.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_daily_food, viewGroup, false);
-        RVADailyFood.ViewHolder holder = new RVADailyFood.ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -45,8 +38,8 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
         viewHolder.name.setText(foodInfoList.get(i).getName());
         viewHolder.name.setTag(foodInfoList.get(i).getKey());
         viewHolder.price.setText(foodInfoList.get(i).getPrice());
-        viewHolder.mItemDescription.setText("''"+foodInfoList.get(i).getDescription()+"''");
-        viewHolder.quantity.setText("("+foodInfoList.get(i).getQuantity()+"pcs left)");
+        viewHolder.mItemDescription.setText(String.format("''%s''", foodInfoList.get(i).getDescription()));
+        viewHolder.quantity.setText(String.format("(%s pcs left)", foodInfoList.get(i).getQuantity()));
         viewHolder.amount.setTag(foodInfoList.get(i).getQuantity());
 
         SharedPreferences sharedPreferences = myContext.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
@@ -75,22 +68,8 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
         return foodInfoList.size();
     }
 
-    public void removeItem(int position) {
-        foodInfoList.remove(position);
-        // notify the item removed by position
-        // to perform recycler view delete animations
-        notifyItemRemoved(position);
-    }
-
-    public void restoreItem(SuggestedFoodInfo item, int position) {
-        foodInfoList.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-    }
-
-
     // inner clas to manage the view
-    public class ViewHolder extends RecyclerView.ViewHolder{ //implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView name;
         TextView price;
@@ -114,21 +93,14 @@ public class RVADailyFood extends RecyclerView.Adapter<RVADailyFood.ViewHolder>{
             mItemDescription = itemView.findViewById(R.id.food_description);
             quantity = itemView.findViewById(R.id.food_quantity);
 
-            expandCollapse.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    collapseExpandTextView();
-                }
-            });
+            expandCollapse.setOnClickListener(v -> collapseExpandTextView());
         }
 
         void collapseExpandTextView() {
             if (mItemDescription.getVisibility() == View.GONE) {
-                // it's collapsed - expand it
                 mItemDescription.setVisibility(View.VISIBLE);
                 expandCollapse.setImageResource(R.drawable.round_expand_less_black_48);
             } else {
-                // it's expanded - collapse it
                 mItemDescription.setVisibility(View.GONE);
                 expandCollapse.setImageResource(R.drawable.round_expand_more_black_48);
             }

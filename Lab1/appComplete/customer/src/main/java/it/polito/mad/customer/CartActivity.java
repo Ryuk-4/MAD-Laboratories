@@ -7,12 +7,11 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +28,6 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -41,10 +39,12 @@ import com.google.firebase.database.Transaction;
 import com.jaeger.library.StatusBarUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class CartActivity extends AppCompatActivity{
 
@@ -57,10 +57,14 @@ public class CartActivity extends AppCompatActivity{
     private ImageView imageLocation;
     private List<OrderRecap> list;
     private Spinner spinnerTime;
-    //private EditText orderAddress;
     private String restName;
     private Toolbar toolbar;
 
+    /**
+     *  -----------------------------
+     *  default system callbacks part
+     *  -----------------------------
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +84,59 @@ public class CartActivity extends AppCompatActivity{
         initSystem();
     }
 
+    @Override
+    public void onBackPressed() {
+        increaseQuantityOfFood();
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        increaseQuantityOfFood();
+        return true;
+    }
+
+    @SuppressLint("ApplySharedPref")
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST)
+        {
+            if (resultCode == RESULT_OK) //the user selected a place
+            {
+                if (data != null)
+                {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+
+                    if (place.getLatLng() != null)
+                    {
+                        SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("lat", Double.toString(place.getLatLng().latitude));
+                        editor.putString("lon", Double.toString(place.getLatLng().longitude));
+                        editor.commit();
+
+                        userLocation.setText(place.getName());
+                    }
+                }
+            }
+        }
+    }
+
     /**
-     *  initializes all the CartActivity
+     *  ----------------------------
+     *  programmer defined functions
+     *  ----------------------------
+     */
+
+    /**
+     *  initializes all the CartActivity system
      */
     private void initSystem() {
         initLayoutReferences();
+
+        FirebaseUtils.setupFirebaseCustomer();
 
         setupActionBar();
 
@@ -100,10 +152,12 @@ public class CartActivity extends AppCompatActivity{
         StatusBarUtil.setColor(this, this.getColor(R.color.colorPrimary));
     }
 
+
     private void setupActionBar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
 
     private int createCart() {
         int partial = 0;
@@ -117,6 +171,7 @@ public class CartActivity extends AppCompatActivity{
         return partial;
     }
 
+
     private void getInfoFromExtra() {
         Bundle bundle = getIntent().getExtras();
 
@@ -128,46 +183,63 @@ public class CartActivity extends AppCompatActivity{
         }
     }
 
+
     @SuppressLint("ApplySharedPref")
     private void addListenerToButtons() {
-        buttonSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String orderId = saveOrderToRestaurant();
-                saveOrderToCustomer(orderId);
+        buttonSend.setOnClickListener(v -> {
+            String orderId = saveOrderToRestaurant();
+            saveOrderToCustomer(orderId);
 
-                setResult(RESULT_OK);
-                finish();
-            }
+            setResult(RESULT_OK);
+            finish();
         });
 
 
-        buttonDiscard.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
+        buttonDiscard.setOnClickListener(v -> {
+            SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
 
-                sharedPreferences.edit().clear().commit();
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+            sharedPreferences.edit().clear().commit();
+            increaseQuantityOfFood();
         });
 
-        imageLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!Places.isInitialized()) {
-                    Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
-                }
-
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(CartActivity.this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+        imageLocation.setOnClickListener(v -> {
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
             }
+
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+            SharedPreferences sharedPreferences1 = getSharedPreferences("user_location", MODE_PRIVATE);
+            String lat1 = sharedPreferences1.getString("lat", "0.0");
+            String lon1 = sharedPreferences1.getString("lon", "0.0");
+
+            RectangularBounds bounds = RectangularBounds.newInstance(
+                    new LatLng(Double.parseDouble(lat1)-0.03, Double.parseDouble(lon1)-0.03),
+                    new LatLng(Double.parseDouble(lat1)+0.03, Double.parseDouble(lon1)+0.03));
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setLocationRestriction(bounds).build(CartActivity.this);
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
+        });
+
+        userLocation.setOnClickListener(v -> {
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
+            }
+
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+
+            SharedPreferences sharedPreferences1 = getSharedPreferences("user_location", MODE_PRIVATE);
+            String lat1 = sharedPreferences1.getString("lat", "0.0");
+            String lon1 = sharedPreferences1.getString("lon", "0.0");
+
+            RectangularBounds bounds = RectangularBounds.newInstance(
+                    new LatLng(Double.parseDouble(lat1)-0.03, Double.parseDouble(lon1)-0.03),
+                    new LatLng(Double.parseDouble(lat1)+0.03, Double.parseDouble(lon1)+0.03));
+
+            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setLocationRestriction(bounds).build(CartActivity.this);
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
         });
     }
-
 
 
     /**
@@ -183,6 +255,7 @@ public class CartActivity extends AppCompatActivity{
         imageLocation = findViewById(R.id.image_location);
         toolbar = findViewById(R.id.toolbar_cart);
     }
+
 
     private int addFoodOrder(int partial, OrderRecap orderRecap) {
         LinearLayout linearLayout = new LinearLayout(this);
@@ -223,12 +296,12 @@ public class CartActivity extends AppCompatActivity{
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         layoutParams.setMargins(0, 10, 0, 10);
-        //linearLayout.setBackground(this.getResources().getDrawable(R.drawable.rounded_corner_white));
 
         cart.addView(linearLayout, layoutParams);
 
         return partial;
     }
+
 
     private String saveOrderToRestaurant() {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Orders").child("Incoming").push();
@@ -245,16 +318,16 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("note").setValue(" ");
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
 
-        String name = CartActivity.this.getSharedPreferences("userInfos", Context.MODE_PRIVATE).getString("userName", "");
+        String name = CartActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).getString("name", "") +
+                CartActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).getString("surname", "");
 
-        if (name.compareTo("") != 0)
+        if (name != null && name.compareTo("") != 0)
         {
             databaseReference.child("namePerson").setValue(name);
         }
         else
         {
-            Log.d("TAG", "saveOrderToRestaurant: i am here name = " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-            databaseReference.child("namePerson").setValue(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            databaseReference.child("namePerson").setValue(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getDisplayName());
         }
 
         SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
@@ -267,9 +340,10 @@ public class CartActivity extends AppCompatActivity{
         return databaseReference.getKey();
     }
 
+
     private void saveOrderToCustomer(String orderId)
     {
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order").child(orderId);
+        DatabaseReference databaseReference = FirebaseUtils.branchCustomerPreviousOrder.child(orderId);
 
         for (OrderRecap o : list)
         {
@@ -287,16 +361,6 @@ public class CartActivity extends AppCompatActivity{
         databaseReference.child("order_status").setValue("pending");
     }
 
-    @Override
-    public void onBackPressed() {
-        increaseQuantityOfFood();
-        super.onBackPressed();
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        increaseQuantityOfFood();
-        return true;
-    }
 
     private void setTextviewLocation()
     {
@@ -308,61 +372,17 @@ public class CartActivity extends AppCompatActivity{
         String lat = sharedPreferences.getString("lat", "0.0");
         String lon = sharedPreferences.getString("lon", "0.0");
 
-        String address = getAddressFromLocation(this, Double.parseDouble(lat), Double.parseDouble(lon));
-        userLocation.setText(address);
-
-        userLocation.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                if (!Places.isInitialized()) {
-                    Places.initialize(getApplicationContext(), CartActivity.this.getString(R.string.google_maps_key));
-                }
-
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-
-                SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
-                String lat = sharedPreferences.getString("lat", "0.0");
-                String lon = sharedPreferences.getString("lon", "0.0");
-
-                //TODO check the values to define the proper value
-                RectangularBounds bounds = RectangularBounds.newInstance(
-                        new LatLng(Double.parseDouble(lat)-0.03, Double.parseDouble(lon)-0.03),
-                        new LatLng(Double.parseDouble(lat)+0.03, Double.parseDouble(lon)+0.03));
-
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setLocationRestriction(bounds).build(CartActivity.this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST);
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == AUTOCOMPLETE_REQUEST)
-        {
-            if (resultCode == RESULT_OK) //the user selected a place
-            {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-
-                SharedPreferences sharedPreferences = getSharedPreferences("user_location", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("lat", Double.toString(place.getLatLng().latitude));
-                editor.putString("lon", Double.toString(place.getLatLng().longitude));
-                editor.commit();
-
-                userLocation.setText(place.getName());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) //some internal error
-            {
-                //TODO implement this case
-            } else if (resultCode == RESULT_CANCELED) //the use pressed back
-            {
-
-            }
+        String address = null;
+        if (lat != null && lon != null) {
+            address = getAddressFromLocation(this, Double.parseDouble(lat), Double.parseDouble(lon));
         }
+
+        userLocation.setText(address);
     }
 
+    /**
+     *  given a latitude and longitude it uses the Geocoer class to get the corresponding String address
+     */
     public String getAddressFromLocation(Context context, double lat, double lng) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
         try {
@@ -381,20 +401,22 @@ public class CartActivity extends AppCompatActivity{
         }
     }
 
+
     public void increaseQuantityOfFood()
     {
         FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Daily_Food")
                 .runTransaction( new Transaction.Handler(){
 
+                    @NonNull
                     @Override
-                    public Transaction.Result doTransaction(MutableData currentData){
+                    public Transaction.Result doTransaction(@NonNull MutableData currentData){
                         for (OrderRecap o : list)
                         {
                             for (MutableData mutableData : currentData.getChildren())
                             {
                                 String key = mutableData.getKey();
 
-                                if (key.compareTo(o.getKey()) == 0)
+                                if (key != null && key.compareTo(o.getKey()) == 0)
                                 {
                                     String quantity = "0";
                                     Object obj = mutableData.child("quantity").getValue();

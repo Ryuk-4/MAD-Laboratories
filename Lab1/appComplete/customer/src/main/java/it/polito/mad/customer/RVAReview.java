@@ -24,11 +24,11 @@ public class RVAReview extends RecyclerView.Adapter<RVAReview.ViewHolder> {
         this.reviewInfos = reviewInfos;
     }
 
+    @NonNull
     @Override
     public RVAReview.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cardview_review, viewGroup, false);
-        RVAReview.ViewHolder holder = new RVAReview.ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -44,18 +44,6 @@ public class RVAReview extends RecyclerView.Adapter<RVAReview.ViewHolder> {
         return reviewInfos.size();
     }
 
-    public void removeItem(int position) {
-        reviewInfos.remove(position);
-        // notify the item removed by position
-        // to perform recycler view delete animations
-        notifyItemRemoved(position);
-    }
-
-    public void restoreItem(ReviewInfo item, int position) {
-        reviewInfos.add(position, item);
-        // notify item added by position
-        notifyItemInserted(position);
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 

@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -14,13 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 
@@ -28,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class OrdersActivity
 
@@ -44,6 +42,11 @@ public class OrdersActivity
     private BottomNavigationView bottomNavigationView;
 
 
+    /**
+     *  -------------------------
+     *  system callbacks
+     *  -------------------------
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +56,7 @@ public class OrdersActivity
         setSupportActionBar(toolbar);
         bottomNavigationView = findViewById(R.id.bottom_view);
 
+        FirebaseUtils.setupFirebaseCustomer();
 
         initDrawer();
         getDataOrders();
@@ -69,6 +73,7 @@ public class OrdersActivity
         setSupportActionBar(toolbar);
         bottomNavigationView = findViewById(R.id.bottom_view);
 
+        FirebaseUtils.setupFirebaseCustomer();
 
         initDrawer();
         getDataOrders();
@@ -84,20 +89,33 @@ public class OrdersActivity
         if (id == R.id.nav_restaurant) {
             Intent intent = new Intent(OrdersActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.nav_profile) {
             Intent intent = new Intent(OrdersActivity.this, ProfileActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_contactUs) {
-
+            finish();
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_orders);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    @Override
+    public void onFragmentInteractionComplete(Uri uri) {
+
+    }
+
+    @Override
+    public void onFragmentInteractionPending(Uri uri) {
+
+    }
+
+
+    /**
+     *  ------------------------------
+     *  programmer defined functions
+     *  ------------------------------
+     */
     private void initDrawer() {
         DrawerLayout drawer = findViewById(R.id.drawer_orders);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -113,11 +131,11 @@ public class OrdersActivity
     {
         ordersInfoListPending = new ArrayList<>();
         ordersInfoListCompleted = new ArrayList<>();
-        viewPager = (ViewPager) findViewById(R.id.containerTabsOrders);
+        viewPager = findViewById(R.id.containerTabsOrders);
 
 
         //Log.d("TAG", "onDataChange: ");
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
+        final DatabaseReference databaseReference = FirebaseUtils.branchCustomerPreviousOrder;
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -172,7 +190,6 @@ public class OrdersActivity
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
                     Map<String, String> foodId = new TreeMap<>();
-                    Map<String, String> foodKey = new TreeMap<>();
 
                     for (DataSnapshot ds1 : ds.child("food").getChildren())
                     {
@@ -194,7 +211,7 @@ public class OrdersActivity
                             quantity = o.toString();
                         }
 
-                        foodAmount.put(foodName, new Integer(quantity));
+                        foodAmount.put(foodName, Integer.valueOf(quantity));
 
                         String price = "0";
                         o = ds1.child("foodPrice").getValue();
@@ -203,7 +220,7 @@ public class OrdersActivity
                         {
                             price = o.toString();
                         }
-                        foodPrice.put(foodName, new Float(price));
+                        foodPrice.put(foodName, Float.valueOf(price));
 
                     }
 
@@ -239,8 +256,6 @@ public class OrdersActivity
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
-                //((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
-                //viewPager.invalidate();
             }
 
             @Override
@@ -250,32 +265,19 @@ public class OrdersActivity
         });
     }
 
-    @Override
-    public void onFragmentInteractionComplete(Uri uri) {
-
-    }
-
-    @Override
-    public void onFragmentInteractionPending(Uri uri) {
-
-    }
-
     private void initBottomNavigation() {
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId())
-                {
-                    case R.id.pending_orders:
-                        viewPager.setCurrentItem(0);
-                        break;
-                    case R.id.completed_orders:
-                        viewPager.setCurrentItem(1);
-                        break;
-                }
-
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(menuItem -> {
+            switch (menuItem.getItemId())
+            {
+                case R.id.pending_orders:
+                    viewPager.setCurrentItem(0);
+                    break;
+                case R.id.completed_orders:
+                    viewPager.setCurrentItem(1);
+                    break;
             }
+
+            return false;
         });
     }
 }
