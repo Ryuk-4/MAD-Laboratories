@@ -187,6 +187,7 @@ public class CartActivity extends AppCompatActivity{
     @SuppressLint("ApplySharedPref")
     private void addListenerToButtons() {
         buttonSend.setOnClickListener(v -> {
+            v.setClickable(false);
             String orderId = saveOrderToRestaurant();
             saveOrderToCustomer(orderId);
 
@@ -196,6 +197,7 @@ public class CartActivity extends AppCompatActivity{
 
 
         buttonDiscard.setOnClickListener(v -> {
+            v.setClickable(false);
             SharedPreferences sharedPreferences = getSharedPreferences("orders_info", Context.MODE_PRIVATE);
 
             sharedPreferences.edit().clear().commit();

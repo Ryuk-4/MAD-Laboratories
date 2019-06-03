@@ -173,6 +173,7 @@ public class RestaurantActivity
         int id = item.getItemId();
 
         if (id == R.id.go_to_cart) {
+            item.setEnabled(false);
             SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
             int n_food = sharedPreferences.getInt("n_food", 0);
             orders = new ArrayList<>();
@@ -207,6 +208,9 @@ public class RestaurantActivity
                 });
 
                 pictureDialog.show();
+            } else
+            {
+                RestaurantActivity.super.onBackPressed();
             }
         }
 
@@ -429,9 +433,6 @@ public class RestaurantActivity
             reviewInfoList.add(new ReviewInfo(rate, title, description, date));
         }
     }
-
-
-
 
 
 
