@@ -36,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Restaurant:"
-                android:textSize="15sp"
+                android:textSize="18sp"
                 android:layout_marginTop="15dp"/>
 
             <TextView
@@ -49,9 +49,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Restaurant:"
+                android:text="Customer:"
                 android:layout_marginTop="15dp"
-                android:textSize="15sp"/>
+                android:textSize="18sp"/>
 
             <TextView
                 android:id="@+id/custommerAddress"

@@ -49,22 +49,22 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".RestaurantResetPwdActivity"
+            android:name=".DeliveryResetPwdActivity"
             android:label="@string/title_activity_restaurant_reset_pwd"
-            android:parentActivityName=".RestaurantLoginActivity"
+            android:parentActivityName=".DeliveryLoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.polito.mad.appcomplete.RestaurantLoginActivity" />
+                android:value="it.polito.mad.appcomplete.DeliveryLoginActivity" />
         </activity>
         <activity
-            android:name=".RestaurantSignUpActivity"
+            android:name=".DeliverySignUpActivity"
             android:label="@string/title_activity_restaurant_sign_up"
-            android:parentActivityName=".RestaurantLoginActivity"
+            android:parentActivityName=".DeliveryLoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="it.polito.mad.appcomplete.RestaurantLoginActivity" />
+                android:value="it.polito.mad.appcomplete.DeliveryLoginActivity" />
         </activity>
         <activity
             android:name=".DailyOfferFavoriteActivity"
@@ -90,7 +90,7 @@
                 android:value="it.polito.mad.appcomplete.ProfileActivity" />
         </activity>
         <activity
-            android:name=".RestaurantLoginActivity"
+            android:name=".DeliveryLoginActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

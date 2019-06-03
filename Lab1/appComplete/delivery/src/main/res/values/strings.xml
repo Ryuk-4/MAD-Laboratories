@@ -47,15 +47,6 @@
 
     <string name="timeLabel">Time:</string>
 
-    <string-array name="planets_array">
-        <item>Saturday</item>
-        <item>Sunday</item>
-        <item>Monday</item>
-        <item>Tuesday</item>
-        <item>Wednesday</item>
-        <item>Thursday</item>
-        <item>Friday</item>
-    </string-array>
 
     <string name="foodpriceLabel">price</string>
     <string name="foodPrice">$</string>

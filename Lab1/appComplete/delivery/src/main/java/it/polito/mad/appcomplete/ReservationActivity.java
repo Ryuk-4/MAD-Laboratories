@@ -25,8 +25,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -41,7 +39,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class ReservationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
+        implements NavigationView.OnNavigationItemSelectedListener, DeliveryLoginActivity.RestaurantLoginInterface {
 
     private static final String TAG = "ReservationActivity";
 
@@ -107,7 +105,7 @@ public class ReservationActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user == null) {
-                    startActivity(new Intent(ReservationActivity.this, RestaurantLoginActivity.class));
+                    startActivity(new Intent(ReservationActivity.this, DeliveryLoginActivity.class));
                     finish();
                 }
             }
@@ -371,9 +369,9 @@ public class ReservationActivity extends AppCompatActivity
     private void setupViewPager(@NonNull ViewPager viewPager) {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        mSectionsPagerAdapter.addFragments(incFragment, "Incoming");
+        mSectionsPagerAdapter.addFragments(incFragment, "New");
         //mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
-        mSectionsPagerAdapter.addFragments(endFragment, "Ready To Go");
+        mSectionsPagerAdapter.addFragments(endFragment, "Finished");
 
         viewPager.setAdapter(mSectionsPagerAdapter);
     }
