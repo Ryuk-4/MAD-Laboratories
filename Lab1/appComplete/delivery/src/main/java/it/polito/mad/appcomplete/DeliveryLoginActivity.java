@@ -30,15 +30,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-public class RestaurantLoginActivity extends AppCompatActivity
+public class DeliveryLoginActivity extends AppCompatActivity
         implements View.OnClickListener {
 
-    private static final String TAG = "RestaurantLoginActivity";
+    private static final String TAG = "DeliveryLoginActivity";
 
     private static final int REQ_SIGN_IN = 9001;
     private static final int G_REQ_SIGN_IN = 9002;
 
-    public static RestaurantLoginActivity rla;
+    public static DeliveryLoginActivity rla;
 
     private EditText inputEmail;
     private EditText inputPassword;
@@ -66,7 +66,7 @@ public class RestaurantLoginActivity extends AppCompatActivity
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            startActivity(new Intent(RestaurantLoginActivity.this, ReservationActivity.class));
+            startActivity(new Intent(DeliveryLoginActivity.this, ReservationActivity.class));
             finish();
         }
 
@@ -112,13 +112,13 @@ public class RestaurantLoginActivity extends AppCompatActivity
                 break;
 
             case R.id.signUpLink:
-                startActivity(new Intent(RestaurantLoginActivity.this,
-                        RestaurantSignUpActivity.class));
+                startActivity(new Intent(DeliveryLoginActivity.this,
+                        DeliverySignUpActivity.class));
                 break;
 
             case R.id.resetPwdLink:
-                startActivity(new Intent(RestaurantLoginActivity.this,
-                        RestaurantResetPwdActivity.class));
+                startActivity(new Intent(DeliveryLoginActivity.this,
+                        DeliveryResetPwdActivity.class));
                 break;
 
             case R.id.googleSignInButton:
@@ -167,7 +167,7 @@ public class RestaurantLoginActivity extends AppCompatActivity
         final String pwd = inputPassword.getText().toString();
 
         auth.signInWithEmailAndPassword(email, pwd)
-                .addOnCompleteListener(RestaurantLoginActivity.this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(DeliveryLoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressBar.setVisibility(View.GONE);
@@ -178,13 +178,13 @@ public class RestaurantLoginActivity extends AppCompatActivity
                          */
                         if (!task.isSuccessful()) {
                             // there was an error
-                            Toast.makeText(RestaurantLoginActivity.this,
+                            Toast.makeText(DeliveryLoginActivity.this,
                                     getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
 
                         } else {
                             FirebaseUser user = auth.getCurrentUser();
                             updateUI(user);
-                            Intent intent = new Intent(RestaurantLoginActivity.this, ReservationActivity.class);
+                            Intent intent = new Intent(DeliveryLoginActivity.this, ReservationActivity.class);
                             startActivity(intent);
                             finish();
                         }
@@ -237,11 +237,11 @@ public class RestaurantLoginActivity extends AppCompatActivity
 
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: task.isSuccessful() called");
-                            startActivity(new Intent(RestaurantLoginActivity.this, ReservationActivity.class));
+                            startActivity(new Intent(DeliveryLoginActivity.this, ReservationActivity.class));
                             finish();
                         } else {
 
-                            Toast.makeText(RestaurantLoginActivity.this,
+                            Toast.makeText(DeliveryLoginActivity.this,
                                     getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
                         }
                     }

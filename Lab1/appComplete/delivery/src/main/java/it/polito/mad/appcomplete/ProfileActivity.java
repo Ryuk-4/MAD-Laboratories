@@ -33,7 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
+        implements NavigationView.OnNavigationItemSelectedListener, DeliveryLoginActivity.RestaurantLoginInterface {
 
     private static final String TAG = "ProfileActivity";
 
@@ -110,7 +110,7 @@ public class ProfileActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user == null) {
-                    startActivity(new Intent(ProfileActivity.this, RestaurantLoginActivity.class));
+                    startActivity(new Intent(ProfileActivity.this, DeliveryLoginActivity.class));
                     finish();
                 }
             }

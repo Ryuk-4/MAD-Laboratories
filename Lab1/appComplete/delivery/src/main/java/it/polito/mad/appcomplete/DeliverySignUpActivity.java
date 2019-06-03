@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class RestaurantSignUpActivity extends AppCompatActivity implements View.OnClickListener {
+public class DeliverySignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "RestaurantSignUpActivit";
 
@@ -89,10 +89,10 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
 
         //create user
         auth.createUserWithEmailAndPassword(email, pwd)
-                .addOnCompleteListener(RestaurantSignUpActivity.this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(DeliverySignUpActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Toast.makeText(RestaurantSignUpActivity.this,
+                        Toast.makeText(DeliverySignUpActivity.this,
                                 "createUserWithEmail:onComplete:" + task.isSuccessful(),
                                 Toast.LENGTH_SHORT).show();
 
@@ -103,16 +103,16 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
                          * signed in user can be handled in the listener.
                          */
                         if (!task.isSuccessful()) {
-                            Toast.makeText(RestaurantSignUpActivity.this,
+                            Toast.makeText(DeliverySignUpActivity.this,
                                     getString(R.string.auth_failed) + task.getException(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            RestaurantLoginActivity.rla.finish();
+                            DeliveryLoginActivity.rla.finish();
 
                             updateUI();
                             createDataBase(name);
 
-                            startActivity(new Intent(RestaurantSignUpActivity.this, ReservationActivity.class));
+                            startActivity(new Intent(DeliverySignUpActivity.this, ReservationActivity.class));
                             finish();
                         }
                     }
