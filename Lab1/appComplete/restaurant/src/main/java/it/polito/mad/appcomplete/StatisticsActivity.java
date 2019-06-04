@@ -93,11 +93,12 @@ public class StatisticsActivity extends AppCompatActivity {
                         for (DataSnapshot dataSnapshot1 : dataSnapshot.child(key).getChildren()) {
                             popFood.put(dataSnapshot1.getKey(), Integer.valueOf(dataSnapshot1.getValue().toString()));
                         }
+
+                        fetchFood();
                     } catch (NullPointerException nEx){
                         Log.w(TAG, "onDataChange: ", nEx);
                     }
 
-                    fetchFood();
                 }
             }
 
@@ -120,11 +121,12 @@ public class StatisticsActivity extends AppCompatActivity {
                     for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                         food.put(dataSnapshot1.getKey(), dataSnapshot1.getValue(FoodInfo.class));
                     }
+
+                    displayPopularFood();
                 } catch (NullPointerException nEx){
                     Log.w(TAG, "onDataChange: ", nEx);
                 }
 
-                displayPopularFood();
             }
 
             @Override
