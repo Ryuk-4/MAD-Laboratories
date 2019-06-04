@@ -175,14 +175,9 @@ public class ReservationActivity extends AppCompatActivity
                 branchOrdersFlag.setValue(false);
 
                 invalidateOptionsMenu();
-                /*startActivity(new Intent(ReservationActivity.this, ReservationActivity.class));
-                finish();*/
-                IncomingReservationFragment fragment = new IncomingReservationFragment();
-                FragmentManager fm = getSupportFragmentManager();
-                FragmentTransaction transaction = fm.beginTransaction();
-                transaction.replace(R.id.fragment_incoming_layout, fragment);
-                transaction.commit();
-                break;
+
+                startActivity(new Intent(ReservationActivity.this, ReservationActivity.class));
+                finish();
         }
 
         return super.onOptionsItemSelected(item);

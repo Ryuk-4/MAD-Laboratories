@@ -19,6 +19,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,11 +30,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:paddingRight="78dp"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:paddingRight="78dp"
                     android:textColor="#262626"
-                    android:textSize="25sp"/>
+                    android:textSize="25sp" />
 
                 <TextView
                     android:id="@+id/reservation_time"
@@ -43,7 +44,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="12dp"
                     android:textColor="#262626"
-                    android:textSize="30sp"/>
+                    android:textSize="30sp" />
 
                 <TextView
                     android:id="@+id/reservation_plate"
@@ -60,15 +61,31 @@
                     android:layout_below="@+id/reservation_plate"
                     android:textColor="#262626"
                     android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/swipeToRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/reservation_note"
+                    android:layout_alignParentLeft="true"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/swipeToLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/reservation_note"
+                    android:visibility="gone"/>
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/overlappedCard"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
                 android:alpha="0.8"
-                android:background="@color/grey_font">
+                android:background="@color/grey_font"
+                android:visibility="gone">
 
             </RelativeLayout>
         </FrameLayout>

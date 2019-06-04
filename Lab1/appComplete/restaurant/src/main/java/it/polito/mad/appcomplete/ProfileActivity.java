@@ -47,7 +47,6 @@ public class ProfileActivity extends AppCompatActivity
     private TextView address;
     private TextView email;
     private TextView description;
-    private SharedPreferences sharedpref, preferences;
 
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
@@ -97,8 +96,6 @@ public class ProfileActivity extends AppCompatActivity
             }
         });
 
-        sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
-
         setupFirebase();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -120,8 +117,10 @@ public class ProfileActivity extends AppCompatActivity
             }
         };
 
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        checkNotification();
+    }
 
+    private void checkNotification() {
         branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

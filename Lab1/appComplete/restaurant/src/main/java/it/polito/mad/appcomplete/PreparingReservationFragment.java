@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -92,6 +93,7 @@ public class PreparingReservationFragment extends Fragment
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         ReservationInfo value = data.getValue(ReservationInfo.class);
                         value.setOrderID(data.getKey());
+                        value.setStatus_order("in_preparation");
 
                         reservationPreparingList.add(restoreItem(value));
                     }
@@ -170,6 +172,7 @@ public class PreparingReservationFragment extends Fragment
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setOrderList(reservationInfo.getOrderList());
         res.setcLatitude(reservationInfo.getcLatitude());
+        res.setStatus_order(reservationInfo.getStatus_order());
         res.setcLongitude(reservationInfo.getcLongitude());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
