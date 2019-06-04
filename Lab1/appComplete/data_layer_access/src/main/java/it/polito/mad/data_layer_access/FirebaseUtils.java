@@ -33,6 +33,8 @@ public class FirebaseUtils {
     public static DatabaseReference branchDeliveryMan;
     public static DatabaseReference branchRestaurantTypeFood;
     public static DatabaseReference branchSoldOrders;
+    public static DatabaseReference branchComment;
+    public static DatabaseReference branchOverallRating;
 
 
     public static GeoFire geofireRider;
@@ -93,6 +95,8 @@ public class FirebaseUtils {
         branchOrdersInPreparation = database.child("restaurants/" + Uid + "/Orders/In_Preparation");
         branchOrdersReady = database.child("restaurants/" + Uid + "/Orders/Ready_To_Go");
         branchSoldOrders = database.child("restaurants/" + Uid + "/sold_orders");
+        branchComment = database.child("restaurants/" + Uid + "/review_description");
+        branchOverallRating = database.child("restaurants/" + Uid + "/review");
 
         geofireRider = new GeoFire(database.child("riders_position"));
         geofireRestaurant = new GeoFire(database.child("restaurants_position"));

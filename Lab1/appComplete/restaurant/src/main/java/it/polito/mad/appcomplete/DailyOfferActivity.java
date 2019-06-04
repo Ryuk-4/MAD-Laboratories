@@ -46,7 +46,7 @@ public class DailyOfferActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         RVAdapter.OnFoodListener,
         RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener,
-        RestaurantLoginActivity.RestaurantLoginInterface{
+        RestaurantLoginActivity.RestaurantLoginInterface {
 
     private static final String TAG = "DailyOfferActivity";
 
@@ -128,9 +128,14 @@ public class DailyOfferActivity
         branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newOrders = dataSnapshot.getValue(Boolean.class);
 
-                if(newOrders == true) {
+                try {
+                    newOrders = dataSnapshot.getValue(Boolean.class);
+                } catch (NullPointerException nEx) {
+                    Log.w(TAG, "onDataChange: ", nEx);
+                }
+
+                if (newOrders) {
                     Toast.makeText(DailyOfferActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
                             .show();
                 }
@@ -164,7 +169,7 @@ public class DailyOfferActivity
             menu.findItem(R.id.edit_action).setVisible(false);
         }
 
-        if (newOrders == false) {
+        if (!newOrders) {
             menu.findItem(R.id.new_order_incoming).setVisible(false);
         } else {
             menu.findItem(R.id.new_order_incoming).setVisible(true);
@@ -172,6 +177,7 @@ public class DailyOfferActivity
 
         return super.onPrepareOptionsMenu(menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -214,18 +220,22 @@ public class DailyOfferActivity
 
     }
 
-    private void initializeData(){
+    private void initializeData() {
 
         branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 foodList = new ArrayList<>();
 
-                for (DataSnapshot data :  dataSnapshot.getChildren()){
-                    FoodInfo value = data.getValue(FoodInfo.class);
-                    value.setFoodId(data.getKey());
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    try {
+                        FoodInfo value = data.getValue(FoodInfo.class);
+                        value.setFoodId(data.getKey());
 
-                    foodList.add(restoreItem(value));
+                        foodList.add(restoreItem(value));
+                    } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
+                    }
                 }
 
                 initializeCardLayout();
@@ -238,7 +248,7 @@ public class DailyOfferActivity
         });
     }
 
-    public FoodInfo restoreItem(FoodInfo foodInfo){
+    public FoodInfo restoreItem(FoodInfo foodInfo) {
         FoodInfo res = new FoodInfo();
 
         res.setFoodId(foodInfo.getFoodId());
@@ -254,7 +264,7 @@ public class DailyOfferActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-      
+
         Log.d(TAG, "onNavigationItemSelected: ");
         if (id == R.id.nav_reservation) {
             finish();
@@ -301,7 +311,7 @@ public class DailyOfferActivity
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                  
+
                     // undo is selected, restore the deleted item
                     branchDailyFood.child(deletedItemId).setValue(restoreItem(deletedItem));
                 }

@@ -60,10 +60,14 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
                 foodList = new ArrayList<>();
 
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    FoodInfo value = data.getValue(FoodInfo.class);
-                    value.setFoodId(data.getKey());
+                    try{
+                        FoodInfo value = data.getValue(FoodInfo.class);
+                        value.setFoodId(data.getKey());
 
-                    foodList.add(restoreItem(value));
+                        foodList.add(restoreItem(value));
+                    } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
+                    }
                 }
 
                 initializeCardLayout();

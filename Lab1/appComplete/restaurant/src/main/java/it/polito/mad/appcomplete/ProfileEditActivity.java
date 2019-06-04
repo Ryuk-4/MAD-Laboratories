@@ -407,19 +407,23 @@ public class ProfileEditActivity extends AppCompatActivity
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                name_edit.setText(dataSnapshot.child("name").getValue().toString());
-                email_edit.setText(dataSnapshot.child("email").getValue().toString());
+                try {
+                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                    email_edit.setText(dataSnapshot.child("email").getValue().toString());
 
-                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
-                    if ((dataSnapshot.child("imgUrl").getValue() != null)) {
-                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
-                                .fit().centerCrop().into(im_edit);
+                    if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                        if ((dataSnapshot.child("imgUrl").getValue() != null)) {
+                            Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                    .fit().centerCrop().into(im_edit);
+                        }
+                        address_edit.setText(dataSnapshot.child("address").getValue().toString());
+                        description_edit.setText(dataSnapshot.child("description").getValue().toString());
+                        phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
+                        openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
+
                     }
-                    address_edit.setText(dataSnapshot.child("address").getValue().toString());
-                    description_edit.setText(dataSnapshot.child("description").getValue().toString());
-                    phone_edit.setText(dataSnapshot.child("phone").getValue().toString());
-                    openingHours_edit.setText(dataSnapshot.child("openingHours").getValue().toString());
-
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
 
             }
@@ -435,12 +439,16 @@ public class ProfileEditActivity extends AppCompatActivity
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<String> item = new ArrayList<>();
 
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    snapshot.getKey();
-                    item.add(snapshot.getValue().toString());
+                try {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        snapshot.getKey();
+                        item.add(snapshot.getValue().toString());
 
+                    }
+                    multiSelectionSpinner.setSelection(item);
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
-                multiSelectionSpinner.setSelection(item);
             }
 
             @Override

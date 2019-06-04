@@ -289,41 +289,45 @@ public class IncomingReservationFragment extends Fragment
                 Log.d(TAG, "storeFood: called");
                 String dataSnapshotKey = "";
 
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    dataSnapshotKey = data.getKey();
-                    break;
-                }
-
-                for (DataSnapshot data : dataSnapshot.child(dataSnapshotKey).getChildren()) {
-                    String temp = data.getValue().toString();
-
-                    foodTimes.put(data.getKey(), temp);
-                }
-
-                for (String key : orders.keySet()) {
-                    if (foodTimes.get(key) != null) {
-                        Integer t;
-
-                        if (undo) {
-                            t = Integer.valueOf(foodTimes.get(key)) -
-                                    Integer.valueOf(orders.get(key).getQuantity());
-                        } else {
-                            t = Integer.valueOf(foodTimes.get(key)) +
-                                    Integer.valueOf(orders.get(key).getQuantity());
-
-                            if (t > 100) {
-                                t = 100;
-                            }
-                        }
-
-                        foodTimes.put(key, String.valueOf(t));
-                    } else {
-                        foodTimes.put(key, orders.get(key).getQuantity());
+                try{
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        dataSnapshotKey = data.getKey();
+                        break;
                     }
-                }
 
-                popularFoodBranch.removeValue();
-                popularFoodBranch.push().setValue(foodTimes);
+                    for (DataSnapshot data : dataSnapshot.child(dataSnapshotKey).getChildren()) {
+                        String temp = data.getValue().toString();
+
+                        foodTimes.put(data.getKey(), temp);
+                    }
+
+                    for (String key : orders.keySet()) {
+                        if (foodTimes.get(key) != null) {
+                            Integer t;
+
+                            if (undo) {
+                                t = Integer.valueOf(foodTimes.get(key)) -
+                                        Integer.valueOf(orders.get(key).getQuantity());
+                            } else {
+                                t = Integer.valueOf(foodTimes.get(key)) +
+                                        Integer.valueOf(orders.get(key).getQuantity());
+
+                                if (t > 100) {
+                                    t = 100;
+                                }
+                            }
+
+                            foodTimes.put(key, String.valueOf(t));
+                        } else {
+                            foodTimes.put(key, orders.get(key).getQuantity());
+                        }
+                    }
+
+                    popularFoodBranch.removeValue();
+                    popularFoodBranch.push().setValue(foodTimes);
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
+                }
             }
 
             @Override
@@ -340,32 +344,36 @@ public class IncomingReservationFragment extends Fragment
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Map<String, String> times = new HashMap<>();
 
-                for (DataSnapshot res : dataSnapshot.getChildren()) {
-                    String temp = res.getValue().toString();
+                try{
+                    for (DataSnapshot res : dataSnapshot.getChildren()) {
+                        String temp = res.getValue().toString();
 
-                    times.put(res.getKey(), temp);
+                        times.put(res.getKey(), temp);
 
-                }
-
-                if (times.get(time) != null) {
-                    Integer t;
-
-                    if (undo) {
-                        t = Integer.valueOf(times.get(time)) - 1;
-
-                    } else {
-                        t = Integer.valueOf(times.get(time)) + 1;
-
-                        if (t > 90) {
-                            t = 90;
-                        }
                     }
 
-                    times.put(time, String.valueOf(t));
-                } else {
-                    times.put(time, "1");
+                    if (times.get(time) != null) {
+                        Integer t;
+
+                        if (undo) {
+                            t = Integer.valueOf(times.get(time)) - 1;
+
+                        } else {
+                            t = Integer.valueOf(times.get(time)) + 1;
+
+                            if (t > 90) {
+                                t = 90;
+                            }
+                        }
+
+                        times.put(time, String.valueOf(t));
+                    } else {
+                        times.put(time, "1");
+                    }
+                    timeBranch.child(time).setValue(times.get(time));
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
-                timeBranch.child(time).setValue(times.get(time));
             }
 
             @Override

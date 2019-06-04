@@ -125,13 +125,17 @@ public class ProfileActivity extends AppCompatActivity
         branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newOrders = dataSnapshot.getValue(Boolean.class);
-                if(newOrders == true) {
-                    Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
-                            .show();
-                }
+                try {
+                    newOrders = dataSnapshot.getValue(Boolean.class);
+                    if(newOrders == true) {
+                        Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
+                                .show();
+                    }
 
-                invalidateOptionsMenu();
+                    invalidateOptionsMenu();
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
+                }
             }
 
             @Override
@@ -237,21 +241,25 @@ public class ProfileActivity extends AppCompatActivity
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onDataChange: ");
 
-                name.setText(dataSnapshot.child("name").getValue().toString());
-                email.setText(dataSnapshot.child("email").getValue().toString());
+                try {
+                    name.setText(dataSnapshot.child("name").getValue().toString());
+                    email.setText(dataSnapshot.child("email").getValue().toString());
 
-                if (dataSnapshot.child("firstTime").getValue().equals(false)) {
+                    if (dataSnapshot.child("firstTime").getValue().equals(false)) {
 
-                    if (dataSnapshot.child("imgUrl").getValue() != null) {
-                        Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
-                                .fit().centerCrop().into(im);
+                        if (dataSnapshot.child("imgUrl").getValue() != null) {
+                            Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString())
+                                    .fit().centerCrop().into(im);
+                        }
+                        address.setText(dataSnapshot.child("address").getValue().toString());
+                        description.setText(dataSnapshot.child("description").getValue().toString());
+                        phone.setText(dataSnapshot.child("phone").getValue().toString());
+                        openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
                     }
-                    address.setText(dataSnapshot.child("address").getValue().toString());
-                    description.setText(dataSnapshot.child("description").getValue().toString());
-                    phone.setText(dataSnapshot.child("phone").getValue().toString());
-                    openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
-                }
 
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
+                }
             }
 
             @Override

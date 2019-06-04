@@ -3,6 +3,7 @@ package it.polito.mad.appcomplete;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,10 +43,14 @@ public class RecyclerViewAdapterPopFood extends
 
     @Override
     public void onBindViewHolder(@NonNull PopFoodViewHolder popFoodViewHolder, int i) {
-        Picasso.get().load(popFood.get(i).getImage()).into(popFoodViewHolder.pic);
-        popFoodViewHolder.name.setText(popFood.get(i).getName());
-        popFoodViewHolder.progressBar.setProgress(progress.get(i));
-        popFoodViewHolder.progress.setText(String.valueOf(progress.get(i)));
+        try{
+            Picasso.get().load(popFood.get(i).getImage()).into(popFoodViewHolder.pic);
+            popFoodViewHolder.name.setText(popFood.get(i).getName());
+            popFoodViewHolder.progressBar.setProgress(progress.get(i));
+            popFoodViewHolder.progress.setText(String.valueOf(progress.get(i)));
+        } catch (NullPointerException nEx){
+            Log.w(TAG, "onBindViewHolder: ", nEx);
+        }
     }
 
     @Override

@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -173,8 +175,13 @@ public class ReservationActivity extends AppCompatActivity
                 branchOrdersFlag.setValue(false);
 
                 invalidateOptionsMenu();
-                startActivity(new Intent(ReservationActivity.this, ReservationActivity.class));
-                finish();
+                /*startActivity(new Intent(ReservationActivity.this, ReservationActivity.class));
+                finish();*/
+                IncomingReservationFragment fragment = new IncomingReservationFragment();
+                FragmentManager fm = getSupportFragmentManager();
+                FragmentTransaction transaction = fm.beginTransaction();
+                transaction.replace(R.id.fragment_incoming_layout, fragment);
+                transaction.commit();
                 break;
         }
 
