@@ -97,20 +97,24 @@ public class SoldOrderActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                    ReservationInfo res = dataSnapshot1.getValue(ReservationInfo.class);
+                try {
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        ReservationInfo res = dataSnapshot1.getValue(ReservationInfo.class);
 
-                    if (res.getDate().equals(soldOrderDate.getText().toString())) {
-                        ReservationInfo reservationInfo = new ReservationInfo();
+                        if (res.getDate().equals(soldOrderDate.getText().toString())) {
+                            ReservationInfo reservationInfo = new ReservationInfo();
 
-                        reservationInfo.setNamePerson(res.getNamePerson());
-                        reservationInfo.setTimeReservation(res.getTimeReservation());
-                        reservationInfo.setOrderList(res.getOrderList());
-                        reservationInfo.setDate(res.getDate());
+                            reservationInfo.setNamePerson(res.getNamePerson());
+                            reservationInfo.setTimeReservation(res.getTimeReservation());
+                            reservationInfo.setOrderList(res.getOrderList());
+                            reservationInfo.setDate(res.getDate());
 
-                        reservationInfoList.add(reservationInfo);
+                            reservationInfoList.add(reservationInfo);
 
+                        }
                     }
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
 
                 if (reservationInfoList.size() != 0)
@@ -119,7 +123,7 @@ public class SoldOrderActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         };
 

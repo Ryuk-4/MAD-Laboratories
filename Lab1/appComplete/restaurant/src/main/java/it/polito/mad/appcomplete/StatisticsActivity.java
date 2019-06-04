@@ -88,8 +88,13 @@ public class StatisticsActivity extends AppCompatActivity {
                 }
 
                 if (key != null) {
-                    for (DataSnapshot dataSnapshot1 : dataSnapshot.child(key).getChildren()) {
-                        popFood.put(dataSnapshot1.getKey(), Integer.valueOf(dataSnapshot1.getValue().toString()));
+
+                    try {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.child(key).getChildren()) {
+                            popFood.put(dataSnapshot1.getKey(), Integer.valueOf(dataSnapshot1.getValue().toString()));
+                        }
+                    } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
                     }
 
                     fetchFood();
@@ -111,8 +116,12 @@ public class StatisticsActivity extends AppCompatActivity {
         branchStoricFood.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                    food.put(dataSnapshot1.getKey(), dataSnapshot1.getValue(FoodInfo.class));
+                try {
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        food.put(dataSnapshot1.getKey(), dataSnapshot1.getValue(FoodInfo.class));
+                    }
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
 
                 displayPopularFood();
@@ -145,18 +154,20 @@ public class StatisticsActivity extends AppCompatActivity {
 
         int i = 0;
 
-        popFood = sortByValue(popFood);
+        Map<String, Integer> tempFood= sortByValue(popFood);
 
         for (String key : popFood.keySet()){
+            Log.d(TAG, "getListFromMap: ["+i+"]: " + food.get(key) +", "+tempFood.get(key));
             pop_food.add(i, food.get(key));
-            progress.add(i, popFood.get(key));
+            progress.add(i, tempFood.get(key));
 
             i++;
         }
     }
 
-    private static Map<String, Integer> sortByValue(Map<String, Integer> hm)
-    {
+    private static Map<String, Integer> sortByValue(Map<String, Integer> hm) {
+
+        Log.d(TAG, "sortByValue: called");
         // Create a list from elements of HashMap
         List<Map.Entry<String, Integer> > list =
                 new ArrayList<>(hm.entrySet());
@@ -175,6 +186,7 @@ public class StatisticsActivity extends AppCompatActivity {
         for (Map.Entry<String, Integer> element : list) {
             temp.put(element.getKey(), element.getValue());
         }
+        Log.d(TAG, "sortByValue: " + list);
         return temp;
     }
 
@@ -185,8 +197,12 @@ public class StatisticsActivity extends AppCompatActivity {
         timeBranch.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    times.put(data.getKey(), data.getValue().toString());
+                try {
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        times.put(data.getKey(), data.getValue().toString());
+                    }
+                } catch (NullPointerException nEx) {
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
 
                 setAxisData();
@@ -209,7 +225,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         Log.d(TAG, "setAxisData: called");
 
-        line = new Line(yAxisValues).setColor(Color.parseColor("#FF9800"));
+        line = new Line(yAxisValues).setColor(Color.parseColor("#F4A460"));
 
         for (String key : times.keySet()) {
 
@@ -232,6 +248,7 @@ public class StatisticsActivity extends AppCompatActivity {
         data.setLines(lines);
 
         xAxisLabel.setValues(xLabel);
+        xAxisLabel.setInside(true);
         xAxisLabel.setTextSize(16);
         xAxisLabel.setTextColor(Color.parseColor("#000000"));
         data.setAxisXTop(xAxisLabel);

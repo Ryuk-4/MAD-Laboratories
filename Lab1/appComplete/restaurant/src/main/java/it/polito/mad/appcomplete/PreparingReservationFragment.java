@@ -61,6 +61,14 @@ public class PreparingReservationFragment extends Fragment
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot data : dataSnapshot.getChildren()){
                     if (data.child("quantity").getValue()!= null && data.child("quantity").getValue().equals("0")){
+
+                        try {
+                            FoodInfo removedFood = data.getValue(FoodInfo.class);
+                            branchStoricFood.child(data.getKey()).setValue(removedFood);
+                        } catch (NullPointerException nEx){
+                            Log.w(TAG, "onDataChange: ", nEx);
+                        }
+
                         branchDailyFood.child(data.getKey()).removeValue();
                     }
                 }
@@ -68,7 +76,7 @@ public class PreparingReservationFragment extends Fragment
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
             }
         });
     }
@@ -80,11 +88,16 @@ public class PreparingReservationFragment extends Fragment
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 reservationPreparingList = new ArrayList<>();
 
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    ReservationInfo value = data.getValue(ReservationInfo.class);
-                    value.setOrderID(data.getKey());
+                try{
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        ReservationInfo value = data.getValue(ReservationInfo.class);
+                        value.setOrderID(data.getKey());
 
-                    reservationPreparingList.add(restoreItem(value));
+                        reservationPreparingList.add(restoreItem(value));
+                    }
+
+                } catch (NullPointerException nEx){
+                    Log.w(TAG, "onDataChange: ", nEx);
                 }
 
                 initializeRecyclerViewReservation();

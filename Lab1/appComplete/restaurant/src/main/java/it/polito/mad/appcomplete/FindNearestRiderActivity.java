@@ -134,12 +134,12 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                 try {
                     addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                    String[] address = addresses.get(0).getAddressLine(0).split(", ");
+                    r.setAddress(address[0] + ", " + address[1]);
                 } catch (Exception e){
                     Log.w(TAG, "onDataChange: ", e);
                 }
 
-                String[] address = addresses.get(0).getAddressLine(0).split(", ");
-                r.setAddress(address[0] + ", " + address[1]);
 
                 if (containRider(r)) {
                     riderUpdated(r);
@@ -526,34 +526,38 @@ public class FindNearestRiderActivity extends AppCompatActivity
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     Log.d(TAG, "onDataChange: called");
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        ReservationInfo value = data.getValue(ReservationInfo.class);
+                        try {
+                            ReservationInfo value = data.getValue(ReservationInfo.class);
 
-                        if (value.getOrderID().equals(orderId)) {
-                            ReservationInfo res = new ReservationInfo(value.getIdPerson(), value.getNamePerson(), value.getcLatitude(),
-                                    value.getcLongitude(), value.getRestaurantId(), Double.toString(me.getLatitude()),
-                                    Double.toString(me.getLongitude()));
+                            if (value.getOrderID().equals(orderId)) {
+                                ReservationInfo res = new ReservationInfo(value.getIdPerson(), value.getNamePerson(), value.getcLatitude(),
+                                        value.getcLongitude(), value.getRestaurantId(), Double.toString(me.getLatitude()),
+                                        Double.toString(me.getLongitude()));
 
-                            res.setTimeReservation(value.getTimeReservation());
+                                res.setTimeReservation(value.getTimeReservation());
 
-                            String riderId = riders.get(position).getId();
+                                String riderId = riders.get(position).getId();
 
-                            branchDeliveryMan.child(riderId).child("/Orders/Incoming")
-                                    .child(value.getOrderID()).setValue(res);
+                                branchDeliveryMan.child(riderId).child("/Orders/Incoming")
+                                        .child(value.getOrderID()).setValue(res);
 
-                            branchDeliveryMan.child(riderId).child("/Orders")
-                                    .child("IncomingReservationFlag").setValue(true);
+                                branchDeliveryMan.child(riderId).child("/Orders")
+                                        .child("IncomingReservationFlag").setValue(true);
 
-                            branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
-                                    .child("order_status").setValue("Ready_for_Delivery");
-                            branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
-                                    .child("riderId").setValue(riderId);
+                                branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
+                                        .child("order_status").setValue("Ready_for_Delivery");
+                                branchCustomer.child(value.getIdPerson()).child("previous_order").child(value.getOrderID())
+                                        .child("riderId").setValue(riderId);
 
-                            branchOrdersReady.child(orderId + "/status_order").setValue("ready");
+                                branchOrdersReady.child(orderId + "/status_order").setValue("ready");
 
-                            Toast.makeText(FindNearestRiderActivity.this, "Your order's been placed",
-                                    Toast.LENGTH_LONG).show();
+                                Toast.makeText(FindNearestRiderActivity.this, "Your order's been placed",
+                                        Toast.LENGTH_LONG).show();
 
-                            finish();
+                                finish();
+                            }
+                        } catch (NullPointerException nEx){
+                            Log.w(TAG, "onDataChange: ", nEx);
                         }
                     }
                 }

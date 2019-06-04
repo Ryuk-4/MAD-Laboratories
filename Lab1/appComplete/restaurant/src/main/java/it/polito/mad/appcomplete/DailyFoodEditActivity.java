@@ -445,6 +445,7 @@ public class DailyFoodEditActivity extends AppCompatActivity {
                                 Uri downloadUrl = uri;
 
                                 branchDailyFood.child(foodId + "/image").setValue(downloadUrl.toString());
+                                branchStoricFood.child(foodId + "/image").setValue(downloadUrl.toString());
                                 if (favoriteFood.isChecked()) {
                                     branchFavouriteFood.child(foodId + "/image").setValue(downloadUrl.toString());
                                 }

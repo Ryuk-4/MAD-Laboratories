@@ -61,33 +61,32 @@ public class ReadyToGoReservationFragment extends Fragment
                 reservationReadyToGoList = new ArrayList<>();
 
                 for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    ReservationInfo value = data.getValue(ReservationInfo.class);
-                    value.setOrderID(data.getKey());
 
-                    Calendar date = Calendar.getInstance();
+                    try {
+                       ReservationInfo value = data.getValue(ReservationInfo.class);
+                       value.setOrderID(data.getKey());
 
-                    /*if (value.getStatus_order() != null && value.getStatus_order().equals("in_delivery")) {
+                       Calendar date = Calendar.getInstance();
+
+                       if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
+
+                           if (value.getDate() == null){
+                               branchSoldOrders.child(value.getOrderID()).setValue(value);
+
+                               branchSoldOrders.child(value.getOrderID()).child("date")
+                                       .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
+                                               (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
+
+                               branchOrdersReady.child(value.getOrderID()).removeValue();
+                           }
 
 
-                    } else*/
-                    if (value.getStatus_order() != null && value.getStatus_order().equals("delivered")){
+                       }
 
-                        if (value.getDate() == null){
-                            branchSoldOrders.child(value.getOrderID()).setValue(value);
-
-                            branchSoldOrders.child(value.getOrderID()).child("date")
-                                    .setValue(date.get(Calendar.DAY_OF_MONTH) + "-" +
-                                            (date.get(Calendar.MONTH)+1) + "-" + date.get(Calendar.YEAR));
-
-                            branchOrdersReady.child(value.getOrderID()).removeValue();
-                        }
-
-//                        branchSoldOrders.child(value.getOrderID()).child("status_order")
-//                                .setValue(value.getStatus_order());
-
+                       reservationReadyToGoList.add(restoreItem(value));
+                   } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
                     }
-
-                    reservationReadyToGoList.add(restoreItem(value));
 
                 }
 
