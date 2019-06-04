@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -71,11 +72,16 @@ public class IncomingReservationFragment extends Fragment
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 reservationInfoList = new ArrayList<>();
 
-                for (DataSnapshot data : dataSnapshot.getChildren()) {
-                    ReservationInfo value = data.getValue(ReservationInfo.class);
-                    value.setOrderID(data.getKey());
+                try {
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        ReservationInfo value = data.getValue(ReservationInfo.class);
+                        value.setOrderID(data.getKey());
+                        value.setStatus_order("incoming");
 
-                    reservationInfoList.add(restoreItem(value));
+                        reservationInfoList.add(restoreItem(value));
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "onDataChange: ", e);
                 }
 
                 triggerNotification();
@@ -94,6 +100,12 @@ public class IncomingReservationFragment extends Fragment
                     editor.apply();
                 } else {
                     branchRestaurantOrders.child("IncomingReservationFlag").setValue(true);
+
+                    try {
+                        Toast.makeText(getActivity(), "You  have new Orders", Toast.LENGTH_LONG).show();
+                    }catch (Exception e){
+
+                    }
 
                     editor = preferences.edit();
                     editor.putBoolean("IncomingReservation", true);
@@ -393,6 +405,7 @@ public class IncomingReservationFragment extends Fragment
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setcLatitude(reservationInfo.getcLatitude());
         res.setcLongitude(reservationInfo.getcLongitude());
+        res.setStatus_order(reservationInfo.getStatus_order());
         res.setTimeReservation(reservationInfo.getTimeReservation());
 
         if (reservationInfo.getNote() != null) {

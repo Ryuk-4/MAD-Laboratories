@@ -44,7 +44,6 @@
                 android:layout_below="@+id/overAllLabel"
                 android:numStars="5"
                 android:isIndicator="true"
-                style="@style/Widget.AppCompat.RatingBar"
                 android:theme="@style/RatingBar"
                 android:stepSize="0.5"
                 android:layout_centerInParent="true"

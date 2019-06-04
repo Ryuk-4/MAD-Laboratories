@@ -78,6 +78,17 @@ public class RecyclerViewAdapterReservation extends
                     reservationInfoList.get(i).getStatus_order().equals("in_delivery")) {
 
                 viewHolder.relativeLayout.setVisibility(View.VISIBLE);
+
+            } else if (reservationInfoList.get(i).getStatus_order().equals("incoming")){
+                viewHolder.swipeLeft.setVisibility(View.VISIBLE);
+                viewHolder.swipeRight.setVisibility(View.VISIBLE);
+
+                viewHolder.swipeLeft.setText("<<< Delete");
+                viewHolder.swipeRight.setText("Accept >>>");
+            } else if (reservationInfoList.get(i).getStatus_order().equals("in_preparation")){
+                viewHolder.swipeRight.setVisibility(View.VISIBLE);
+
+                viewHolder.swipeRight.setText("Ready >>>");
             }
         }
     }
@@ -93,6 +104,8 @@ public class RecyclerViewAdapterReservation extends
         TextView time;
         TextView order;
         TextView note;
+        TextView swipeLeft;
+        TextView swipeRight;
         OnReservationClickListener onReservationClickListener;
         LinearLayout reservationLayoutItem;
         RelativeLayout relativeLayout;
@@ -120,6 +133,9 @@ public class RecyclerViewAdapterReservation extends
             order = itemView.findViewById(R.id.reservation_plate);
             note = itemView.findViewById(R.id.reservation_note);
             reservationLayoutItem = itemView.findViewById(R.id.layout_reservationCardView_item);
+
+            swipeRight = itemView.findViewById(R.id.swipeToRight);
+            swipeLeft = itemView.findViewById(R.id.swipeToLeft);
         }
 
         @Override

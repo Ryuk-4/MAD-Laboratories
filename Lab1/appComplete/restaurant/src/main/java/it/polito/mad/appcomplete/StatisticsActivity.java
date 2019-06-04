@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -158,7 +160,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         Map<String, Integer> tempFood= sortByValue(popFood);
 
-        for (String key : popFood.keySet()){
+        for (String key : tempFood.keySet()){
             Log.d(TAG, "getListFromMap: ["+i+"]: " + food.get(key) +", "+tempFood.get(key));
             pop_food.add(i, food.get(key));
             progress.add(i, tempFood.get(key));
@@ -172,19 +174,18 @@ public class StatisticsActivity extends AppCompatActivity {
         Log.d(TAG, "sortByValue: called");
         // Create a list from elements of HashMap
         List<Map.Entry<String, Integer> > list =
-                new ArrayList<>(hm.entrySet());
+                new LinkedList<>(hm.entrySet());
 
         // Sort the list
         Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() {
-            public int compare(Map.Entry<String, Integer> o1,
-                               Map.Entry<String, Integer> o2)
-            {
-                return (o1.getValue()).compareTo(o2.getValue());
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+
+                return (o2.getValue()).compareTo(o1.getValue());
             }
         });
 
         // put data from sorted list to hashmap
-        Map<String, Integer> temp = new HashMap<>();
+        HashMap<String, Integer> temp = new LinkedHashMap<>();
         for (Map.Entry<String, Integer> element : list) {
             temp.put(element.getKey(), element.getValue());
         }
