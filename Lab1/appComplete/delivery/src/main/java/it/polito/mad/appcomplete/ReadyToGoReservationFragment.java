@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -143,6 +142,10 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
         ReservationInfo res = new ReservationInfo();
 
         res.setOrderID(reservationInfo.getOrderID());
+        res.setcLatitude(reservationInfo.getcLatitude());
+        res.setcLongitude(reservationInfo.getcLongitude());
+        res.setrLongitude(reservationInfo.getrLongitude());
+        res.setrLatitude(reservationInfo.getrLatitude());
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
