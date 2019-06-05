@@ -264,6 +264,8 @@ public class ReportActivity extends AppCompatActivity implements
 
         BarData data = new BarData(xAxis, dataSets);
         chart.setData(data);
+        chart.getAxisLeft().setDrawGridLines(false);chart.getAxisRight().setDrawGridLines(false);
+        chart.getXAxis().setDrawGridLines(false);chart.getXAxis().setDrawGridLines(false);
         //chart.setDrawBarShadow(true);
         //chart.setScaleEnabled(false);
         chart.setDescription("My Chart");

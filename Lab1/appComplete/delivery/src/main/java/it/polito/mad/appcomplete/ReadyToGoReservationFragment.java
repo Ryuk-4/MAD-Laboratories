@@ -38,6 +38,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     private DatabaseReference database;
     private DatabaseReference branchOrdersReady;
     private Activity myActivity;
+    private Context context;
 
     public ReadyToGoReservationFragment() {
         // Required empty public constructor
@@ -80,7 +81,7 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     }
 
     private void initializeReservation() {
-        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
         branchOrdersReady = database.child("delivery").child(preferences.getString("Uid", " "))
@@ -131,9 +132,9 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     }
 
     private void initializeRecyclerViewReservation() {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationReadyToGoList);
+        myAdapter = new RecyclerViewAdapterReservation(context, reservationReadyToGoList);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(myAdapter);
 
     }
@@ -158,5 +159,9 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
     public void onRefresh() {
         //TODO: myUpdateOP.
         mySwipeRefreshLayout.setRefreshing(false);
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }

@@ -58,6 +58,7 @@ public class IncomingReservationFragment extends Fragment
 
     // for notification
     private SharedPreferences.Editor editor;
+    private Context context;
 
     public IncomingReservationFragment() {
         // Required empty public constructor
@@ -87,7 +88,7 @@ public class IncomingReservationFragment extends Fragment
     }
 
     private void initializeReservation() {
-        preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        preferences = context.getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
         database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/Incoming");
@@ -142,18 +143,18 @@ public class IncomingReservationFragment extends Fragment
 
     private void initializeRecyclerViewReservation()
     {
-        myAdapter = new RecyclerViewAdapterReservation(getActivity(), reservationInfoList);
+        myAdapter = new RecyclerViewAdapterReservation(context, reservationInfoList);
         Log.d(TAG, "initializeRecyclerViewReservation: called");
 
         Collections.sort(reservationInfoList, ReservationInfo.BY_TIME_ASCENDING);
 
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(myAdapter);
 
         // adding item touch helper
         ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new RecyclerItemTouchHelperReservation(0,
-                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this, getActivity(), true);
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, this, context, true);
 
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView);
     }
@@ -167,7 +168,7 @@ public class IncomingReservationFragment extends Fragment
             //String name = reservationInfoList.get(viewHolder.getAdapterPosition()).getNamePerson();
             final ReservationInfo deletedItem = reservationInfoList.get(viewHolder.getAdapterPosition());  // backup of removed item for undo purpose
             final String deletedReservationId = deletedItem.getOrderID();
-            preferences = getActivity().getSharedPreferences("loginState", Context.MODE_PRIVATE);
+            preferences = context.getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
             //final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
             //final DatabaseReference IncomingBranch = mDatabase.child("delivery").child(preferences.getString("Uid", " ")).child("Orders").child("Incoming");
@@ -312,6 +313,14 @@ public class IncomingReservationFragment extends Fragment
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
     // Fetches data from url passed
