@@ -217,7 +217,7 @@ public class ProfileActivity extends AppCompatActivity
             case R.id.new_order_incoming:
                 branchOrders.setValue(false);
                 startActivity(new Intent(this, ReservationActivity.class));
-                //finish();
+                finish();
                 break;
         }
 
