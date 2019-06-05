@@ -36,10 +36,17 @@ public class RecyclerViewAdapterComment extends
 
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder commentViewHolder, int i) {
-        commentViewHolder.title.setText(comments.get(i).getTitle());
-        commentViewHolder.ratingBar.setRating((Float.valueOf(comments.get(i).getStars())));
-        commentViewHolder.date.setText(comments.get(i).getDate());
-        commentViewHolder.description.setText(comments.get(i).getDescription());
+        try {
+            commentViewHolder.title.setText(comments.get(i).getTitle());
+            commentViewHolder.ratingBar.setRating((Float.valueOf(comments.get(i).getStars())));
+            commentViewHolder.date.setText(comments.get(i).getDate());
+            commentViewHolder.description.setText(comments.get(i).getDescription());
+        } catch (Exception e) {
+            commentViewHolder.title.setText(R.string.namePerson);
+            commentViewHolder.ratingBar.setRating(3.0f);
+            commentViewHolder.date.setText(R.string.date);
+            commentViewHolder.description.setText(R.string.descriptionLabel);
+        }
     }
 
     @Override

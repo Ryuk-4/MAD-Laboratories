@@ -135,7 +135,6 @@ public class ProfileEditActivity extends AppCompatActivity
 
                 // Start the autocomplete intent.
                 try {
-                    Log.d(TAG, "onClick: inside try");
                     Intent intent = new Autocomplete.IntentBuilder(
                             AutocompleteActivityMode.OVERLAY, fields)
                             .setCountry("IT")
@@ -143,7 +142,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
                     startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
                 } catch (Exception e) {
-                    Log.w(TAG, "onClick: ", e);
+                    Toast.makeText(ProfileEditActivity.this, "GPS Error", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -268,8 +267,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
                     Toast.makeText(this, "Image Selected!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Log.w(TAG, "onActivityResult: ", e);
-                    e.printStackTrace();
+
                     Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -423,7 +421,7 @@ public class ProfileEditActivity extends AppCompatActivity
 
                     }
                 } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(ProfileEditActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -447,13 +445,13 @@ public class ProfileEditActivity extends AppCompatActivity
                     }
                     multiSelectionSpinner.setSelection(item);
                 } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(ProfileEditActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(ProfileEditActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

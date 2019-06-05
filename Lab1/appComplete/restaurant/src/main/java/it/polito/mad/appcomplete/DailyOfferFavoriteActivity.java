@@ -15,6 +15,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -66,7 +67,7 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
                         foodList.add(restoreItem(value));
                     } catch (NullPointerException nEx){
-                        Log.w(TAG, "onDataChange: ", nEx);
+                        Toast.makeText(DailyOfferFavoriteActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -75,7 +76,7 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(DailyOfferFavoriteActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

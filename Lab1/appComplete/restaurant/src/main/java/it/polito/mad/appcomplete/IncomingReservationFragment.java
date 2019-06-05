@@ -104,7 +104,7 @@ public class IncomingReservationFragment extends Fragment
                     try {
                         Toast.makeText(getActivity(), "You  have new Orders", Toast.LENGTH_LONG).show();
                     }catch (Exception e){
-
+                        Log.w(TAG, "triggerNotification: ", e);
                     }
 
                     editor = preferences.edit();

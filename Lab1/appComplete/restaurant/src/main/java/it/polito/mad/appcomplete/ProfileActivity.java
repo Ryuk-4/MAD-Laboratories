@@ -116,32 +116,6 @@ public class ProfileActivity extends AppCompatActivity
                 }
             }
         };
-
-        checkNotification();
-    }
-
-    private void checkNotification() {
-        branchOrdersFlag.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
-                    newOrders = dataSnapshot.getValue(Boolean.class);
-                    if(newOrders == true) {
-                        Toast.makeText(ProfileActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
-                                .show();
-                    }
-
-                    invalidateOptionsMenu();
-                } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
-            }
-        });
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -257,13 +231,13 @@ public class ProfileActivity extends AppCompatActivity
                     }
 
                 } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(ProfileActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(ProfileActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
 
