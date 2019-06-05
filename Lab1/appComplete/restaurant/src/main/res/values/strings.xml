@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Restaurant</string>
+    <string name="app_name">LovEat!</string>
     <string name="nameLabel">Name: </string>
     <string name="namePerson"><i>Luigis</i></string>
 
@@ -32,7 +32,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">Mad Group 39</string>
+    <string name="nav_header_subtitle">Restaurant</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_daily_offer">Your Daily Menu</string>
@@ -42,7 +42,7 @@
     <string name="current_money">\u20ac</string>
 
     <string name="delete">DELETE</string>
-    <string name="cookProcess">COOK</string>
+    <string name="cookProcess">ACCEPT</string>
     <string name="endProcess">READY</string>
 
     <string name="timeLabel">Time:</string>
@@ -100,4 +100,8 @@
     <string name="title_activity_find_nearest_rider">FindNearestRiderActivity</string>
 
     <string name="callRider">Deliver</string>
+    <string name="title_activity_statistics">StatisticsActivity</string>
+    <string name="title_activity_review">ReviewActivity</string>
+    <string name="title_activity_restaurant_review">RestaurantReviewActivity</string>
+    <string name="title_activity_sold_order">SoldOrderActivity</string>
 </resources>

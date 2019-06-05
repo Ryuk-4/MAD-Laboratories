@@ -30,10 +30,9 @@ public class OrdersCompletedFragment extends Fragment {
     private RVAOrders adapter;
     private View view;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private List<OrdersInfo> ordersInfos;
+    private List<OrdersInfo> ordersInfo;
     private Context context;
 
 
@@ -43,16 +42,12 @@ public class OrdersCompletedFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public void refreshLayout() {
-        initRecyclerView();
-    }
-
     public List<OrdersInfo> getOrdersInfos() {
-        return ordersInfos;
+        return ordersInfo;
     }
 
-    public OrdersCompletedFragment setOrderInfos(List<OrdersInfo> ordersInfos) {
-        this.ordersInfos = ordersInfos;
+    public OrdersCompletedFragment setOrderInfo(List<OrdersInfo> ordersInfo) {
+        this.ordersInfo = ordersInfo;
         //Log.d("TAG", "setSuggestedFoodInfos: DailyFoodFragment");
         return this;
     }
@@ -76,7 +71,6 @@ public class OrdersCompletedFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment DailyFoodFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static OrdersPendingFragment newInstance(String param1, String param2) {
         OrdersPendingFragment fragment = new OrdersPendingFragment();
         Bundle args = new Bundle();
@@ -88,7 +82,6 @@ public class OrdersCompletedFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //Log.d("TAG", "onCreate: DailyFoodFragment");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -101,15 +94,12 @@ public class OrdersCompletedFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Log.d("TAG", "onCreateView: DailyFoodFragment");
-        //scaricare i dati nell'attivita principale e passare i dati come parametro di costruzione
 
         view = inflater.inflate(R.layout.fragment_orders_completed, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_completed);
+        recyclerView = view.findViewById(R.id.rv_completed);
 
         initRecyclerView();
 
-        // Inflate the layout for this fragment
         return view;
     }
 
@@ -120,21 +110,13 @@ public class OrdersCompletedFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(llm);
 
-        adapter = new RVAOrders(context, ordersInfos);
+        adapter = new RVAOrders(context, ordersInfo);
         recyclerView.setAdapter(adapter);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteractionComplete(uri);
-        }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        //Log.d("TAG", "onAttach: DailyFoodFragment");
         if (context instanceof OrdersCompletedFragment.OnFragmentInteractionListenerComplete) {
             mListener = (OrdersCompletedFragment.OnFragmentInteractionListenerComplete) context;
         } else {
@@ -160,7 +142,6 @@ public class OrdersCompletedFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListenerComplete {
-        // TODO: Update argument type and name
         void onFragmentInteractionComplete(Uri uri);
     }
 }

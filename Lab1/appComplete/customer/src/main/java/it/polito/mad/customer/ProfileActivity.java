@@ -3,7 +3,6 @@ package it.polito.mad.customer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -17,14 +16,14 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 import com.squareup.picasso.Picasso;
+
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 
 public class ProfileActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +39,12 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
     private SharedPreferences sharedpref;
 
 
+    /**
+     *  ---------------------------
+     *  system callbacks
+     *  ---------------------------
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,10 +54,63 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         displayData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        displayData();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.edit_action){
+            Intent intent = new Intent(this, EditActivity.class);
+            startActivity(intent);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int id = menuItem.getItemId();
+
+        if (id == R.id.nav_restaurant) {
+            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else if (id == R.id.nav_orders) {
+            Intent intent = new Intent(ProfileActivity.this, OrdersActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_profile);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
+    /**
+     *  ------------------------------
+     *  programmer defined functions
+     *  ------------------------------
+     */
+
     private void initLayout() {
         setContentView(R.layout.drawer_profile);
         toolbar = findViewById(R.id.toolbarProfile);
         setSupportActionBar(toolbar);
+
+        FirebaseUtils.setupFirebaseCustomer();
 
         getLayoutReference();
 
@@ -85,45 +143,14 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
         sharedpref = getSharedPreferences("userinfo", Context.MODE_PRIVATE);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        displayData();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        int id = item.getItemId();
-
-        if(id == R.id.edit_action){
-            //This action will happen when is clicked the edit button in the action bar
-            Intent intent = new Intent(this, EditActivity.class);
-            startActivity(intent);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     public void displayData() {
-        //final String imageURL = sharedpref.getString("imageEncoded", "");
-
         SharedPreferences.Editor editor = sharedpref.edit();
 
         editor.putBoolean("saved", false);
         editor.apply();
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("Profile");
+        DatabaseReference databaseReference = FirebaseUtils.branchCustomerProfile;
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -216,30 +243,5 @@ public class ProfileActivity extends AppCompatActivity implements NavigationView
 
             }
         });
-
-
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        int id = menuItem.getItemId();
-
-        if (id == R.id.nav_restaurant) {
-            Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_profile) {
-
-        } else if (id == R.id.nav_orders) {
-            Intent intent = new Intent(ProfileActivity.this, OrdersActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_contactUs) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_profile);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }

@@ -98,7 +98,12 @@ public class RecyclerItemTouchHelperReservation extends ItemTouchHelper.SimpleCa
 
             float width = textPaint.measureText(preparation_text);
             int textTop = (int) (viewHolder.itemView.getTop() + ((viewHolder.itemView.getBottom() - viewHolder.itemView.getTop()) / 2 ) + textPaint.getTextSize()/2);
-            c.drawText(preparation_text, iconLeft + width - backgroundTopOffset - backgroundBottomOffset, textTop, textPaint);
+
+            if (flagText) {
+                c.drawText(preparation_text, iconLeft + width - 3*backgroundTopOffset - 3*backgroundBottomOffset, textTop, textPaint);
+            } else {
+                c.drawText(preparation_text, iconLeft + width - 2*backgroundTopOffset - 2*backgroundBottomOffset, textTop, textPaint);
+            }
 
         } else if(dX < 0){
             // Swipe: Right ----> Left

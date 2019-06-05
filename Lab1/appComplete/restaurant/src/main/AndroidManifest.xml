@@ -21,10 +21,42 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".FindNearestRiderActivity"
+            android:name=".SoldOrderActivity"
+            android:label="@string/title_activity_sold_order"
             android:parentActivityName=".ReservationActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="it.polito.mad.appcomplete.ReservationActivity" />
+        </activity>
+        <activity
+            android:name=".RestaurantReviewActivity"
+            android:label="@string/title_activity_restaurant_review"
+            android:parentActivityName=".ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="it.polito.mad.appcomplete.ProfileActivity" />
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".StatisticsActivity"
+            android:label="@string/title_activity_statistics"
+            android:parentActivityName=".ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="it.polito.mad.appcomplete.ProfileActivity" />
+        </activity>
+        <activity
+            android:name=".FindNearestRiderActivity"
             android:label="@string/title_activity_find_nearest_rider"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:parentActivityName=".ReservationActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RestaurantResetPwdActivity"
             android:label="@string/title_activity_restaurant_reset_pwd"
@@ -49,7 +81,7 @@
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DailyActivityEdit"
+            android:name=".DailyFoodEditActivity"
             android:label="@string/title_activity_daily_offer_edit"
             android:parentActivityName=".DailyOfferActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -78,7 +110,7 @@
         </activity>
         <activity
             android:name=".RestaurantLoginActivity"
-            android:label="@string/app_name">
+            android:label="LovEat!">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

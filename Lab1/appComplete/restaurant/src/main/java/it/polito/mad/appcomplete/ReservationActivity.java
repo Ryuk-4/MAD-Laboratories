@@ -7,8 +7,9 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -20,10 +21,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ActionMenuView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -34,9 +31,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class ReservationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RestaurantLoginActivity.RestaurantLoginInterface {
@@ -52,20 +49,15 @@ public class ReservationActivity extends AppCompatActivity
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //The {@link ViewPager} that will host the section contents.
-    private ViewPager mViewPager;
+    private CustomViewPager mViewPager;
 
     private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
     private IncomingReservationFragment incFragment;
 
-    private Menu mMenu;
-    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
     private SharedPreferences preferences;
-
-    private DatabaseReference branchOrders;
-    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +81,7 @@ public class ReservationActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //get firebase auth instance
-        auth = FirebaseAuth.getInstance();
+        setupFirebase();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -111,15 +102,9 @@ public class ReservationActivity extends AppCompatActivity
             }
         };
 
-        //mMenu = navigationView.getMenu();
-        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
-
         preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference branchProfile = database.child("restaurants/" +
-                preferences.getString("Uid", " ") + "/Profile");
 
-        branchProfile.addListenerForSingleValueEvent(new ValueEventListener() {
+        branchRestaurantProfile.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child("firstTime").getValue().equals(true)) {
@@ -141,6 +126,7 @@ public class ReservationActivity extends AppCompatActivity
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.containerTabs);
+        mViewPager.setPagingEnabled(false);
         setupViewPager(mViewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -186,12 +172,12 @@ public class ReservationActivity extends AppCompatActivity
                 editor.putBoolean("IncomingReservation", false);
                 editor.apply();
 
-                branchOrders = database.child("restaurants/" +
-                        preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
-                branchOrders.setValue(false);
+                branchOrdersFlag.setValue(false);
 
                 invalidateOptionsMenu();
-                break;
+
+                startActivity(new Intent(ReservationActivity.this, ReservationActivity.class));
+                finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -259,8 +245,8 @@ public class ReservationActivity extends AppCompatActivity
         } else if (id == R.id.nav_dailyMenu) {
             Intent intent = new Intent(this, DailyOfferActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_soldOrders) {
+            startActivity(new Intent(this, SoldOrderActivity.class));
         } else if (id == R.id.nav_contactUs) {
 
         }
@@ -289,7 +275,6 @@ public class ReservationActivity extends AppCompatActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

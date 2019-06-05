@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,18 +12,14 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+
+import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class SignupActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword, inputName, inputSurname, inputPhoneNo;
-    private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
 
@@ -36,82 +31,83 @@ public class SignupActivity extends AppCompatActivity {
         //Get Firebase auth instance
         auth = FirebaseAuth.getInstance();
 
-        btnSignIn = (Button) findViewById(R.id.sign_in_button);
-        btnSignUp = (Button) findViewById(R.id.sign_up_button);
-        inputEmail = (EditText) findViewById(R.id.email);
-        inputName = (EditText) findViewById(R.id.name);
-        inputSurname = (EditText) findViewById(R.id.surname);
-        inputPhoneNo = (EditText) findViewById(R.id.number);
-        inputPassword = (EditText) findViewById(R.id.password);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
+        FirebaseUtils.setupFirebaseCustomer();
 
-        btnResetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignupActivity.this, ResetPasswordActivity.class));
+        getLayoutReference();
+
+        addListenerToButtons();
+    }
+
+    private void addListenerToButtons() {
+        Button btnSignIn = findViewById(R.id.sign_in_button);
+        Button btnSignUp = findViewById(R.id.sign_up_button);
+        Button btnResetPassword = findViewById(R.id.btn_reset_password);
+
+        btnResetPassword.setOnClickListener(v -> startActivity(new Intent(SignupActivity.this, ResetPasswordActivity.class)));
+
+        btnSignIn.setOnClickListener(v -> finish());
+
+        btnSignUp.setOnClickListener(v -> {
+
+            String email = inputEmail.getText().toString().trim();
+            String password = inputPassword.getText().toString().trim();
+
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
 
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
 
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (inputEmail.getText() == null || inputName.getText() == null || inputPassword.getText() == null || inputPhoneNo.getText() == null || inputSurname.getText() == null) {
-                    Toast.makeText(getApplicationContext(), "There are some missing fields!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
-
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (password.length() < 6) {
-                    Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                progressBar.setVisibility(View.VISIBLE);
-                //create user
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(SignupActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                                progressBar.setVisibility(View.GONE);
-                                // If sign in fails, display a message to the user. If sign in succeeds
-                                // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    saveProfileInfoLocal(inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
-                                    saveProfileInfoFirebase(auth.getCurrentUser().getUid(), inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
-                                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                                    finish();
-                                }
-                            }
-                        });
-
+            if (TextUtils.isEmpty(inputName.getText().toString().trim())) {
+                Toast.makeText(getApplicationContext(), "Enter name!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            if (TextUtils.isEmpty(inputSurname.getText().toString().trim())) {
+                Toast.makeText(getApplicationContext(), "Enter surname!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            if (password.length() < 6) {
+                Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            SignupActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).edit().putString("name", inputName.getText().toString().trim()).commit();
+            SignupActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).edit().putString("surname", inputSurname.getText().toString().trim()).commit();
+
+            progressBar.setVisibility(View.VISIBLE);
+            auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(SignupActivity.this, task -> {
+                        Toast.makeText(SignupActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(SignupActivity.this, "Authentication failed." + task.getException(),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            saveProfileInfoLocal(inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
+                            saveProfileInfoFirebase(auth.getCurrentUser().getUid(), inputName.getText().toString(), inputSurname.getText().toString(), inputEmail.getText().toString(), inputPhoneNo.getText().toString());
+                            startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                            finish();
+                        }
+                    });
+
         });
+    }
+
+    private void getLayoutReference() {
+        inputEmail = findViewById(R.id.email);
+        inputName = findViewById(R.id.name);
+        inputSurname = findViewById(R.id.surname);
+        inputPhoneNo = findViewById(R.id.number);
+        inputPassword = findViewById(R.id.password);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     @Override
@@ -135,10 +131,10 @@ public class SignupActivity extends AppCompatActivity {
 
     private void saveProfileInfoFirebase(String uId, String name, String surname, String email, String phoneNumber)
     {
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-            databaseReference.child("customers/"+uId+"/Profile/name").setValue(name);
-            databaseReference.child("customers/"+uId+"/Profile/surname").setValue(surname);
-            databaseReference.child("customers/"+uId+"/Profile/email").setValue(email);
-            databaseReference.child("customers/"+uId+"/Profile/phone").setValue(phoneNumber);
+        DatabaseReference databaseReference = FirebaseUtils.branchCustomerProfile;
+        databaseReference.child("name").setValue(name);
+        databaseReference.child("surname").setValue(surname);
+        databaseReference.child("email").setValue(email);
+        databaseReference.child("phone").setValue(phoneNumber);
     }
 }

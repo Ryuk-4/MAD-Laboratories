@@ -5,13 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".OrdersPendingFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="16dp"
         android:id="@+id/rv_orders">
-
 
     </android.support.v7.widget.RecyclerView>
 

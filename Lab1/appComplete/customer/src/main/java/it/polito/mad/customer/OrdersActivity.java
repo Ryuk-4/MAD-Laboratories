@@ -3,8 +3,8 @@ package it.polito.mad.customer;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -13,12 +13,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jaeger.library.StatusBarUtil;
 
@@ -27,20 +26,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import it.polito.mad.data_layer_access.FirebaseUtils;
+
 public class OrdersActivity
 
         extends AppCompatActivity
 
         implements NavigationView.OnNavigationItemSelectedListener,
-                   OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
-                   OrdersPendingFragment.OnFragmentInteractionListenerPending{
+        OrdersCompletedFragment.OnFragmentInteractionListenerComplete,
+        OrdersPendingFragment.OnFragmentInteractionListenerPending{
 
     private Toolbar toolbar;
     private List<OrdersInfo> ordersInfoListPending, ordersInfoListCompleted;
     private myFragmentPageAdapterOrders adapter;
     private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
 
 
+    /**
+     *  -------------------------
+     *  system callbacks
+     *  -------------------------
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,9 +55,13 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
+        FirebaseUtils.setupFirebaseCustomer();
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -61,9 +72,13 @@ public class OrdersActivity
 
         toolbar = findViewById(R.id.toolbar_orders);
         setSupportActionBar(toolbar);
+        bottomNavigationView = findViewById(R.id.bottom_view);
+
+        FirebaseUtils.setupFirebaseCustomer();
 
         initDrawer();
         getDataOrders();
+        initBottomNavigation();
 
         StatusBarUtil.setTransparent(this);
     }
@@ -75,20 +90,33 @@ public class OrdersActivity
         if (id == R.id.nav_restaurant) {
             Intent intent = new Intent(OrdersActivity.this, MainActivity.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.nav_profile) {
             Intent intent = new Intent(OrdersActivity.this, ProfileActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_contactUs) {
-
+            finish();
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_orders);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    @Override
+    public void onFragmentInteractionComplete(Uri uri) {
+
+    }
+
+    @Override
+    public void onFragmentInteractionPending(Uri uri) {
+
+    }
+
+
+    /**
+     *  ------------------------------
+     *  programmer defined functions
+     *  ------------------------------
+     */
     private void initDrawer() {
         DrawerLayout drawer = findViewById(R.id.drawer_orders);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -102,27 +130,64 @@ public class OrdersActivity
 
     private void getDataOrders()
     {
+        findViewById(R.id.pb_orders).setVisibility(View.VISIBLE);
+
         ordersInfoListPending = new ArrayList<>();
         ordersInfoListCompleted = new ArrayList<>();
-        viewPager = (ViewPager) findViewById(R.id.containerTabsOrders);
+        viewPager = findViewById(R.id.containerTabsOrders);
 
-
-        //Log.d("TAG", "onDataChange: ");
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("customers").child(FirebaseAuth.getInstance().getUid()).child("previous_order");
+        final DatabaseReference databaseReference = FirebaseUtils.branchCustomerPreviousOrder;
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 ordersInfoListPending.clear();
                 ordersInfoListCompleted.clear();
 
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     String orderId = ds.getKey();
-                    String restName = ds.child("restaurant_name").getValue().toString();
-                    String restId = ds.child("restaurant").getValue().toString();
-                    String time = ds.child("timeReservation").getValue().toString();
-                    //String address = ds.child("addressReservation").getValue().toString();
-                    String orderState = ds.child("order_status").getValue().toString();
+
+                    Object o = ds.child("restaurant_name").getValue();
+                    String restName = "";
+
+                    if (o != null)
+                    {
+                        restName = o.toString();
+                    }
+
+                    o = ds.child("restaurant").getValue();
+                    String restId = "";
+
+                    if (o != null)
+                    {
+                        restId = o.toString();
+                    }
+
+                    o = ds.child("timeReservation").getValue();
+                    String time = "";
+
+                    if (o != null)
+                    {
+                        time = o.toString();
+                    }
+
+                    o = ds.child("order_status").getValue();
+                    String orderState = "";
+
+                    if (o != null)
+                    {
+                        orderState = o.toString();
+                    }
+
+                    o = ds.child("addressReservation").getValue();
+                    String address = "";
+
+                    if (o != null)
+                    {
+                        address = o.toString();
+                    }
+
 
                     Map<String, Integer> foodAmount = new TreeMap<>();
                     Map<String, Float> foodPrice = new TreeMap<>();
@@ -130,13 +195,38 @@ public class OrdersActivity
 
                     for (DataSnapshot ds1 : ds.child("food").getChildren())
                     {
-                        String foodName = ds1.child("foodName").getValue().toString();
-                        foodAmount.put(foodName, new Integer(ds1.child("foodQuantity").getValue().toString()));
-                        foodPrice.put(foodName, new Float(ds1.child("foodPrice").getValue().toString()));
-                        foodId.put(foodName, ds1.getKey().toString());
+                        String foodName = "";
+                        o = ds1.child("foodName").getValue();
+
+                        if (o != null)
+                        {
+                            foodName = o.toString();
+                        }
+
+                        foodId.put(foodName, ds1.getKey());
+
+                        String quantity = "0";
+                        o = ds1.child("foodQuantity").getValue();
+
+                        if (o != null)
+                        {
+                            quantity = o.toString();
+                        }
+
+                        foodAmount.put(foodName, Integer.valueOf(quantity));
+
+                        String price = "0";
+                        o = ds1.child("foodPrice").getValue();
+
+                        if (o != null)
+                        {
+                            price = o.toString();
+                        }
+                        foodPrice.put(foodName, Float.valueOf(price));
+
                     }
 
-                    Object o = ds.child("riderId").getValue();
+                    o = ds.child("riderId").getValue();
                     String riderId = "";
 
                     if (o != null)
@@ -150,26 +240,26 @@ public class OrdersActivity
 
                     if (orderState.compareTo("pending") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.PENDING, orderId, null, false));
                     } else if (orderState.compareTo("Ready_for_Delivery") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERING, orderId, riderId, false));
                     } else if (orderState.compareTo("In_Preparation") == 0)
                     {
-                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
-                    } else if (orderState.compareTo("Completed") == 0)
+                        ordersInfoListPending.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.ACCEPTED, orderId, null, false));
+                    } else if (orderState.compareTo("delivered") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
-                    } else if (orderState.compareTo("Rejected") == 0)
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.DELIVERED, orderId, null, Boolean.parseBoolean(review)));
+                    } else if (orderState.compareTo("canceled") == 0)
                     {
-                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, "", foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
+                        ordersInfoListCompleted.add(new OrdersInfo(restName, restId, time, address, foodAmount, foodPrice, foodId, OrderState.CANCELLED, orderId, null, false));
                     }
                 }
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
-                ((TabLayout)findViewById(R.id.tabs_orders)).setupWithViewPager(viewPager);
-                //viewPager.invalidate();
+
+                findViewById(R.id.pb_orders).setVisibility(View.GONE);
             }
 
             @Override
@@ -179,13 +269,19 @@ public class OrdersActivity
         });
     }
 
-    @Override
-    public void onFragmentInteractionComplete(Uri uri) {
+    private void initBottomNavigation() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(menuItem -> {
+            switch (menuItem.getItemId())
+            {
+                case R.id.pending_orders:
+                    viewPager.setCurrentItem(0);
+                    break;
+                case R.id.completed_orders:
+                    viewPager.setCurrentItem(1);
+                    break;
+            }
 
-    }
-
-    @Override
-    public void onFragmentInteractionPending(Uri uri) {
-
+            return false;
+        });
     }
 }

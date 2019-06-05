@@ -23,11 +23,45 @@
     </android.support.design.widget.AppBarLayout>
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="14dp"
+            android:text="TOTAL" />
+
+        <TextView
+            android:id="@+id/total_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="14dp"
+            android:text="12.34$"
+            android:textColor="#22AF00"
+            android:textSize="32sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
+
+
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="66dp"
-        android:layout_marginBottom="220dp">
+        android:layout_marginTop="160dp"
+        android:layout_marginBottom="160dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,40 +91,47 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/total_amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_weight="1"
-            android:text="@string/amount"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="16dp"
-                android:text="Delivery time:"
-                android:textColor="@android:color/black"
-                android:textSize="18sp" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/baseline_access_time_black_18"/>
 
             <Spinner
                 android:id="@+id/spinner_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:entries="@array/time_orders" />
+                android:entries="@array/time_orders"
+                android:layout_gravity="center"/>
         </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp">
+
+        <ImageView
+            android:id="@+id/image_location"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/baseline_my_location_black_18" />
+
+        <TextView
+            android:id="@+id/user_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="16dp"/>
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

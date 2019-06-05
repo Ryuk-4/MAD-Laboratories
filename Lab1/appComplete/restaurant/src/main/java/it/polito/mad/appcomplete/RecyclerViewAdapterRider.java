@@ -42,6 +42,7 @@ public class RecyclerViewAdapterRider extends
     public void onBindViewHolder(@NonNull RecyclerViewAdapterRider.RiderViewHolder viewHolder, int i) {
         Picasso.get().load(riders.get(i).getPic()).into(viewHolder.pic);
         viewHolder.name.setText(riders.get(i).getName());
+        viewHolder.address.setText(riders.get(i).getAddress());
     }
 
     @Override
@@ -62,6 +63,7 @@ public class RecyclerViewAdapterRider extends
     public class RiderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView name;
+        TextView address;
         ImageView pic;
         RelativeLayout riderLayoutItem;
         OnRiderClickListener riderClickListener;
@@ -71,6 +73,7 @@ public class RecyclerViewAdapterRider extends
 
             name = itemView.findViewById(R.id.riderName);
             pic = itemView.findViewById(R.id.riderPicture);
+            address = itemView.findViewById(R.id.riderAddress);
             riderLayoutItem = itemView.findViewById(R.id.layout_ridersCardView_item);
             this.riderClickListener = riderClickListener;
 
@@ -79,11 +82,11 @@ public class RecyclerViewAdapterRider extends
 
         @Override
         public void onClick(View v) {
-            onRiderListener.OnRiderClickListener(getAdapterPosition());
+            onRiderListener.riderClickListener(getAdapterPosition());
         }
     }
 
     public interface OnRiderClickListener {
-        void OnRiderClickListener(int position);
+        void riderClickListener(int position);
     }
 }

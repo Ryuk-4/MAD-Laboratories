@@ -11,8 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
-
 import java.util.List;
 
 
@@ -25,8 +23,6 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class ReviewFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -34,7 +30,6 @@ public class ReviewFragment extends Fragment {
     private RVAReview adapter;
     private View view;
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -45,10 +40,6 @@ public class ReviewFragment extends Fragment {
 
     public ReviewFragment() {
         // Required empty public constructor
-    }
-
-    public void refreshLayout() {
-        initRecyclerView();
     }
 
     public ReviewFragment setReviewInfos(List<ReviewInfo> reviewInfos) {
@@ -98,11 +89,9 @@ public class ReviewFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
 
         view = inflater.inflate(R.layout.fragment_review, container, false);
-        recyclerView = (RecyclerView) view.findViewById(R.id.rv_review);
-        recyclerView.addItemDecoration(new MaterialViewPagerHeaderDecorator());
+        recyclerView =  view.findViewById(R.id.rv_review);
 
         initRecyclerView();
         return view;
@@ -117,13 +106,6 @@ public class ReviewFragment extends Fragment {
 
         adapter = new RVAReview(context, reviewInfos);
         recyclerView.setAdapter(adapter);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteractionReview(uri);
-        }
     }
 
     @Override
@@ -154,7 +136,6 @@ public class ReviewFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListenerReview {
-        // TODO: Update argument type and name
         void onFragmentInteractionReview(Uri uri);
     }
 }

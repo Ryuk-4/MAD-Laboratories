@@ -34,19 +34,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
 
 public class DailyOfferActivity
         extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         RVAdapter.OnFoodListener,
         RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener,
-        RestaurantLoginActivity.RestaurantLoginInterface{
+        RestaurantLoginActivity.RestaurantLoginInterface {
 
     private static final String TAG = "DailyOfferActivity";
 
@@ -55,18 +55,13 @@ public class DailyOfferActivity
     private SharedPreferences sharedpref, preferences;
     private RVAdapter myAdapter;
 
-    private DatabaseReference database;
     private FloatingActionMenu materialDesignFAM;
     private FloatingActionButton floatingActionButton1, floatingActionButton2;
 
-    private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private GoogleSignInClient mGoogleSignInClient;
 
-    private Menu mMenu;
-
     private boolean newOrders;
-    private DatabaseReference branchOrders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +91,7 @@ public class DailyOfferActivity
 
         floatingActionButton1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
+                Intent intent = new Intent(DailyOfferActivity.this, DailyFoodEditActivity.class);
                 startActivity(intent);
             }
         });
@@ -107,9 +102,9 @@ public class DailyOfferActivity
             }
         });
 
-        sharedpref = getSharedPreferences("foodinfo", Context.MODE_PRIVATE);
+        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
 
-        auth = FirebaseAuth.getInstance();
+        setupFirebase();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -130,20 +125,17 @@ public class DailyOfferActivity
             }
         };
 
-        //mMenu = navigationView.getMenu();
-        //mMenu.findItem(R.id.nav_deleteAccount).setVisible(true);
-
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-        database = FirebaseDatabase.getInstance().getReference();
-        branchOrders = database.child("restaurants/" +
-                preferences.getString("Uid", "") + "/Orders/IncomingReservationFlag");
-
-        branchOrders.addValueEventListener(new ValueEventListener() {
+        branchOrdersFlag.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                newOrders = dataSnapshot.getValue(Boolean.class);
 
-                if(newOrders == true) {
+                try {
+                    newOrders = dataSnapshot.getValue(Boolean.class);
+                } catch (NullPointerException nEx) {
+                    Log.w(TAG, "onDataChange: ", nEx);
+                }
+
+                if (newOrders) {
                     Toast.makeText(DailyOfferActivity.this, "You have a new Reservation.", Toast.LENGTH_LONG)
                             .show();
                 }
@@ -177,7 +169,7 @@ public class DailyOfferActivity
             menu.findItem(R.id.edit_action).setVisible(false);
         }
 
-        if (newOrders == false) {
+        if (!newOrders) {
             menu.findItem(R.id.new_order_incoming).setVisible(false);
         } else {
             menu.findItem(R.id.new_order_incoming).setVisible(true);
@@ -185,6 +177,7 @@ public class DailyOfferActivity
 
         return super.onPrepareOptionsMenu(menu);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -204,7 +197,7 @@ public class DailyOfferActivity
                 break;
 
             case R.id.new_order_incoming:
-                branchOrders.setValue(false);
+                branchOrdersFlag.setValue(false);
                 startActivity(new Intent(this, ReservationActivity.class));
                 finish();
                 break;
@@ -214,6 +207,7 @@ public class DailyOfferActivity
     }
 
     private void initializeCardLayout() {
+        Log.d(TAG, "initializeCardLayout: called");
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
 
@@ -226,22 +220,22 @@ public class DailyOfferActivity
 
     }
 
-    private void initializeData(){
-        preferences = getSharedPreferences("loginState", Context.MODE_PRIVATE);
-
-        String Uid = preferences.getString("Uid", "");
-        DatabaseReference branchDailyFood = database.child("restaurants/" + Uid + "/Daily_Food");
+    private void initializeData() {
 
         branchDailyFood.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 foodList = new ArrayList<>();
 
-                for (DataSnapshot data :  dataSnapshot.getChildren()){
-                    FoodInfo value = data.getValue(FoodInfo.class);
-                    value.setFoodId(data.getKey());
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    try {
+                        FoodInfo value = data.getValue(FoodInfo.class);
+                        value.setFoodId(data.getKey());
 
-                    foodList.add(restoreItem(value));
+                        foodList.add(restoreItem(value));
+                    } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
+                    }
                 }
 
                 initializeCardLayout();
@@ -254,7 +248,7 @@ public class DailyOfferActivity
         });
     }
 
-    public FoodInfo restoreItem(FoodInfo foodInfo){
+    public FoodInfo restoreItem(FoodInfo foodInfo) {
         FoodInfo res = new FoodInfo();
 
         res.setFoodId(foodInfo.getFoodId());
@@ -270,7 +264,7 @@ public class DailyOfferActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-      
+
         Log.d(TAG, "onNavigationItemSelected: ");
         if (id == R.id.nav_reservation) {
             finish();
@@ -278,8 +272,9 @@ public class DailyOfferActivity
             Intent intent = new Intent(DailyOfferActivity.this, ProfileActivity.class);
             startActivity(intent);
             finish();
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_soldOrders) {
+            startActivity(new Intent(this, SoldOrderActivity.class));
+            finish();
         } else if (id == R.id.nav_contactUs) {
 
         }
@@ -293,7 +288,7 @@ public class DailyOfferActivity
     @Override
     public void OnFoodClickFood(int position) {
 
-        Intent intent = new Intent(DailyOfferActivity.this, DailyActivityEdit.class);
+        Intent intent = new Intent(DailyOfferActivity.this, DailyFoodEditActivity.class);
         intent.putExtra("food_selected", "normal");
         intent.putExtra("food_position", foodList.get(position).getFoodId());
 
@@ -309,17 +304,14 @@ public class DailyOfferActivity
             final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
             final String deletedItemId = deletedItem.getFoodId();
 
-            final DatabaseReference branchDailyFood = database.child("restaurants/" +
-                    preferences.getString("Uid", " ") + "/Daily_Food");
-
             branchDailyFood.child(deletedItemId).removeValue();
 
             Snackbar snackbar = Snackbar
-                    .make(rv, name + "dish removed", Snackbar.LENGTH_LONG);
+                    .make(rv, name + " dish removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                  
+
                     // undo is selected, restore the deleted item
                     branchDailyFood.child(deletedItemId).setValue(restoreItem(deletedItem));
                 }
@@ -348,7 +340,6 @@ public class DailyOfferActivity
         editor.putBoolean("login", false);
         editor.apply();
 
-        mMenu.findItem(R.id.nav_deleteAccount).setVisible(false);
         invalidateOptionsMenu();
         auth.signOut();
 

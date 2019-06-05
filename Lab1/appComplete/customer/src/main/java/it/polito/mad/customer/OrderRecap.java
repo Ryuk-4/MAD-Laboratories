@@ -3,16 +3,19 @@ package it.polito.mad.customer;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 public class OrderRecap implements Parcelable {
     private String price;
     private String quantity;
     private String name;
+    private String key;
 
-    public OrderRecap(String price, String quantity, String name) {
+    public OrderRecap(String price, String quantity, String name, String key) {
         this.price = price;
         this.quantity = quantity;
         this.name = name;
+        this.key = key;
     }
 
     public OrderRecap(Parcel in)
@@ -20,6 +23,7 @@ public class OrderRecap implements Parcelable {
         this.price = in.readString();
         this.quantity = in.readString();
         this.name = in.readString();
+        this.key = in.readString();
     }
 
     public static final Creator<OrderRecap> CREATOR = new Creator<OrderRecap>() {
@@ -58,6 +62,16 @@ public class OrderRecap implements Parcelable {
         this.name = name;
     }
 
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @NonNull
     @Override
     public String toString() {
         return "OrderRecap{" +
@@ -77,5 +91,6 @@ public class OrderRecap implements Parcelable {
         dest.writeString(price);
         dest.writeString(quantity);
         dest.writeString(name);
+        dest.writeString(key);
     }
 }

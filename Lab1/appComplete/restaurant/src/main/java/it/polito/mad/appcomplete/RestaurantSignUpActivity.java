@@ -157,6 +157,7 @@ public class RestaurantSignUpActivity extends AppCompatActivity implements View.
         branch.child("review").child("3star").setValue(0);
         branch.child("review").child("4star").setValue(0);
         branch.child("review").child("5star").setValue(0);
+        branch.child("review").child("total").setValue(0);
     }
 
     private boolean validate() {

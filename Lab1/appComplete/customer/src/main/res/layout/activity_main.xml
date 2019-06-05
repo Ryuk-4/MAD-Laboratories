@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity"
     android:id="@+id/coordinator"
     android:background="@color/light_background_color">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="180dp"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -21,12 +20,13 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            app:toolbarId="@id/toolbar"
-            android:background="@color/light_background_color">
+            app:toolbarId="@id/toolbar_restaurant"
+            android:elevation="3dp">
+
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="180dp"
                 android:fitsSystemWindows="true"
                 android:gravity="center"
                 android:scaleType="centerCrop"
@@ -35,23 +35,26 @@
                 app:layout_collapseMode="parallax"/>
 
             <LinearLayout
-                android:layout_width="340dp"
+                android:layout_width="350dp"
                 android:layout_height="40dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="140dp"
+                android:layout_marginTop="120dp"
                 android:fitsSystemWindows="true"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:background="@drawable/round_bg"
+                android:backgroundTint="@color/white">
 
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteTextView"
-                    android:layout_width="300dp"
+                    android:layout_width="310dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:background="@drawable/round_bg"
-                    android:backgroundTint="@color/light_background_color"
+                    android:backgroundTint="@color/white"
                     android:hint="@string/text_search_hint"
                     android:paddingLeft="9dp"
                     android:textColor="@android:color/black"
+                    android:inputType="textShortMessage"
                     android:textColorHint="@android:color/darker_gray"
                     android:textSize="18sp" />
 
@@ -59,17 +62,18 @@
                     android:id="@+id/button_search"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/orange_oval"
-                    android:src="@android:drawable/ic_menu_search" />
+                    android:src="@android:drawable/ic_menu_search"
+                    android:backgroundTint="@color/white"/>
 
 
             </LinearLayout>
 
 
             <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/toolbar_restaurant"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
 
@@ -79,7 +83,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginRight="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -87,6 +91,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <ImageView
+                    android:id="@+id/image_location"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@android:drawable/ic_menu_mylocation" />
+
+                <TextView
+                    android:id="@+id/customer_location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your current location"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="6dp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView2"
@@ -105,14 +131,15 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rvSuggested"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginLeft="0dp"
+                    android:layout_height="235dp"
+                    android:layout_marginLeft="8dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginRight="6dp"
-                    android:nestedScrollingEnabled="false" />
+                    android:nestedScrollingEnabled="false"
+                    />
 
                 <ProgressBar
-                    android:id="@+id/progress_bar_favorite"
+                    android:id="@+id/progress_bar_suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -120,6 +147,45 @@
                     android:indeterminate="true"
                     android:visibility="visible" />
             </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/container_rv_favourite"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginRight="6dp"
+                    android:text="@string/your_favorite"
+                    android:textColor="@android:color/black" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvFavorite"
+                        android:layout_width="match_parent"
+                        android:layout_height="235dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginRight="6dp"
+                        android:nestedScrollingEnabled="false" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center"
+                        android:indeterminate="true"
+                        android:visibility="visible" />
+                </FrameLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView3"
@@ -154,4 +220,5 @@
             </FrameLayout>
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
+
 </android.support.design.widget.CoordinatorLayout>

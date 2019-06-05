@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ff751A</color>
-    <color name="colorPrimaryDark"> #ff8533</color>
+    <color name="colorPrimary">#ff8533</color>
+    <color name="colorPrimaryDark">#ff751A</color>
     <color name="colorAccent">#FF9800</color>
 
     <color name="bg_row_background">#d12719</color>
-    <color name="green_row_background">#14bf2d</color>
+    <color name="green_row_background">#00b000</color>
     <color name="swipe_text">#ffffff</color>
   
     <color name="cardBackground">#C7C7C7</color>

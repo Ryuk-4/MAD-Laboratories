@@ -1,6 +1,5 @@
 package it.polito.mad.appcomplete;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,8 +8,8 @@ public class FoodInfo implements Parcelable {
     private String image;
     private String Name;
     private String price;
-    private  String quantity;
-    private  String description;
+    private String quantity;
+    private String description;
 
     public FoodInfo(String foodId, String image, String name, String price, String quantity, String description) {
         this.foodId = foodId;
@@ -22,12 +21,6 @@ public class FoodInfo implements Parcelable {
     }
 
     public FoodInfo(){
-        this.foodId = "";
-        this.image = null;
-        this.Name = "";
-        this.price = "";
-        this.quantity = "";
-        this.description = "";
     }
 
     public String getFoodId() {

@@ -93,7 +93,7 @@ public class IncomingReservationFragment extends Fragment
         database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/Incoming");
 
-        //Seed db
+        /*//Seed db
         //Row1
             String orderID="-Le15r_browa374g4qzn";
             branchOrdersIncoming.child(orderID).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
@@ -116,7 +116,7 @@ public class IncomingReservationFragment extends Fragment
         branchOrdersIncoming.child(orderID2).child("cLatitude").setValue("7.6591849");
         branchOrdersIncoming.child(orderID2).child("cLongitude").setValue("7.6591849");
         branchOrdersIncoming.child(orderID2).child("rLatitude").setValue("45.0653713");
-        branchOrdersIncoming.child(orderID2).child("rLongitude").setValue("7.6591705");
+        branchOrdersIncoming.child(orderID2).child("rLongitude").setValue("7.6591705");*/
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override
@@ -208,7 +208,7 @@ public class IncomingReservationFragment extends Fragment
                 // Add delivered flag to restaurant:
                 database.child("restaurants").child(deletedItem.getRestaurantId()).child("Orders").child("Ready_To_Go").child(deletedReservationId).child("status_order").setValue("delivered");
                 // Add delivered flag to customer:
-                database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("status_order").setValue("delivered");
+                database.child("customers").child(deletedItem.getIdPerson()).child("previous_order").child(deletedReservationId).child("order_status").setValue("delivered");
 
                 //Removing order from incoming branch:
                 database.child("delivery/" + preferences.getString("Uid", " ") + "/Orders/Incoming").child(deletedReservationId).removeValue();
@@ -480,10 +480,16 @@ public class IncomingReservationFragment extends Fragment
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
 
-            float_total_distance =Float.parseFloat(dataSnapshot.getValue().toString());
-            distance= distance.split(" ")[0]; //removes string "km" from the result.
-            distance="10.172";
-            float_distance= Float.parseFloat(distance);
+            Object o = dataSnapshot.getValue();
+
+            if (o != null)
+            {
+                float_total_distance =Float.parseFloat(o.toString());
+                distance= distance.split(" ")[0]; //removes string "km" from the result.
+                // distance="10.172";
+                float_distance= Float.parseFloat(distance);
+            }
+
            //
         }
 

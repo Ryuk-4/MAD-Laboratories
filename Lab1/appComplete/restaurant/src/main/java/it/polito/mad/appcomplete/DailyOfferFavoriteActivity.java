@@ -1,10 +1,7 @@
 package it.polito.mad.appcomplete;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -15,15 +12,23 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static it.polito.mad.data_layer_access.FirebaseUtils.*;
+
 public class DailyOfferFavoriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener{
+        RVAdapter.OnFoodListener, RecyclerItemTouchHelperFood.RecyclerItemTouchHelperListener {
+
+    private static final String TAG = "DailyOfferFavoriteActiv";
 
     private SharedPreferences sharedpref;
     private List<FoodInfo> foodList;
@@ -41,43 +46,44 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
         //Show the UP button in the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initializeCardLayout();
-
+        setupFirebase();
+        getFavoriteFoodInfo();
     }
 
-    private void getFavoriteFoodInfo()
-    {
-        sharedpref = getSharedPreferences("foodFav", Context.MODE_PRIVATE);
+    private void getFavoriteFoodInfo() {
+        Log.d(TAG, "getFavoriteFoodInfo: called");
 
-        foodList = new ArrayList<>();
-        int numberOfFood = sharedpref.getInt("numberOfFood", 0);
+        branchFavouriteFood.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onDataChange: called");
+                foodList = new ArrayList<>();
 
-        if (numberOfFood == 0){
-            //foodList.add(new FoodInfo(null, "Pasta", 10, 15, "Very Good"));
-        } else
-        {
-            for (int i = 0;i < numberOfFood;i++)
-            {
-                String foodName = sharedpref.getString("foodName" + i, "");
-                String foodQuantity = sharedpref.getString("foodQuantity" + i, "");
-                String foodPrice = sharedpref.getString("foodPrice" + i, "");
-                String foodDescription = sharedpref.getString("foodDescription" + i, "");
-                String foodImage = sharedpref.getString("foodImage" + i, "");
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    try{
+                        FoodInfo value = data.getValue(FoodInfo.class);
+                        value.setFoodId(data.getKey());
 
-                byte[] imageAsBytes = Base64.decode(foodImage, Base64.DEFAULT);
-                Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                        foodList.add(restoreItem(value));
+                    } catch (NullPointerException nEx){
+                        Log.w(TAG, "onDataChange: ", nEx);
+                    }
+                }
 
-                foodList.add(new FoodInfo(" ", " ", foodName, foodPrice, foodQuantity, foodDescription));
-
+                initializeCardLayout();
             }
-        }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+            }
+        });
     }
 
     private void initializeCardLayout() {
-        getFavoriteFoodInfo();
-
         rv = (RecyclerView) findViewById(R.id.rvFavFood);
-        rv.setHasFixedSize(true);
+
+        Log.d(TAG, "initializeCardLayout: called");
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rv.setLayoutManager(llm);
@@ -90,6 +96,19 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
     }
 
+    public FoodInfo restoreItem(FoodInfo foodInfo) {
+        FoodInfo res = new FoodInfo();
+
+        res.setFoodId(foodInfo.getFoodId());
+        res.setImage(foodInfo.getImage());
+        res.setName(foodInfo.getName());
+        res.setPrice(foodInfo.getPrice());
+        res.setQuantity(foodInfo.getQuantity());
+        res.setDescription(foodInfo.getDescription());
+
+        return res;
+    }
+
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         return false;
@@ -98,9 +117,9 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
     @Override
     public void OnFoodClickFood(int position) {
 
-        Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyActivityEdit.class);
-        intent.putExtra("food_selected", "favorite");
-        intent.putExtra("food_position", position);
+        Intent intent = new Intent(DailyOfferFavoriteActivity.this, DailyFoodEditActivity.class);
+        intent.putExtra("food_selected", "favourite");
+        intent.putExtra("food_position", foodList.get(position).getFoodId());
 
         startActivity(intent);
     }
@@ -112,18 +131,18 @@ public class DailyOfferFavoriteActivity extends AppCompatActivity implements Nav
 
             // backup of removed item for undo purpose
             final FoodInfo deletedItem = foodList.get(viewHolder.getAdapterPosition());
-            final int deletedIndex = viewHolder.getAdapterPosition();
+            final String deletedItemId = deletedItem.getFoodId();
 
-            myAdapter.removeItem(viewHolder.getAdapterPosition());
+            branchFavouriteFood.child(deletedItemId).removeValue();
 
             Snackbar snackbar = Snackbar
-                    .make(rv, name + "\'s reservation removed", Snackbar.LENGTH_LONG);
+                    .make(rv, name + " removed", Snackbar.LENGTH_LONG);
             snackbar.setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
                     // undo is selected, restore the deleted item
-                    myAdapter.restoreItem(deletedItem, deletedIndex);
+                    branchFavouriteFood.child(deletedItemId).setValue(restoreItem(deletedItem));
                 }
             });
             snackbar.setActionTextColor(Color.YELLOW);

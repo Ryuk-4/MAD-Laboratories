@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RestaurantReviewActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="66dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/overAllLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:text="OverAll:"
+                android:textSize="25sp"/>
+            <RatingBar
+                android:id="@+id/overAllRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/overAllLabel"
+                android:numStars="5"
+                android:isIndicator="true"
+                android:theme="@style/RatingBar"
+                android:stepSize="0.5"
+                android:layout_centerInParent="true"
+                android:rating="0"/>
+
+            <TextView
+                android:id="@+id/overAllRatingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/overAllRating"
+                android:layout_toLeftOf="@+id/fixedTotalRating"
+                android:textSize="22sp"/>
+            <TextView
+                android:id="@+id/fixedTotalRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/overAllRating"
+                android:paddingTop="5dp"
+                android:layout_alignRight="@id/overAllRating"
+                android:textSize="18sp"
+                android:text="/5.0"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="Comments:"
+            android:textSize="25sp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewRestaurantComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp" />
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

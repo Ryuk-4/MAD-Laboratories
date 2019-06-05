@@ -66,7 +66,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
         CardView cv;
         TextView foodName;
         TextView foodPrice;
-        TextView foodDescription;
         TextView Quantity;
         ImageView foodImage;
         RelativeLayout background;
@@ -79,7 +78,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.FoodInfoHolder>{
             cv = (CardView)itemView.findViewById(R.id.card_view);
             foodName = (TextView)itemView.findViewById(R.id.foodName);
             foodPrice = (TextView)itemView.findViewById(R.id.foodPrice);
-            //foodDescription = (TextView)itemView.findViewById(R.id.foodDescription);
             Quantity = (TextView)itemView.findViewById(R.id.Quantity);
             foodImage = (ImageView) itemView.findViewById(R.id.foodImage);
             background = itemView.findViewById(R.id.view_background_food);
