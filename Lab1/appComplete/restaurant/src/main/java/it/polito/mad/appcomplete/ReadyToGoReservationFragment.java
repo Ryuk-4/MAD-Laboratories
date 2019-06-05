@@ -84,6 +84,9 @@ public class ReadyToGoReservationFragment extends Fragment
 
                        }
 
+                       if (value.getStatus_order() != null && value.getStatus_order().equals("in_preparation")){
+                           value.setStatus_order("waiting");
+                       }
                        reservationReadyToGoList.add(restoreItem(value));
                    } catch (NullPointerException nEx){
                         Log.w(TAG, "onDataChange: ", nEx);
