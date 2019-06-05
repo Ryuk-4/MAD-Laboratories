@@ -47,7 +47,7 @@ public class ReservationActivity extends AppCompatActivity
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     //The {@link ViewPager} that will host the section contents.
-    private ViewPager mViewPager;
+    private CustomViewPager mViewPager;
 
     //private PreparingReservationFragment prepFragment;
     private ReadyToGoReservationFragment endFragment;
@@ -141,6 +141,7 @@ public class ReservationActivity extends AppCompatActivity
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.containerTabs);
+        mViewPager.setPagingEnabled(false);
         setupViewPager(mViewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -370,7 +371,6 @@ public class ReservationActivity extends AppCompatActivity
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mSectionsPagerAdapter.addFragments(incFragment, "New");
-        //mSectionsPagerAdapter.addFragments(prepFragment, "Cooking");
         mSectionsPagerAdapter.addFragments(endFragment, "Finished");
 
         viewPager.setAdapter(mSectionsPagerAdapter);
