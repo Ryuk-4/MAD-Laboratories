@@ -93,30 +93,6 @@ public class IncomingReservationFragment extends Fragment
         database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference branchOrdersIncoming = database.child("delivery/" + preferences.getString("Uid", "") + "/Orders/Incoming");
 
-        /*//Seed db
-        //Row1
-            String orderID="-Le15r_browa374g4qzn";
-            branchOrdersIncoming.child(orderID).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
-            branchOrdersIncoming.child(orderID).child("orderID").setValue(orderID);
-            branchOrdersIncoming.child(orderID).child("timeReservation").setValue("12:89");
-            branchOrdersIncoming.child(orderID).child("addressOrder").setValue("custAdd");
-            branchOrdersIncoming.child(orderID).child("restaurantAddress").setValue("restAdd");
-            branchOrdersIncoming.child(orderID).child("cLatitude").setValue("7.6591849");
-            branchOrdersIncoming.child(orderID).child("cLongitude").setValue("7.6591849");
-            branchOrdersIncoming.child(orderID).child("rLatitude").setValue("45.0643713");
-            branchOrdersIncoming.child(orderID).child("rLongitude").setValue("7.6591705");
-
-        //Row2
-        String orderID2="-Le15r_browa374g4qz2";
-        branchOrdersIncoming.child(orderID2).child("restaurantId").setValue("EeEfwV4KAPRYrUk4NJXj052LqXh1");
-        branchOrdersIncoming.child(orderID2).child("orderID").setValue(orderID2);
-        branchOrdersIncoming.child(orderID2).child("timeReservation").setValue("12:89");
-        branchOrdersIncoming.child(orderID2).child("addressOrder").setValue("custAdd");
-        branchOrdersIncoming.child(orderID2).child("restaurantAddress").setValue("restAdd");
-        branchOrdersIncoming.child(orderID2).child("cLatitude").setValue("7.6591849");
-        branchOrdersIncoming.child(orderID2).child("cLongitude").setValue("7.6591849");
-        branchOrdersIncoming.child(orderID2).child("rLatitude").setValue("45.0653713");
-        branchOrdersIncoming.child(orderID2).child("rLongitude").setValue("7.6591705");*/
 
         branchOrdersIncoming.addValueEventListener(new ValueEventListener() {
             @Override

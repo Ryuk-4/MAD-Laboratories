@@ -143,6 +143,10 @@ public class ReadyToGoReservationFragment extends Fragment implements SwipeRefre
         ReservationInfo res = new ReservationInfo();
 
         res.setOrderID(reservationInfo.getOrderID());
+        res.setcLatitude(reservationInfo.getcLatitude());
+        res.setcLongitude(reservationInfo.getcLongitude());
+        res.setrLongitude(reservationInfo.getrLongitude());
+        res.setrLatitude(reservationInfo.getrLatitude());
         res.setIdPerson(reservationInfo.getIdPerson());
         res.setNamePerson(reservationInfo.getNamePerson());
         res.setTimeReservation(reservationInfo.getTimeReservation());
