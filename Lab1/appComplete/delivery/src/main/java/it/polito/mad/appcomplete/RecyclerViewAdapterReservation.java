@@ -32,7 +32,9 @@ public class RecyclerViewAdapterReservation extends RecyclerView.Adapter<Recycle
         this.myContext = myContext;
         this.reservationInfoList = reservationInfoList;
 
-        preferences = myContext.getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        if (myContext != null){
+            preferences = myContext.getSharedPreferences("loginState", Context.MODE_PRIVATE);
+        }
     }
 
     @Override

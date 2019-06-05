@@ -134,10 +134,12 @@ public class ReservationActivity extends AppCompatActivity
         });
 
         incFragment = new IncomingReservationFragment();
+        incFragment.setContext(this);
 
         //prepFragment = new PreparingReservationFragment();
 
         endFragment = new ReadyToGoReservationFragment();
+        endFragment.setContext(this);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = findViewById(R.id.containerTabs);
@@ -149,57 +151,11 @@ public class ReservationActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(mViewPager);
 
 
-        ////////////////////////////////////////////////////////////////
-/*        //For current location blue point on map
-        if (mLocationPermissionsGranted)
-        {
-            getDeviceLocation();
 
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
-
-        }*/
-        Toast.makeText(this, "lkksjdflsjf;lk", Toast.LENGTH_SHORT).show();
-/*
-        LocationRequest request = new LocationRequest();
-        request.setInterval(1000);
-        request.setFastestInterval(500);
-        request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(ReservationActivity.this);*/
 
         int permission = ContextCompat.checkSelfPermission(ReservationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
         if (permission == PackageManager.PERMISSION_GRANTED) {
-            // Request location updates and when an update is
-            // received, store the location in Firebase
-            /*
-            client.requestLocationUpdates(request, new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position/"+preferences.getString("Uid", " ")+"/l");
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("riders_position");
-                    Location location = locationResult.getLastLocation();
-                    if (location != null) {
 
-                        GeoFire geoFire = new GeoFire(ref);
-                        geoFire.setLocation(FirebaseAuth.getInstance().getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
-                            @Override
-                            public void onComplete(String key, DatabaseError error) {
-
-                            }
-                        });
-
-                        Log.d(TAG, "location update " + location);
-
-                        //ref.child("0").setValue(location.getLatitude());
-                        //ref.child("1").setValue(location.getLongitude());
-                    }
-                }
-            }, null);*/
 
 
         }
