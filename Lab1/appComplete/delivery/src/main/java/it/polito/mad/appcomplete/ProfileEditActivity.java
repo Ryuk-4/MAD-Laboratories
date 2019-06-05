@@ -11,7 +11,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -47,7 +46,6 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ProfileEditActivity extends AppCompatActivity {
@@ -368,22 +366,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         }
     }
 
-    private static Bitmap rotateImageIfRequired(Bitmap img, Uri selectedImage) throws IOException {
-
-        ExifInterface ei = new ExifInterface(selectedImage.getPath());
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                return rotateImage(img, 90);
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                return rotateImage(img, 180);
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                return rotateImage(img, 270);
-            default:
-                return img;
-        }
-    }
 
     private static Bitmap rotateImage(Bitmap img, int degree) {
         Matrix matrix = new Matrix();
@@ -454,8 +436,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                 branchProfile.child("sex").setValue(r.getText().toString());
 
 
-                im_edit.setDrawingCacheEnabled(true);
-                im_edit.buildDrawingCache();
+
                 Bitmap picture = ((BitmapDrawable) im_edit.getDrawable()).getBitmap();
 
                 final StorageReference ref = FirebaseStorage.getInstance().getReference()

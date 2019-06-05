@@ -1,24 +1,15 @@
 package it.polito.mad.appcomplete;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.IntentService;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 
 import android.util.Log;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +17,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.concurrent.TimeUnit;
 
 
 public class ManageCurrentLocationService extends IntentService {
