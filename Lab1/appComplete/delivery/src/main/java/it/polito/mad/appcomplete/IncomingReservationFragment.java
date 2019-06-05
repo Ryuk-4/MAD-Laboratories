@@ -408,17 +408,6 @@ public class IncomingReservationFragment extends Fragment
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference("delivery").child(preferences.getString("Uid", " ")).child("totaldistance");
 
-                /*ValueEventListener UserFromID = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                         c="    ";
-                        Float.parseFloat(dataSnapshot.getValue().toString());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                };*/
                 ValueEventListener UserFromID = new x();
                 myRef.addValueEventListener(UserFromID);
             }

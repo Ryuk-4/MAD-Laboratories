@@ -46,40 +46,6 @@ public class ReservationInfo implements Parcelable {
 
 
 
-    public ReservationInfo(String orderID, String namePerson, String idPerson, String timeReservation, String personOrder, String note, String restaurantAddress, String addressOrder, String restaurantId, String cLatitude, String cLongitude, String rLatitude, String rLongitude) {
-        this.orderID = orderID;
-        this.namePerson = namePerson;
-        this.idPerson = idPerson;
-        this.timeReservation = timeReservation;
-        this.restaurantAddress = restaurantAddress;
-        this.addressOrder = addressOrder;
-        this.restaurantId = restaurantId;
-        this.cLatitude = cLatitude;
-        this.cLongitude = cLongitude;
-        this.rLatitude = rLatitude;
-        this.rLongitude = rLongitude;
-    }
-
-
-
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder, String note
-                            ,String restaurantAddress,String addressOrder, String restaurantId )
-    {
-        this.orderID = orderID;
-        this.idPerson = idPerson;
-        this.namePerson = namePerson;
-        this.timeReservation = timeReservation;
-        this.restaurantAddress = restaurantAddress;
-        this.addressOrder = addressOrder;
-        this.restaurantId = restaurantId;
-    }
-
-    public ReservationInfo(String orderID, String idPerson, String namePerson, String timeReservation, String personOrder) {
-        this.orderID = orderID;
-        this.idPerson = idPerson;
-        this.namePerson = namePerson;
-        this.timeReservation = timeReservation;
-    }
 
     public ReservationInfo() {
 

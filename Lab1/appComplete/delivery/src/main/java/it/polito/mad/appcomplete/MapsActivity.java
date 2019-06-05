@@ -379,24 +379,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         continue;
                     }
 
-                    /*double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
 
-                    points.add(position);*/
                 }
 
-                // Adding all the points in the route to LineOptions
-                //lineOptions.addAll(points);
-                //lineOptions.width(2);
-                //lineOptions.color(Color.RED);
+
 
             }
 
             tvDistanceDuration.setText("Distance:"+distance + " Duration:"+duration);
 
-// Drawing polyline in the Google Map for the i-th route
-            //map.addPolyline(lineOptions);
         }
     }
 
@@ -430,11 +421,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 }
                             });
-
-                            Log.d(TAG, "location update " + location);
-
-                            //ref.child("0").setValue(location.getLatitude());
-                            //ref.child("1").setValue(location.getLongitude());
                         }
                     }
                 }, null);
