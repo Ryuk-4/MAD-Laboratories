@@ -62,8 +62,7 @@
 
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
-            android:alpha="5"
-            android:background="#90ffffff">
+            android:background="#aaffffff">
 
             <!-- right side-->
             <LinearLayout
