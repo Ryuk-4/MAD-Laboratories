@@ -204,7 +204,7 @@ public class ReportActivity extends AppCompatActivity implements
             //Intent intent = new Intent(this, ReportActivity.class);
 
            // startActivity(intent);
-            finish();
+            //finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
