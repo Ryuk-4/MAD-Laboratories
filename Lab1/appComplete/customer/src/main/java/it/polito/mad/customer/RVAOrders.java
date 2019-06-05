@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,6 +135,9 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
             Button button = new Button(myContext);
             button.setTag(ordersInfos.get(i).getRestaurantId()+" "+ordersInfos.get(i).getOrderId());
             button.setText(myContext.getString(R.string.review_your_order));
+            button.setTextColor(myContext.getColor(R.color.white));
+            button.setGravity(Gravity.CENTER_HORIZONTAL);
+            button.setBackgroundColor(myContext.getColor(R.color.colorPrimary));
 
             button.setOnClickListener(v -> {
                 String restId = v.getTag().toString().split(" ")[0];
