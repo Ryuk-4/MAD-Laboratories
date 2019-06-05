@@ -8,6 +8,9 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="#F6F6F5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -16,9 +19,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:background="#F6F6F5"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -36,7 +36,7 @@
                 android:layout_width="103dp"
                 android:layout_height="88dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/common_google_signin_btn_icon_light_normal" />
+                android:src="@mipmap/ic_launcher" />
 
             <EditText
                 android:id="@+id/loginEmail"
