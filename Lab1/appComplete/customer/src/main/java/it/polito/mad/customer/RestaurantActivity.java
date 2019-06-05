@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import it.polito.mad.data_layer_access.FirebaseUtils;
+import jp.wasabeef.blurry.Blurry;
 
 public class RestaurantActivity
 
@@ -173,6 +175,7 @@ public class RestaurantActivity
         int id = item.getItemId();
 
         if (id == R.id.go_to_cart) {
+            findViewById(R.id.pb_cart_selected).setVisibility(View.VISIBLE);
             item.setEnabled(false);
             SharedPreferences sharedPreferences = this.getSharedPreferences("orders_info", Context.MODE_PRIVATE);
             int n_food = sharedPreferences.getInt("n_food", 0);
@@ -446,6 +449,7 @@ public class RestaurantActivity
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
+            Blurry.with(RestaurantActivity.this).radius(15).from(bitmap).into(findViewById(R.id.blurred_restaurant_image));
         }
     }
 
@@ -500,6 +504,7 @@ public class RestaurantActivity
 
                     @Override
                     public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot currentData){
+                        findViewById(R.id.pb_cart_selected).setVisibility(View.GONE);
                         if (committed)
                         {
                             Intent intent = new Intent(RestaurantActivity.this, CartActivity.class);

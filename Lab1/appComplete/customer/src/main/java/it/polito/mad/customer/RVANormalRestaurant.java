@@ -31,12 +31,14 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
     private OnRestaurantListener onRestaurantListener;
     private RVAFavoriteRestaurant rvaFavoriteRestaurant;
     private RVASuggestedRestaurant rvaSuggestedRestaurant;
+    private View recyclerViewFavorite;
 
-    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant){
+    public RVANormalRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant, View recyclerViewFavorite){
         this.myContext = myContext;
         this.restaurantInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
         this.rvaFavoriteRestaurant = rvaFavoriteRestaurant;
+        this.recyclerViewFavorite = recyclerViewFavorite;
 
         FirebaseUtils.setupFirebaseCustomer();
     }
@@ -188,6 +190,8 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
                 rvaFavoriteRestaurant.restoreItem(restaurantInfo, rvaFavoriteRestaurant.getItemCount());
                 rvaSuggestedRestaurant.setItemFavorite(restaurantInfo.getId());
 
+                recyclerViewFavorite.setVisibility(View.VISIBLE);
+
             } else
             {
                 ((CircularImageView) v).setImageBitmap(((BitmapDrawable) Objects.requireNonNull(myContext.getDrawable(R.drawable.baseline_star_border_black_36))).getBitmap());
@@ -195,6 +199,11 @@ public class RVANormalRestaurant extends RecyclerView.Adapter<RVANormalRestauran
                 restaurantInfo.setFavorite(false);
                 rvaFavoriteRestaurant.removeItem(restaurantInfo);
                 rvaSuggestedRestaurant.setItemNotFavorite(restaurantInfo.getId());
+
+                if (rvaFavoriteRestaurant.getItemCount() == 0)
+                {
+                    recyclerViewFavorite.setVisibility(View.GONE);
+                }
             }
 
             rvaFavoriteRestaurant.notifyDataSetChanged();

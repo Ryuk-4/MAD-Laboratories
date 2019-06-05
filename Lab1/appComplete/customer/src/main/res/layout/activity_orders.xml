@@ -29,6 +29,13 @@
         android:background="@color/light_background_color"
         android:layout_marginBottom="56dp"/>
 
+    <ProgressBar
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:id="@+id/pb_orders"
+        android:visibility="gone"/>
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_view"
         android:layout_width="match_parent"

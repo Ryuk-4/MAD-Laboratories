@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,68 +89,72 @@ public class RVAOrders extends RecyclerView.Adapter<RVAOrders.ViewHolder>{
         Map<String, Integer> productQuantity = ordersInfos.get(i).getFoodAmount();
         Map<String, Float> productPrice = ordersInfos.get(i).getFoodPrice();
 
-        for (String s : productPrice.keySet())
+        if (viewHolder.foodOrderList.getChildCount() == 0)
         {
-            LinearLayout linearLayout = new LinearLayout(myContext);
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            for (String s : productPrice.keySet())
+            {
+                LinearLayout linearLayout = new LinearLayout(myContext);
+                linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-            TextView name = new TextView(myContext);
-            name.setText(s);
-            name.setTextSize(18);
-            name.setTextColor(myContext.getColor(android.R.color.black));
-            name.setTypeface(null, Typeface.BOLD);
-            name.setTag(ordersInfos.get(i).getFoodId().get(s));
-            name.setPadding(20, 6, 0, 0);
+                TextView name = new TextView(myContext);
+                name.setText(s);
+                name.setTextSize(18);
+                name.setTextColor(myContext.getColor(android.R.color.black));
+                name.setTypeface(null, Typeface.BOLD);
+                name.setTag(ordersInfos.get(i).getFoodId().get(s));
+                name.setPadding(20, 6, 0, 0);
 
-            LinearLayout ll = new LinearLayout(myContext);
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.setPadding(60, 0, 0, 0);
+                LinearLayout ll = new LinearLayout(myContext);
+                ll.setOrientation(LinearLayout.HORIZONTAL);
+                ll.setPadding(60, 0, 0, 0);
 
-            EditText quantity = new EditText(myContext);
-            quantity.setText(productQuantity.get(s).toString());
-            quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
+                EditText quantity = new EditText(myContext);
+                quantity.setText(productQuantity.get(s).toString());
+                quantity.setInputType(InputType.TYPE_CLASS_NUMBER);
 
-            if (ordersInfos.get(i).getState() != OrderState.PENDING)
-                quantity.setKeyListener(null);
+                if (ordersInfos.get(i).getState() != OrderState.PENDING)
+                    quantity.setKeyListener(null);
 
-            TextView textView = new TextView(myContext);
-            textView.setText("pcs");
+                TextView textView = new TextView(myContext);
+                textView.setText("pcs");
 
-            ll.addView(quantity);
-            ll.addView(textView);
+                ll.addView(quantity);
+                ll.addView(textView);
 
-            linearLayout.addView(name);
-            linearLayout.addView(ll);
+                linearLayout.addView(name);
+                linearLayout.addView(ll);
 
 
-            viewHolder.foodOrderList.addView(linearLayout);
+                viewHolder.foodOrderList.addView(linearLayout);
+            }
         }
+
 
         if (ordersInfos.get(i).getState() == OrderState.DELIVERED && !ordersInfos.get(i).isReview())
         {
             Button button = new Button(myContext);
             button.setTag(ordersInfos.get(i).getRestaurantId()+" "+ordersInfos.get(i).getOrderId());
             button.setText(myContext.getString(R.string.review_your_order));
+            button.setTextColor(myContext.getColor(R.color.white));
+            button.setGravity(Gravity.CENTER_HORIZONTAL);
+            button.setBackgroundColor(myContext.getColor(R.color.colorPrimary));
 
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String restId = v.getTag().toString().split(" ")[0];
-                    String orderId = v.getTag().toString().split(" ")[1];
+            button.setOnClickListener(v -> {
+                String restId = v.getTag().toString().split(" ")[0];
+                String orderId = v.getTag().toString().split(" ")[1];
 
-                    LayoutInflater li = LayoutInflater.from(myContext);
-                    View view = li.inflate(R.layout.activity_review, null);
+                LayoutInflater li = LayoutInflater.from(myContext);
+                View view = li.inflate(R.layout.activity_review, null);
 
-                    final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
-                    alertDialogBuilder.setView(view);
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(myContext);
+                alertDialogBuilder.setView(view);
 
-                    AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
+                AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
 
-                    Button b = view.findViewById(R.id.button);
-                    b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId, alertDialogCongratulations));
+                Button b = view.findViewById(R.id.button);
+                b.setOnClickListener(new CustomReviewClickListener(view, orderId, restId, alertDialogCongratulations));
 
-                    alertDialogCongratulations.show();
-                }
+                alertDialogCongratulations.show();
             });
 
             viewHolder.foodOrderList.addView(button);

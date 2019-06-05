@@ -33,12 +33,14 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
     private OnRestaurantListener onRestaurantListener;
     private RVAFavoriteRestaurant rvaFavoriteRestaurant;
     private RVANormalRestaurant rvaNormalRestaurant;
+    private View recyclerViewFavorite;
 
-    public RVASuggestedRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant){
+    public RVASuggestedRestaurant(Context myContext, OnRestaurantListener restaurantListener, RVAFavoriteRestaurant rvaFavoriteRestaurant, View recyclerViewFavorite){
         this.myContext = myContext;
         this.restaurantInfoList = new ArrayList<>();
         this.onRestaurantListener = restaurantListener;
         this.rvaFavoriteRestaurant = rvaFavoriteRestaurant;
+        this.recyclerViewFavorite = recyclerViewFavorite;
 
         FirebaseUtils.setupFirebaseCustomer();
     }
@@ -236,6 +238,8 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
                 restaurantInfo.setFavorite(true);
                 rvaFavoriteRestaurant.restoreItem(restaurantInfo, rvaFavoriteRestaurant.getItemCount());
                 rvaNormalRestaurant.setItemFavorite(restaurantInfo.getId());
+
+                recyclerViewFavorite.setVisibility(View.VISIBLE);
             } else
             {
                 ((CircularImageView) v).setImageBitmap(((BitmapDrawable)myContext.getDrawable(R.drawable.baseline_star_border_black_36)).getBitmap());
@@ -243,6 +247,11 @@ public class RVASuggestedRestaurant extends RecyclerView.Adapter<RVASuggestedRes
                 restaurantInfo.setFavorite(false);
                 rvaFavoriteRestaurant.removeItem(restaurantInfo);
                 rvaNormalRestaurant.setItemNotFavorite(restaurantInfo.getId());
+
+                if (rvaFavoriteRestaurant.getItemCount() == 0)
+                {
+                    recyclerViewFavorite.setVisibility(View.GONE);
+                }
             }
 
             rvaFavoriteRestaurant.notifyDataSetChanged();

@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -129,16 +130,17 @@ public class OrdersActivity
 
     private void getDataOrders()
     {
+        findViewById(R.id.pb_orders).setVisibility(View.VISIBLE);
+
         ordersInfoListPending = new ArrayList<>();
         ordersInfoListCompleted = new ArrayList<>();
         viewPager = findViewById(R.id.containerTabsOrders);
 
-
-        //Log.d("TAG", "onDataChange: ");
         final DatabaseReference databaseReference = FirebaseUtils.branchCustomerPreviousOrder;
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 ordersInfoListPending.clear();
                 ordersInfoListCompleted.clear();
 
@@ -256,6 +258,8 @@ public class OrdersActivity
 
                 adapter = new myFragmentPageAdapterOrders(OrdersActivity.this, getSupportFragmentManager(), ordersInfoListPending, ordersInfoListCompleted);
                 viewPager.setAdapter(adapter);
+
+                findViewById(R.id.pb_orders).setVisibility(View.GONE);
             }
 
             @Override

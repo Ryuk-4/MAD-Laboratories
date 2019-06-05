@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rvSuggested.setLayoutManager(llm);
 
-        myAdapterSuggested = new RVASuggestedRestaurant(this, this, myAdapterFavorite);
+        myAdapterSuggested = new RVASuggestedRestaurant(this, this, myAdapterFavorite, findViewById(R.id.container_rv_favourite));
         rvSuggested.setAdapter(myAdapterSuggested);
 
         LinearLayoutManager horizontalLayoutManagaer = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
@@ -450,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rvNormal.setLayoutManager(llm);
 
-        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite);
+        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite, findViewById(R.id.container_rv_favourite));
         rvNormal.setAdapter(myAdapterNormal);
     }
 
@@ -481,6 +481,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (DataSnapshot ds : dataSnapshot.getChildren())
                 {
                     favRestaurantId.add(ds.getKey());
+                }
+
+                if (favRestaurantId.size() == 0)
+                {
+                    findViewById(R.id.container_rv_favourite).setVisibility(View.GONE);
                 }
 
                 final GeoQuery geoQuery = FirebaseUtils.geofireRestaurant.queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), Costants.SEARCH_RADIUS);
@@ -615,48 +620,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void onUpdateListNormalFiltered(final String nameRestaurant, final List<String> typeOfFood)
     {
-        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite);
+        myAdapterNormal = new RVANormalRestaurant(this, this, myAdapterFavorite, findViewById(R.id.container_rv_favourite));
+        myAdapterNormal.addAdapter(myAdapterSuggested);
         rvNormal.setAdapter(myAdapterNormal);
 
-
-        final GeoQuery geoQuery = FirebaseUtils.geofireRestaurant.queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), Costants.SEARCH_RADIUS);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+        DatabaseReference databaseReference = FirebaseUtils.branchCustomerFavoriteRestaurant;
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onKeyEntered(String key, GeoLocation location) {
-                ValueEventListener valueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                favRestaurantId = new ArrayList<>();
+                keyList = new TreeSet<>();
 
-                        manageNewRestaurant(dataSnapshot, nameRestaurant, typeOfFood);
+                for (DataSnapshot ds : dataSnapshot.getChildren())
+                {
+                    favRestaurantId.add(ds.getKey());
+                }
+
+                final GeoQuery geoQuery = FirebaseUtils.geofireRestaurant.queryAtLocation(new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude()), Costants.SEARCH_RADIUS);
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        ValueEventListener valueEventListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                manageNewRestaurant(dataSnapshot, nameRestaurant, typeOfFood);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        };
+
+                        DatabaseReference databaseReference = FirebaseUtils.branchRestaurant.child(key);
+                        databaseReference.addListenerForSingleValueEvent(valueEventListener);
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    public void onKeyExited(String key) {
 
                     }
-                };
 
-                DatabaseReference databaseReference = FirebaseUtils.branchRestaurant.child(key);
-                databaseReference.addListenerForSingleValueEvent(valueEventListener);
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+
+                    }
+
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
-            public void onKeyExited(String key) {
-
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });

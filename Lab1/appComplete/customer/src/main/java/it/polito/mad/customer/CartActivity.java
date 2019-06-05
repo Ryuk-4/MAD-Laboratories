@@ -9,14 +9,17 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -44,6 +47,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import it.polito.mad.data_layer_access.Costants;
 import it.polito.mad.data_layer_access.FirebaseUtils;
 
 public class CartActivity extends AppCompatActivity{
@@ -188,11 +192,18 @@ public class CartActivity extends AppCompatActivity{
     private void addListenerToButtons() {
         buttonSend.setOnClickListener(v -> {
             v.setClickable(false);
-            String orderId = saveOrderToRestaurant();
-            saveOrderToCustomer(orderId);
 
-            setResult(RESULT_OK);
-            finish();
+            LayoutInflater li = LayoutInflater.from(CartActivity.this);
+            View view = li.inflate(R.layout.add_note_order, null);
+
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CartActivity.this);
+            alertDialogBuilder.setView(view);
+            alertDialogBuilder.setCancelable(false);
+            AlertDialog alertDialogCongratulations = alertDialogBuilder.create();
+            alertDialogCongratulations.show();
+
+            Button button = view.findViewById(R.id.submit_button);
+            button.setOnClickListener(new CustomOnClickListener(view.findViewById(R.id.text_note)));
         });
 
 
@@ -305,10 +316,9 @@ public class CartActivity extends AppCompatActivity{
     }
 
 
-    private String saveOrderToRestaurant() {
+    private String saveOrderToRestaurant(String note) {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("restaurants").child(restId).child("Orders").child("Incoming").push();
 
-        //StringBuffer totalOrder = new StringBuffer("");
         for (OrderRecap o : list)
         {
             DatabaseReference dr = databaseReference.child("OrderList").child(o.getKey());
@@ -317,7 +327,7 @@ public class CartActivity extends AppCompatActivity{
         }
 
         databaseReference.child("idPerson").setValue(FirebaseAuth.getInstance().getUid());
-        databaseReference.child("note").setValue(" ");
+        databaseReference.child("note").setValue(note);
         databaseReference.child("timeReservation").setValue(spinnerTime.getSelectedItem().toString());
 
         String name = CartActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).getString("name", "") +
@@ -443,4 +453,24 @@ public class CartActivity extends AppCompatActivity{
                 });
     }
 
+
+
+    class CustomOnClickListener implements View.OnClickListener
+    {
+        private EditText editText;
+
+        public CustomOnClickListener(EditText editText)
+        {
+            this.editText = editText;
+        }
+
+        @Override
+        public void onClick(View v) {
+            String orderId = saveOrderToRestaurant(editText.getText().toString());
+            saveOrderToCustomer(orderId);
+
+            setResult(RESULT_OK);
+            finish();
+        }
+    }
 }
