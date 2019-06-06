@@ -81,6 +81,8 @@ public class SignupActivity extends AppCompatActivity {
             SignupActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).edit().putString("name", inputName.getText().toString().trim()).commit();
             SignupActivity.this.getSharedPreferences("userinfo", Context.MODE_PRIVATE).edit().putString("surname", inputSurname.getText().toString().trim()).commit();
 
+            FirebaseUtils.setupFirebaseCustomer();
+
             progressBar.setVisibility(View.VISIBLE);
             auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(SignupActivity.this, task -> {
