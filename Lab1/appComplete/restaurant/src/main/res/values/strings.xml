@@ -104,4 +104,6 @@
     <string name="title_activity_review">ReviewActivity</string>
     <string name="title_activity_restaurant_review">RestaurantReviewActivity</string>
     <string name="title_activity_sold_order">SoldOrderActivity</string>
+
+    <string name="date">1-6-2019</string>
 </resources>

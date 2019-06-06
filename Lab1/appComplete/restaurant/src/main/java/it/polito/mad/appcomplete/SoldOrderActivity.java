@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -114,7 +115,7 @@ public class SoldOrderActivity extends AppCompatActivity {
                         }
                     }
                 } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(SoldOrderActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
 
                 if (reservationInfoList.size() != 0)
@@ -123,7 +124,7 @@ public class SoldOrderActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(SoldOrderActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
             }
         };
 

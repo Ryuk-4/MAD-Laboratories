@@ -151,10 +151,15 @@ public class DailyFoodEditActivity extends AppCompatActivity {
             targetFavouriteFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
-                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
-                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
-                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+
+                    try {
+                        name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                        editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                        editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                        EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+                    } catch (Exception e){
+                        Toast.makeText(DailyFoodEditActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
+                    }
 
                     if ((dataSnapshot.child("image").getValue() != null)) {
                         Picasso.get().load(dataSnapshot.child("image").getValue().toString())
@@ -164,7 +169,7 @@ public class DailyFoodEditActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                    Toast.makeText(DailyFoodEditActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -181,10 +186,14 @@ public class DailyFoodEditActivity extends AppCompatActivity {
             targetDailyFood.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    name_edit.setText(dataSnapshot.child("name").getValue().toString());
-                    editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
-                    editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
-                    EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+                    try {
+                        name_edit.setText(dataSnapshot.child("name").getValue().toString());
+                        editTextPrice.setText(dataSnapshot.child("price").getValue().toString());
+                        editAvailableQuantity.setText(dataSnapshot.child("quantity").getValue().toString());
+                        EditDescription.setText(dataSnapshot.child("description").getValue().toString());
+                    } catch (Exception e){
+                        Toast.makeText(DailyFoodEditActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
+                    }
 
                     if ((dataSnapshot.child("image").getValue() != null)) {
                         Picasso.get().load(dataSnapshot.child("image").getValue().toString())
@@ -194,7 +203,7 @@ public class DailyFoodEditActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                    Toast.makeText(DailyFoodEditActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
                 }
             });
         }

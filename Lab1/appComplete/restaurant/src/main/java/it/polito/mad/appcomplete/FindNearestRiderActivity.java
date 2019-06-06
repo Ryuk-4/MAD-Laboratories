@@ -130,14 +130,17 @@ public class FindNearestRiderActivity extends AppCompatActivity
                 }
 
                 Location location = ridersLocation.get(dataSnapshot.getKey());
-                r.setLocation(location);
+
+                if (location != null) {
+                    r.setLocation(location);
+                }
 
                 try {
                     addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                     String[] address = addresses.get(0).getAddressLine(0).split(", ");
                     r.setAddress(address[0] + ", " + address[1]);
                 } catch (Exception e){
-                    Log.w(TAG, "onDataChange: ", e);
+                    Toast.makeText(FindNearestRiderActivity.this, "Ops! Try again...", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -186,7 +189,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(FindNearestRiderActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -371,7 +374,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
         if (myLocation != null) {
             Log.d(TAG, "fetchRider: called");
             // creates a new query around myLocation with a radius of 5 kilometers
-            GeoQuery geoQuery = geofireRider.queryAtLocation(myLocation, 5);
+            GeoQuery geoQuery = geofireRider.queryAtLocation(myLocation, 50);
 
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
@@ -433,7 +436,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
 
                 @Override
                 public void onGeoQueryError(DatabaseError error) {
-                    Log.w(TAG, "onGeoQueryError: ", error.toException());
+                    Toast.makeText(FindNearestRiderActivity.this, "GPS Error", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -471,7 +474,7 @@ public class FindNearestRiderActivity extends AppCompatActivity
                     try {
                         myLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
                     }catch (NullPointerException e){
-                        Log.w(TAG, "onComplete: ", e);
+                        Toast.makeText(FindNearestRiderActivity.this, "Ops! Try again...", Toast.LENGTH_SHORT).show();
                     }
 
                     me = new Location("");
@@ -557,14 +560,14 @@ public class FindNearestRiderActivity extends AppCompatActivity
                                 finish();
                             }
                         } catch (NullPointerException nEx){
-                            Log.w(TAG, "onDataChange: ", nEx);
+                            Toast.makeText(FindNearestRiderActivity.this, "Ops! Try again...", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                    Toast.makeText(FindNearestRiderActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
                 }
             });
 

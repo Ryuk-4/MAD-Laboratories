@@ -3,6 +3,7 @@ package it.polito.mad.appcomplete;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +41,13 @@ public class RecyclerViewAdapterRider extends
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapterRider.RiderViewHolder viewHolder, int i) {
-        Picasso.get().load(riders.get(i).getPic()).into(viewHolder.pic);
-        viewHolder.name.setText(riders.get(i).getName());
-        viewHolder.address.setText(riders.get(i).getAddress());
+       try {
+           Picasso.get().load(riders.get(i).getPic()).into(viewHolder.pic);
+           viewHolder.name.setText(riders.get(i).getName());
+           viewHolder.address.setText(riders.get(i).getAddress());
+       } catch (Exception e){
+           Log.w(TAG, "onBindViewHolder: ", e);
+       }
     }
 
     @Override

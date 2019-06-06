@@ -132,7 +132,7 @@ public class DailyOfferActivity
                 try {
                     newOrders = dataSnapshot.getValue(Boolean.class);
                 } catch (NullPointerException nEx) {
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(DailyOfferActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
 
                 if (newOrders) {
@@ -144,7 +144,7 @@ public class DailyOfferActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(DailyOfferActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -234,7 +234,7 @@ public class DailyOfferActivity
 
                         foodList.add(restoreItem(value));
                     } catch (NullPointerException nEx){
-                        Log.w(TAG, "onDataChange: ", nEx);
+                        Toast.makeText(DailyOfferActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -243,7 +243,7 @@ public class DailyOfferActivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(DailyOfferActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

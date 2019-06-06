@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -98,7 +99,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
                         fetchFood();
                     } catch (NullPointerException nEx){
-                        Log.w(TAG, "onDataChange: ", nEx);
+                        Toast.makeText(StatisticsActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -126,14 +127,14 @@ public class StatisticsActivity extends AppCompatActivity {
 
                     displayPopularFood();
                 } catch (NullPointerException nEx){
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(StatisticsActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(StatisticsActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -205,7 +206,7 @@ public class StatisticsActivity extends AppCompatActivity {
                         times.put(data.getKey(), data.getValue().toString());
                     }
                 } catch (NullPointerException nEx) {
-                    Log.w(TAG, "onDataChange: ", nEx);
+                    Toast.makeText(StatisticsActivity.this, "Opss. Try again", Toast.LENGTH_SHORT).show();
                 }
 
                 setAxisData();
@@ -215,7 +216,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: The read failed: " + databaseError.getMessage());
+                Toast.makeText(StatisticsActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

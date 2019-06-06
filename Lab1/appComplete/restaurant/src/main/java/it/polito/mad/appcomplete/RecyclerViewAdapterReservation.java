@@ -77,18 +77,26 @@ public class RecyclerViewAdapterReservation extends
             if (reservationInfoList.get(i).getStatus_order().equals("ready") ||
                     reservationInfoList.get(i).getStatus_order().equals("in_delivery")) {
 
-                viewHolder.relativeLayout.setVisibility(View.VISIBLE);
+                if (viewHolder.relativeLayout != null){
+                    viewHolder.relativeLayout.setVisibility(View.VISIBLE);
+                }
 
             } else if (reservationInfoList.get(i).getStatus_order().equals("incoming")){
-                viewHolder.swipeLeft.setVisibility(View.VISIBLE);
-                viewHolder.swipeRight.setVisibility(View.VISIBLE);
+                if (viewHolder.swipeLeft != null && viewHolder.swipeRight != null){
 
-                viewHolder.swipeLeft.setText("<<< Delete");
-                viewHolder.swipeRight.setText("Accept >>>");
+                    viewHolder.swipeLeft.setVisibility(View.VISIBLE);
+                    viewHolder.swipeRight.setVisibility(View.VISIBLE);
+
+                    viewHolder.swipeLeft.setText("<<< Delete");
+                    viewHolder.swipeRight.setText("Accept >>>");
+                }
             } else if (reservationInfoList.get(i).getStatus_order().equals("in_preparation")){
-                viewHolder.swipeRight.setVisibility(View.VISIBLE);
+                if (viewHolder.swipeRight != null){
 
-                viewHolder.swipeRight.setText("Ready >>>");
+                    viewHolder.swipeRight.setVisibility(View.VISIBLE);
+
+                    viewHolder.swipeRight.setText("Ready >>>");
+                }
             }
         }
     }
