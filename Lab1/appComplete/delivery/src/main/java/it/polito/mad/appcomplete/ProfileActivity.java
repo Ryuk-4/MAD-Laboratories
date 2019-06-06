@@ -41,10 +41,7 @@ public class ProfileActivity extends AppCompatActivity
     private Toolbar toolbar;
     private TextView name;
     private TextView phone;
-    //private TextView openingHours;
-    //private TextView address;
     private TextView email;
-    //private TextView description;
     private TextView surname;
     private TextView sex;
     private TextView dateOfBirth;
@@ -85,10 +82,7 @@ public class ProfileActivity extends AppCompatActivity
         im = findViewById(R.id.imageView1);
         name = findViewById(R.id.textViewName);
         phone = findViewById(R.id.textViewTelephone);
-        //openingHours = findViewById(R.id.textViewHours);
-        //address = findViewById(R.id.textViewAddress);
         email = findViewById(R.id.textViewEmail);
-        //description = findViewById(R.id.textViewDescription);
         surname = findViewById(R.id.textViewSurname);
         sex = findViewById(R.id.textViewSex);
         dateOfBirth = findViewById(R.id.textViewDateOfBirth);
@@ -154,7 +148,6 @@ public class ProfileActivity extends AppCompatActivity
         if (id == R.id.nav_reservation) {
             finish();
         } else if (id == R.id.nav_dailyMenu) {
-            //Intent intent = new Intent(this, ReportActivity.class);
             Intent intent = new Intent(this, ReportActivity.class);
 
             startActivity(intent);
@@ -208,10 +201,6 @@ public class ProfileActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
         switch (item.getItemId()) {
             case R.id.edit_action:
                 //This action will happen when is clicked the edit button in the action bar
@@ -256,14 +245,8 @@ public class ProfileActivity extends AppCompatActivity
                         if (dataSnapshot.child("imgUrl").getValue() != null) {
                             Picasso.get().load(dataSnapshot.child("imgUrl").getValue().toString()).fit().centerCrop().into(im);
                         }
-                        //address.setText(dataSnapshot.child("address").getValue().toString());
-                        //description.setText(dataSnapshot.child("description").getValue().toString());
                         phone.setText(dataSnapshot.child("phone").getValue().toString());
-                        //openingHours.setText(dataSnapshot.child("openingHours").getValue().toString());
 
-                        String surnameEdit = sharedpref.getString("surname", "");
-                        String dateEdit = sharedpref.getString("dateOfBirth", "");
-                        String sexString = sharedpref.getString("sex", "");
                         dateOfBirth.setText(dataSnapshot.child("dateOfBirth").getValue().toString());
                         surname.setText(dataSnapshot.child("surname").getValue().toString());
                         sex.setText(dataSnapshot.child("sex").getValue().toString());

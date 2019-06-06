@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -127,14 +129,12 @@ public class ReportActivity extends AppCompatActivity implements
             {
                 try {
                     float totaldistance = Float.parseFloat(dataSnapshot.child("totaldistance").getValue().toString());
-                    TextViewTotalDistance.setText(Float.toString(totaldistance) + " km");
+                    BigDecimal roundedTotalDistance=round(totaldistance,2);
+                    TextViewTotalDistance.setText(roundedTotalDistance.toString() + " km");
 
                     double paymentPerKm = 1.5;
 
-
                     BigDecimal income = round((float) paymentPerKm * totaldistance, 2);
-                    //int incomInt=Integer..parseInt(income);
-                    //TextViewIncome.setText(Convert.bigdeci .toString(income));
                     TextViewIncome.setText(income.toString() + " Euro");
                 }catch(Exception e){}
             }
@@ -204,7 +204,7 @@ public class ReportActivity extends AppCompatActivity implements
             //Intent intent = new Intent(this, ReportActivity.class);
 
            // startActivity(intent);
-            finish();
+           // finish();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_contactUs) {
@@ -258,7 +258,7 @@ public class ReportActivity extends AppCompatActivity implements
 
 
 
-    public void initGrapf()
+    public void initGraph()
     {
         BarChart chart = (BarChart) findViewById(R.id.chart);
 
@@ -266,9 +266,17 @@ public class ReportActivity extends AppCompatActivity implements
         chart.setData(data);
         chart.getAxisLeft().setDrawGridLines(false);chart.getAxisRight().setDrawGridLines(false);
         chart.getXAxis().setDrawGridLines(false);chart.getXAxis().setDrawGridLines(false);
-        //chart.setDrawBarShadow(true);
-        //chart.setScaleEnabled(false);
-        chart.setDescription("My Chart");
+
+
+
+        chart.getXAxis().setTextSize(18);
+        chart.getXAxis().setCenterXLabelText(true);
+        chart.getXAxis().setAdjustXLabels(true);
+        chart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        chart.getLegend().setPosition(Legend.LegendPosition.NONE);
+        //chart.getLegend().setLegendLabels(false);
+        chart.setValueTextSize(25);
+        chart.setDescription("");
         chart.animateXY(1000, 1000);
         chart.invalidate();
     }
@@ -319,7 +327,7 @@ public class ReportActivity extends AppCompatActivity implements
 
                     if (o != null)
                     {
-                        xAxis.add(o.toString());
+                        xAxis.add("\t"+ o.toString());
                     }
                 }
             }
@@ -335,18 +343,14 @@ public class ReportActivity extends AppCompatActivity implements
                 i++;
             }
 
-                /*for (int i = 0 ; i < 5 && i < restCount.size() ; i++)
-                {
-                    BarEntry v = new BarEntry(restCount.get(i), i);
-                    valueSet1.add(v);
-                }*/
+
 
             BarDataSet barDataSet1 = new BarDataSet(valueSet1, "Brand 1");
             barDataSet1.setColor(Color.rgb(0, 155, 0));
 
             dataSets.add(barDataSet1);
 
-            initGrapf();
+            initGraph();
         }
 
         @Override

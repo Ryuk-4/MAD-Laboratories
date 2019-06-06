@@ -58,10 +58,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private ImageView im_edit;
     private EditText name_edit;
     private EditText phone_edit;
-    //private EditText openingHours_edit;
-    private EditText address_edit;
     private EditText email_edit;
-    private EditText description_edit;
     private Button b;
     private ImageButton ib;
     private byte[] photoByteArray;
@@ -114,10 +111,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         name_edit = findViewById(R.id.editTextName);
         phone_edit = findViewById(R.id.editTextTelephone);
-        //openingHours_edit = findViewById(R.id.editTextHours);
-        //address_edit = findViewById(R.id.editTextAddress);
         email_edit = findViewById(R.id.editTextEmail);
-        //description_edit = findViewById((R.id.editTextDescription));
 
         ///////////////////////////////////////////////////////////////////////////////////////////================================
         dateOfBirth = findViewById(R.id.dateOfBirthString);
@@ -218,11 +212,9 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         outState.putString("name", name_edit.getText().toString());
         outState.putString("phone", phone_edit.getText().toString());
-        //outState.putString("address", address_edit.getText().toString());
         outState.putString("email", email_edit.getText().toString());
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         outState.putString("surname", surname_edit.getText().toString());
-        //outState.putString("description", description_edit.getText().toString());
 
         String s=dateOfBirth.getText().toString();
         if(s!= null ) {
@@ -395,11 +387,8 @@ public class ProfileEditActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(name_edit.getText().toString()) ||
                 TextUtils.isEmpty(phone_edit.getText().toString()) ||
-                //TextUtils.isEmpty(openingHours_edit.getText().toString()) ||
-                //TextUtils.isEmpty(address_edit.getText().toString()) ||
                 TextUtils.isEmpty(email_edit.getText().toString())
                 || TextUtils.isEmpty(dateOfBirth.getText().toString())
-                //TextUtils.isEmpty(description_edit.getText().toString())
         ) {
 
             AlertDialog.Builder pictureDialog = new AlertDialog.Builder(this);
@@ -413,10 +402,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                 Log.d(TAG, "saveInfo: called");
                 branchProfile.child("name").setValue(name_edit.getText().toString());
                 branchProfile.child("phone").setValue(phone_edit.getText().toString());
-                //branchProfile.child("openingHours").setValue(openingHours_edit.getText().toString());
-                //branchProfile.child("address").setValue(address_edit.getText().toString());
                 branchProfile.child("email").setValue(email_edit.getText().toString());
-                //branchProfile.child("description").setValue(description_edit.getText().toString());
                 branchProfile.child("firstTime").setValue(false);
 
 
